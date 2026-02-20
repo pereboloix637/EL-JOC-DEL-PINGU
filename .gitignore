@@ -1,0 +1,20 @@
+/.metadata/
+
+# Eclipse
+El_Joc_Del_Pingu/.project
+El_Joc_Del_Pingu/.classpath
+El_Joc_Del_Pingu/.settings/
+El_Joc_Del_Pingu/bin/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
