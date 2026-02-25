@@ -14,7 +14,7 @@ public class Jugador {
 	this.color = color;
 	}
 	
-	// AUTOMIZAT AMB NICKNAME
+	// AUTOMIZAT AMB NICKNAME I COLOR
 	public Jugador (String nickname, String color) {
 		this.nickname = nickname;
 		this.posicio = 0;
