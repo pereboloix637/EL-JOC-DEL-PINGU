@@ -2,9 +2,9 @@ package model.entitats;
 
 public class Jugador {
 	/// ATRIBUTS
-	String nickname;
-	int posicio;
-	String color;
+	private String nickname;
+	private int posicio;
+	private String color;
 	
 	/// CONSTRUCTORS
 	// AMB TOTS ELS PARAMETRES
@@ -15,7 +15,7 @@ public class Jugador {
 	}
 	
 	// AUTOMIZAT AMB NICKNAME
-	public Jugador (String nickname) {
+	public Jugador (String nickname, String color) {
 		this.nickname = nickname;
 		this.posicio = 0;
 		this.color = color;
@@ -23,5 +23,5 @@ public class Jugador {
 	/// METODES
 	// PROXIMAMENT
 	
-	
+	}
 }
