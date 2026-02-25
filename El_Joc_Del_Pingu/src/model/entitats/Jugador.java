@@ -14,7 +14,7 @@ public class Jugador {
 	this.color = color;
 	}
 	
-	// AUTOMIZAT AMB NICKNAME I COLOR
+	// AUTOMIZAT AMB NICKNAME I COLOR -> Esta pensat per ficar al jugador al inici del tabler
 	public Jugador (String nickname, String color) {
 		this.nickname = nickname;
 		this.posicio = 0;
