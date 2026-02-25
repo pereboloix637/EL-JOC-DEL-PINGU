@@ -1,5 +1,5 @@
 package model;
 
-public class jugador {
+public class Jugador {
 public String nickname;
 }
