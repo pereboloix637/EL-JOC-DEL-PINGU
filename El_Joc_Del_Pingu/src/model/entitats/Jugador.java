@@ -1,4 +1,4 @@
-package model;
+package model.entitats;
 
 public class Jugador {
 	/// ATRIBUTS
