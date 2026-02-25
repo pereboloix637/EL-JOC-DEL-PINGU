@@ -1,6 +1,6 @@
 package model.entitats;
 
-public class Jugador {
+public abstract class Jugador {
 	/// ATRIBUTS
 	private String nickname;
 	private int posicio;
@@ -19,9 +19,33 @@ public class Jugador {
 		this.nickname = nickname;
 		this.posicio = 0;
 		this.color = color;
+		}
+	
+	/// GETTERS I SETTERS
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public int getPosicio() {
+		return posicio;
+	}
+
+	public void setPosicio(int posicio) {
+		this.posicio = posicio;
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
 	
 	/// METODES
 	// PROXIMAMENT
-	
-	}
 }

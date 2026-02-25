@@ -2,7 +2,6 @@ package model.items;
 
 import java.util.ArrayList;
 
-
 public class Inventari {
 
     private ArrayList<Item> llista;
