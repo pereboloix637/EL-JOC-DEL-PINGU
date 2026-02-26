@@ -31,16 +31,19 @@ System.out.println(this.getNickname() + " guanya!");
 System.out.println(pingu.getNickname() + " guanya!");
 		}
 	}
-public void usarItem (Item i) {
-// PER FER
+// Usa un ítem de l'inventari (consumeix 1 unitat)
+public void usarItem(Item i) {
+	inventari.usarItem(i);
 }
 
-public void agregarItem (Item i) {
-// PER FER
+// Afegeix un ítem a l'inventari respectant els límits màxims
+public void agregarItem(Item i) {
+	inventari.afegirItem(i);
 }
 
-public void trureItem (Item i) {
-// PER FER
+// Treu (descarta) un ítem de l'inventari sense usar-lo
+public void trureItem(Item i) {
+	inventari.tirarItem(i);
 }
 
 
