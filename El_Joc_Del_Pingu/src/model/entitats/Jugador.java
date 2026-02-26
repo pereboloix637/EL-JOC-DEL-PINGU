@@ -47,5 +47,7 @@ public abstract class Jugador {
 	}
 	
 	/// METODES
-	// PROXIMAMENT
+	public void mourePosicio (int p) {
+	this.posicio = posicio + p; // Mou la cantitat de posicions desitjades.
+	}
 }

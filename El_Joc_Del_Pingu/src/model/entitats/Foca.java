@@ -20,6 +20,20 @@ public void setSoborno(boolean soborno) {
 }
 
 /// METODES
-// PROXIMAMENT
+public void aplastarPingu (Pingui p) { // La Foca aplasta al Pingui elegit
+// PER FER
+}
+
+public void pegarPingu (Pingui p) { // La Foca atacara al Pingui elegit
+// PER FER
+}
+
+public void sobornarFoca () { // Permet sobornar a la Foca
+soborno = true;
+}
+
+
+
+
 
 }
