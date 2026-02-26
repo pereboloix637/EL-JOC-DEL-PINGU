@@ -20,4 +20,5 @@ public class Taulell {
     // Setter
     public void setLlista(ArrayList<taulell> llista) {
         this.taulell = llista;
+    }
 }
