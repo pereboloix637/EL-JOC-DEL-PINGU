@@ -1,4 +1,4 @@
-# 🐧 EL JOC DEL PINGÜÍ
+# 🐧 EL JOC DEL PINGU
 
 ## INTRODUCCIÓ
 
@@ -10,6 +10,17 @@ No hi ha dues partides iguals.
 
 Anima’t a jugar i descobreix totes les possibilitats que amaga el taulell!
 
-## NORMES DE JOC
+## ITEMS ESPECIALS
+
+PROXIMAMENT
+
+## EVENTS ESPECIALS
+
+- Bola de Neu:
+- Dau: Existeixen 3 tipus de daus diferents, cada un tenint una cantitat de numeros diferents
+    - Dau normal: Te els numeros del 1 al 6 en les seves diferents cares
+- Peix: Serveix per sobornar la Foca
+
+## NORMES DE JOC | FUNCIONAMENT DEL JOC
 
 PROXIMAMENT
