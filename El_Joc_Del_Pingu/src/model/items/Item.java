@@ -12,20 +12,19 @@ public abstract class Item {
     }
 
     // Getters
-    public String getNom() {
-        return nom;
-    }
-
-    public int getQuantitat() {
-        return quantitat;
-    }
+    public String getNom() { return nom; }
+    public int getQuantitat() { return quantitat; }
 
     // Setters
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
+    public void setNom(String nom) { this.nom = nom; }
+    public void setQuantitat(int quantitat) { this.quantitat = quantitat; }
 
-    public void setQuantitat(int quantitat) {
-        this.quantitat = quantitat;
-    }
+    // Usa l'ítem (consumeix 1 unitat). Retorna true si ha tingut èxit
+    public abstract boolean usar();
+
+    // Comprova si queda almenys 1 unitat
+    public boolean estaDisponible() { return quantitat > 0; }
+
+    @Override
+    public String toString() { return nom + " (x" + quantitat + ")"; }
 }
