@@ -89,6 +89,14 @@ public class Inventari {
 		else
 			System.out.println("L'ítem " + item.getNom() + " no és a l'inventari.");
 	}
+	
+	// Elimina el item per el seu tipus
+	public void eliminarItemsPerTipus(Class<? extends Item> tipus) {
+
+	    llista.removeIf(item -> tipus.isInstance(item));
+
+	    System.out.println("S'han eliminat tots els ítems de tipus: " + tipus.getSimpleName());
+	}	
 
 	// Retorna l'ítem si existeix, null altrament
 	public Item obtenirItem(Item item) {

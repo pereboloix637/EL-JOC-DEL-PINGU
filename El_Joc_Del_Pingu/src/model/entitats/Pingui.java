@@ -21,45 +21,57 @@ public class Pingui extends Jugador {
 	}
 
 /// METODES
-///
-// METODE PER BATALLAR AMB UN RIVAL
+	// METODE PER BATALLAR AMB UN RIVAL
 	public void gestionarBatalla(Pingui pingu) {
-// CONTADORS PER AL BUCLE
-		int contJ1 = this.getInventari().getBoles();
-		int contJ2 = pingu.getInventari().getBoles();
 
-// CONDICIONS
-		if (pingu == null || this.getInventari().getBoles() < 0 || pingu.getInventari().getBoles() < 0) {
-			System.out.println("ERROR: PINGU INVALID");
+	    // Comprovació prèvia
+	    if (pingu == null) {
+	        System.out.println("ERROR: OPERACIO INVALIDA (JUGADOR BUIT)");
+	        return;
+	    }
 
-		} else if (this.getInventari().getBoles() > pingu.getInventari().getBoles()) {
-		// Si el random favoreix al Pingu
-																						
-			System.out.println(this.getNickname() + " guanya!");
+	    int bolesJ1 = this.getInventari().getBoles();
+	    int bolesJ2 = pingu.getInventari().getBoles();
 
-// OPERACIO PER A SUMAR CASELLES I LA DIFERENCIA DE BOLES
-			this.posicio = this.posicio + (this.getInventari().getBoles() - pingu.getInventari().getBoles());
 
-		} else if (this.getInventari().getBoles() < pingu.getInventari().getBoles()) {
-			// Sino, si favoreix al atacat
-			
-			System.out.println(pingu.getNickname() + " guanya!");
 
-//OPERACIO PER A SUMAR CASELLES I LA DIFERENCIA DE BOLES
-			pingu.posicio = pingu.posicio + (this.getInventari().getBoles() - pingu.getInventari().getBoles());
+	    if (bolesJ1 < 0 || bolesJ2 < 0) {
+	        System.out.println("ERROR: OPERACIO INVALIDA AMB LES BOLES DE NEU");
+	        return;
+	    }
+	    
+	    // MESURAR DISTANCIA ENTRE LES BOLES DE NEU DEL ATACANT I DEL OPONENT
+        int diferencia = bolesJ1 - bolesJ2;
+        
+	    // CAS 1: Guanya el atacant
+	    if (bolesJ1 > bolesJ2) {
 
-		} else if (this.getInventari().getBoles() == pingu.getInventari().getBoles()) {
-		// Peró, si empaten, els restara a ambos les Boles de Neu
-																						
+	        System.out.println(this.getNickname() + " guanya!");
 
-// BUCLES PER ELIMINAR BOLES DE NEU
-			for (int i = 0; i > contJ1; i++) {
-				this.getInventari().eliminarItem(Item);
-			}
-			for (int i = 0; i > contJ2; i++) {
-				pingu.getInventari().eliminarItem(BolaNeu);
-			}
-		}
+	        this.mourePosicio(diferencia);
+
+	    // CAS 2: Guanya el contrincant
+	    } else if (bolesJ1 < bolesJ2) {
+
+	        System.out.println(pingu.getNickname() + " guanya!");
+
+	        pingu.mourePosicio(diferencia);
+
+	    // CAS 3: Empat
+	    } else {
+
+	        System.out.println("Empat! Es perden totes les boles de neu.");
+
+	        // Eliminem totes les boles del jugador atacant
+	        for (int i = 0; i < bolesJ1; i++) {
+	        	this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
+	        }
+
+	        // Eliminem totes les boles del rival
+	        for (int i = 0; i < bolesJ2; i++) {
+	        	pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
+	        }
+	    }
 	}
 
 // Usa un ítem de l'inventari (consumeix 1 unitat)
