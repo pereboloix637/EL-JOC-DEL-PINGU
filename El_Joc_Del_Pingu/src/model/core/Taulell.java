@@ -29,3 +29,4 @@ public class Taulell {
         // Lògica per actualitzar el taulell
     }
 }
+}
