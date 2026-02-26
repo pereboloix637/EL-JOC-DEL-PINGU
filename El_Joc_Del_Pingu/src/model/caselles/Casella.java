@@ -3,6 +3,7 @@ package model.caselles;
 import model.core.Partida;
 import model.entitats.Jugador;
 
+/** Casella abstracta del taulell. Cada subclasse defineix el seu efecte. */
 public abstract class Casella {
 
     // Atributs
@@ -13,16 +14,10 @@ public abstract class Casella {
         this.posicio = posicio;
     }
 
-    // Getters
-    public int getPosicio() {
-        return posicio;
-    }
+    // Getters i Setters
+    public int  getPosicio() { return posicio; }
+    public void setPosicio(int posicio) { this.posicio = posicio; }
 
-    // Setters
-    public void setPosicio(int posicio) {
-        this.posicio = posicio;
-    }
-
-    // Mètode abstracte
+    // Mètode abstracte – cada subclasse implementa la seva acció
     public abstract void realitzarAccio(Partida partida, Jugador jugador);
 }
