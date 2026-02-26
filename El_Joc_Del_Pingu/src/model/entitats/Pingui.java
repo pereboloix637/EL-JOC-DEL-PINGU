@@ -2,6 +2,8 @@ package model.entitats;
 
 import model.items.Inventari;
 import model.items.Item;
+import model.items.BolaNeu;
+
 
 public class Pingui extends Jugador {
 /// ATRIBUTS
@@ -22,14 +24,36 @@ public Inventari getInventari() {
 /// METODES
 // METODE PER BATALLAR AMB UN RIVAL
 public void gestionarBatalla (Pingui pingu) {
-int num = (int)(Math.random() * 2) + 1;
-if (pingu == null) { // O que no estigui en la BD -> = SE NECESITA FER =
-System.out.println("ERROR: PINGU INVALID");	
-} else if (num == 1) { // Si el random favoreix al Pingu que ataca
+// CONTADORS PER AL BUCLE
+int contJ1 = this.getInventari().getBoles();
+int contJ2 = pingu.getInventari().getBoles();
+	
+// CONDICIONS
+if (pingu == null || this.getInventari().getBoles() < 0 || pingu.getInventari().getBoles() < 0) { // O que no estigui en la BD -> = SE NECESITA FER =
+System.out.println("ERROR: PINGU INVALID");
+
+} else if (this.getInventari().getBoles() > pingu.getInventari().getBoles()) { // Si el random favoreix al Pingu que ataca
 System.out.println(this.getNickname() + " guanya!");
-} else if (num == 2) { // Sino, si favoreix al atacat
+
+// OPERACIO PER A SUMAR CASELLES I LA DIFERENCIA DE BOLES
+this.posicio = posicio + (this.getInventari().getBoles() - pingu.getInventari().getBoles());
+
+} else if (this.getInventari().getBoles() < pingu.getInventari().getBoles()) { // Sino, si favoreix al atacat
 System.out.println(pingu.getNickname() + " guanya!");
-		}
+
+//OPERACIO PER A SUMAR CASELLES I LA DIFERENCIA DE BOLES
+pingu.posicio = posicio + (this.getInventari().getBoles() - pingu.getInventari().getBoles());
+
+} else if (this.getInventari().getBoles() == pingu.getInventari().getBoles()) { // Peró, si empaten, els restara a ambos les Boles de Neu
+
+// BUCLES PER ELIMINAR BOLES DE NEU
+for (int i = 0; i > contJ1; i++) {	
+this.getInventari().eliminarItem(BolaNeu);
+	}
+for (int i = 0; i > contJ2; i++) {	
+pingu.getInventari().eliminarItem(BolaNeu);
+	}
+}
 	}
 // Usa un ítem de l'inventari (consumeix 1 unitat)
 public void usarItem(Item i) {
