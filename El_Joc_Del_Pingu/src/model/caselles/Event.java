@@ -11,50 +11,42 @@ import model.items.Peix;
 import java.util.ArrayList;
 import java.util.Random;
 
-import java.util.Random;
-
-import java.util.Random;
-
-import java.util.ArrayList;
-import java.util.Random;
-
-import java.util.ArrayList;
-import java.util.Random;
-
+/** Casella Event: el pingüí rep un ítem aleatori (peix, boles de neu o dau especial). */
 public class Event extends Casella {
 
+    // Noms dels events possibles (ús informatiu / futura extensió)
     private String[] esdeveniments;
 
+    // Constructor
     public Event(int posicio, String[] esdeveniments) {
         super(posicio);
         this.esdeveniments = esdeveniments;
     }
 
+    // Getters i Setters
     public String[] getEsdeveniments() { return esdeveniments; }
     public void setEsdeveniments(String[] esdeveniments) { this.esdeveniments = esdeveniments; }
 
+    // Escull un event aleatori entre 4 i l'aplica a l'inventari del pingüí
     @Override
     public void realitzarAccio(Partida partida, Jugador jugador) {
         // Només els pingüins poden activar events
         if (!(jugador instanceof Pingui)) return;
         Pingui pingui = (Pingui) jugador;
 
-        // Escollim un event aleatori entre els 4 possibles
         Random random = new Random();
         int index = random.nextInt(4);
 
-        // Obtenim la llista d'items de l'inventari del pingüí
         ArrayList<Item> llista = pingui.getInventari().getLlista();
 
         switch (index) {
             case 0:
-                // EVENT: Obtenir 1 peix (màxim 2 peixos a l'inventari)
+                // EVENT 0: 1 peix (màxim 2)
                 long totalPeixos = llista.stream()
-                    .filter(i -> i instanceof Peix)
-                    .mapToLong(i -> i.getQuantitat()).sum();
+                        .filter(i -> i instanceof Peix)
+                        .mapToLong(Item::getQuantitat).sum();
                 if (totalPeixos < 2) {
-                    llista.add(new Peix("Peix", 1));
-                    pingui.getInventari().setLlista(llista);
+                    pingui.getInventari().afegirItem(new Peix("Peix", 1));
                     System.out.println(pingui.getNickname() + " ha obtingut 1 peix!");
                 } else {
                     System.out.println(pingui.getNickname() + " ja té el màxim de peixos (2).");
@@ -62,16 +54,14 @@ public class Event extends Casella {
                 break;
 
             case 1:
-                // EVENT: Obtenir entre 1 i 3 boles de neu (màxim 6 a l'inventari)
+                // EVENT 1: 1-3 boles de neu (màxim 6)
                 int bolesNoves = random.nextInt(3) + 1;
                 long bolesActuals = llista.stream()
-                    .filter(i -> i instanceof BolaNeu)
-                    .mapToLong(i -> i.getQuantitat()).sum();
-                // Calculem quantes boles podem afegir sense superar el màxim
+                        .filter(i -> i instanceof BolaNeu)
+                        .mapToLong(Item::getQuantitat).sum();
                 int bolesAfegir = (int) Math.min(bolesNoves, 6 - bolesActuals);
                 if (bolesAfegir > 0) {
-                    llista.add(new BolaNeu("Bola de Neu", bolesAfegir));
-                    pingui.getInventari().setLlista(llista);
+                    pingui.getInventari().afegirItem(new BolaNeu("Bola de Neu", bolesAfegir));
                     System.out.println(pingui.getNickname() + " ha obtingut " + bolesAfegir + " boles de neu!");
                 } else {
                     System.out.println(pingui.getNickname() + " ja té el màxim de boles de neu (6).");
@@ -79,13 +69,12 @@ public class Event extends Casella {
                 break;
 
             case 2:
-                // EVENT: Obtenir un dau ràpid que avança entre 5 i 10 caselles (màxim 3 daus)
+                // EVENT 2: dau ràpid 5-10 caselles (màxim 3 daus especials)
                 long dausActuals = llista.stream()
-                    .filter(i -> i instanceof Dau)
-                    .mapToLong(i -> i.getQuantitat()).sum();
+                        .filter(i -> i instanceof Dau)
+                        .mapToLong(Item::getQuantitat).sum();
                 if (dausActuals < 3) {
-                    llista.add(new Dau("Dau ràpid", 5, 10, 1));
-                    pingui.getInventari().setLlista(llista);
+                    pingui.getInventari().afegirItem(new Dau("Dau ràpid", 5, 10, 1));
                     System.out.println(pingui.getNickname() + " ha obtingut un dau ràpid! (5-10 caselles)");
                 } else {
                     System.out.println(pingui.getNickname() + " ja té el màxim de daus especials (3).");
@@ -93,13 +82,12 @@ public class Event extends Casella {
                 break;
 
             case 3:
-                // EVENT: Obtenir un dau lent que avança entre 1 i 3 caselles (màxim 3 daus)
+                // EVENT 3: dau lent 1-3 caselles (màxim 3 daus especials)
                 long dausActuals2 = llista.stream()
-                    .filter(i -> i instanceof Dau)
-                    .mapToLong(i -> i.getQuantitat()).sum();
+                        .filter(i -> i instanceof Dau)
+                        .mapToLong(Item::getQuantitat).sum();
                 if (dausActuals2 < 3) {
-                    llista.add(new Dau("Dau lent", 1, 3, 1));
-                    pingui.getInventari().setLlista(llista);
+                    pingui.getInventari().afegirItem(new Dau("Dau lent", 1, 3, 1));
                     System.out.println(pingui.getNickname() + " ha obtingut un dau lent! (1-3 caselles)");
                 } else {
                     System.out.println(pingui.getNickname() + " ja té el màxim de daus especials (3).");
