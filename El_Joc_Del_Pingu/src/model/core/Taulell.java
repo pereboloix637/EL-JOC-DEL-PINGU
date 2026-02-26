@@ -1,23 +1,31 @@
 package model.core;
 
 import java.util.ArrayList;
+
 import model.caselles.Casella;
 
 public class Taulell {
 
-	private ArrayList<Casella> taulell;
+    // Atributs
+    private ArrayList<Casella> caselles;
 
     // Constructor
-    public Taulell() {
-        taulell = new ArrayList<>();
+    public Taulell(ArrayList<Casella> caselles) {
+        this.caselles = caselles;
     }
 
-    // Getter
-    public ArrayList<taulell> getLlista() {
-        return taulell;
+    // Getters
+    public ArrayList<Casella> getCaselles() {
+        return caselles;
     }
 
-    // Setter
-    public void setLlista(ArrayList<taulell> llista) {
-        this.taulell = llista;
+    // Setters
+    public void setCaselles(ArrayList<Casella> caselles) {
+        this.caselles = caselles;
+    }
+
+    // Mètode actualitzarTaulell
+    public void actualitzarTaulell() {
+        // Lògica per actualitzar el taulell
+    }
 }

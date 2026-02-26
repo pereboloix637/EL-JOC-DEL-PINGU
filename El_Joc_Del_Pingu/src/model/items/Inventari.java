@@ -20,4 +20,16 @@ public class Inventari {
     public void setLlista(ArrayList<Item> llista) {
         this.llista = llista;
     }
+    
+    public void usarItem(Item item) {
+        if (llista.contains(item)) {
+            item.setQuantitat(item.getQuantitat() - 1);
+            if (item.getQuantitat() <= 0) {
+                llista.remove(item);
+            }
+            System.out.println("Has usat: " + item.getNom());
+        } else {
+            System.out.println("L'item " + item.getNom() + " no és a l'inventari.");
+        }
+    }
 }

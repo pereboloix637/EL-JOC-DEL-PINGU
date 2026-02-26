@@ -1,17 +1,28 @@
 package model.caselles;
 
-public class Casella {
-/// ATRIBUTS
-private int posicio;
+import model.core.Partida;
+import model.entitats.Jugador;
 
-/// CONSTRUCTOR
-// CONSTRUCTOR AMB EL PARAMETRE
-public Casella (int posicio) {
-this.posicio = posicio;
-}
+public abstract class Casella {
 
-/// METODES
-// PROXIMAMENT
+    // Atributs
+    private int posicio;
 
+    // Constructor
+    public Casella(int posicio) {
+        this.posicio = posicio;
+    }
 
+    // Getters
+    public int getPosicio() {
+        return posicio;
+    }
+
+    // Setters
+    public void setPosicio(int posicio) {
+        this.posicio = posicio;
+    }
+
+    // Mètode abstracte
+    public abstract void realitzarAccio(Partida partida, Jugador jugador);
 }
