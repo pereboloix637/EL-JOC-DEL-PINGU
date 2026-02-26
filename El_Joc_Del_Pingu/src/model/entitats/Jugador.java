@@ -47,7 +47,8 @@ public abstract class Jugador {
 	}
 	
 	/// METODES
-	public void mourePosicio (int p) {
-	this.posicio = posicio + p; // Mou la cantitat de posicions desitjades.
-	}
+	public void mourePosicio(int p) {
+    this.posicio = Math.max(0, this.posicio + p);
+}
+
 }
