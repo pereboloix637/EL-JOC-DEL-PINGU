@@ -45,13 +45,10 @@ public class GestorTaulell {
 	public Taulell generarTaulell(String seed) {
 		ArrayList<Casella> caselles = new ArrayList<>();
 
-		// Si el seed no és vàlid, creem un per defecte format només per normals
-		if (seed == null || seed.length() != 50) {
-			System.out.println("Error: El seed ha de tenir exactament 50 caràcters. Es generarà un taulell normal per defecte.");
-			for (int i = 0; i < 50; i++) {
-				caselles.add(new model.caselles.Normal(i));
-			}
-			return new Taulell(caselles);
+		// Validem el seed de forma estricta. Si no és vàlid, en generem un d'aleatori.
+		if (!esSeedValid(seed)) {
+			System.out.println("Error: El seed proporcionat no és vàlid. Es generarà un taulell aleatori.");
+			seed = generarSeedAleatori();
 		}
 
 		String[] nomsEvents = new String[]{"Peix", "Boles de Neu", "Dau Ràpid", "Dau Lent"};
@@ -85,6 +82,54 @@ public class GestorTaulell {
 		}
 
 		return new Taulell(caselles);
+	}
+
+	/**
+	 * Valida que el seed compleixi tots els requisits estrictes de la partida:
+	 * - Exactament 50 caràcters.
+	 * - Només dígits del '0' al '5'.
+	 * - Les 4 primeres (0-3) i 2 últimes caselles (48-49) han de ser '0' (normals).
+	 * - Cap casella especial ('1' a '5') pot aparèixer més de 5 vegades.
+	 *
+	 * @param seed l'string a validar.
+	 * @return true si el seed és vàlid, false en cas contrari.
+	 */
+	public boolean esSeedValid(String seed) {
+		if (seed == null || seed.length() != 50) {
+			return false;
+		}
+
+		// Validació posicions inicials i finals
+		for (int i = 0; i < 4; i++) {
+			if (seed.charAt(i) != '0') return false;
+		}
+		for (int i = 48; i < 50; i++) {
+			if (seed.charAt(i) != '0') return false;
+		}
+
+		// Comptatge de caselles especials
+		int[] comptadors = new int[6]; // Índexos 0 a 5 per a cada tipus
+
+		for (int i = 0; i < 50; i++) {
+			char c = seed.charAt(i);
+			
+			// Si no és un caràcter entre '0' i '5' no és vàlid
+			if (c < '0' || c > '5') {
+				return false;
+			}
+			
+			int type = Character.getNumericValue(c);
+			comptadors[type]++;
+		}
+
+		// Validem que cap comptador especial passi del límit (5)
+		for (int i = 1; i <= 5; i++) {
+			if (comptadors[i] > 5) {
+				return false; // Massa caselles repetides d'aquest tipus
+			}
+		}
+
+		return true; // Ha passat totes les validacions
 	}
 
 	/**
