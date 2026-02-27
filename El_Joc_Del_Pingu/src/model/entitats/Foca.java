@@ -14,10 +14,18 @@ public class Foca extends Jugador {
 	private int bloqueix;
 
 /// CONSTRUCTOR
+	// CONSTRUCTOR AMB TOTS ELS PARAMETRES
 	public Foca(String nickname, String color, boolean soborno, int bloqueix) {
 		super(nickname, color); // LLAMADA OBLIGATORIA
 		this.soborno = soborno;
 		this.bloqueix = bloqueix;
+	}
+	
+	// CONSTRUCTOR QUE COLOCA LA FOCA SENSE SOBORNAR I BLOQUEJAR
+	public Foca(String nickname, String color) {
+		super(nickname, color); // LLAMADA OBLIGATORIA
+		this.soborno = false;
+		this.bloqueix = 0;
 	}
 
 /// GETTERS I SETTERS
