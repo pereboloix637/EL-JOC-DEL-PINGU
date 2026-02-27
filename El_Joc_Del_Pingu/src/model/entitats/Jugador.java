@@ -49,6 +49,5 @@ public abstract class Jugador {
 	/// METODES
 	public void mourePosicio(int p) {
     this.posicio = Math.max(0, this.posicio + p);
-}
-
+	}
 }

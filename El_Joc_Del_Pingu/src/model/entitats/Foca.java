@@ -7,7 +7,6 @@ import model.caselles.Casella;
 import model.caselles.Forat;
 import model.core.Partida;
 
-
 public class Foca extends Jugador {
 /// ATRIBUTS
 	private boolean soborno;
