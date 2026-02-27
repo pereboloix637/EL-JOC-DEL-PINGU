@@ -6,17 +6,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import model.core.Partida;
+
 /**
  * Clase que proporciona métodos para interactuar con una base de datos Oracle.
  */
-public class BBDD {
+public class GestorBBDD {
 
 	public static void main(String[] args) {
 
 		Scanner scan = new Scanner(System.in);
 
 		// Conectamos usando el método del archivo BBDD.java
-		Connection con = BBDD.conectarBaseDatos(scan);
+		Connection con = GestorBBDD.conectarBaseDatos(scan);
 
 		// Comprobamos si la conexión ha funcionado
 		if (con != null) {
@@ -26,7 +28,7 @@ public class BBDD {
 		}
 
 		// Cerramos la conexión
-		BBDD.cerrar(con);
+		GestorBBDD.cerrar(con);
 		scan.close();
 	}
 
@@ -243,5 +245,15 @@ public class BBDD {
 			System.out.println("Ha habido un error en " + etiqueta + ": " + e.getMessage());
 			return 0;
 		}
+	}
+
+	public void guardarBBDD(Partida partida) {
+		//Falta fer
+		
+	}
+
+	public Partida carregarBBDD(int id) {
+		//Falta fer
+		return null;
 	}
 }
