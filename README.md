@@ -10,20 +10,22 @@ No hi ha dues partides iguals.
 
 Anima’t a jugar i descobreix totes les possibilitats que amaga el taulell!
 
-## ITEMS ESPECIALS
+## EVENTS ESPECIALS
 
-- Forat: Envia al jugador a una casella de forat anterior (fent-lo retrocedir)
+- Forat: Envia al jugador a una casella de forat anterior (fent-lo retrocedir).
 - Os: L'os atacara al jugador (Pingui), si aquest es vol defensar, pot utilizar un peix.
-- Trineu: Envia al jugador a una casella de trineu avançada (fent-lo avançar caselles)
+- Trineu: Envia al jugador a una casella de trineu avançada (fent-lo avançar caselles).
 - Terra trencadis: Quan caus amb aquesta casella, el jugador tornara al inici.
 
 
-## EVENTS ESPECIALS
+## ITEMS ESPECIALS
 
-- Bola de Neu: Fa retrocedir al oponent (maxim 6)
-- Dau: Existeixen 3 tipus de daus diferents, cada un tenint una cantitat de numeros diferents
-    - Dau normal: Te els numeros del 1 al 6 en les seves diferents cares
-- Peix: Serveix per sobornar la Foca o a l'Os (maxim 2 per inventari)
+- Bola de Neu: Fa retrocedir al oponent (maxim 6).
+- Dau: Existeixen 3 tipus de daus diferents, cada un tenint una cantitat de numeros diferents.
+    - Dau normal: Te els numeros del 1 al 6 en les seves diferents cares.
+    - Dau lent: Un dau que molt posiblement tinguis en mes d'una partida, els seus valors son 1 i el 3.
+    - Dau rapid: Te els numeros del 5 al 10, sent una gran opcio per recorre caselles.
+- Peix: Serveix per sobornar la Foca o a l'Os (maxim 2 per inventari).
 
 ## NORMES DE JOC | FUNCIONAMENT DEL JOC
 

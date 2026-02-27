@@ -24,7 +24,7 @@ public class Pingui extends Jugador {
 	// METODE PER BATALLAR AMB UN RIVAL
 	public void gestionarBatalla(Pingui pingu) {
 
-	    // Comprovació prèvia
+	    // Comprovació previa
 	    if (pingu == null) {
 	        System.out.println("ERROR: OPERACIO INVALIDA (JUGADOR BUIT)");
 	        return;
