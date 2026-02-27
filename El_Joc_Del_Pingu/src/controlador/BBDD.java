@@ -1,4 +1,5 @@
 package controlador;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -9,6 +10,25 @@ import java.util.Scanner;
  * Clase que proporciona métodos para interactuar con una base de datos Oracle.
  */
 public class BBDD {
+
+	public static void main(String[] args) {
+
+		Scanner scan = new Scanner(System.in);
+
+		// Conectamos usando el método del archivo BBDD.java
+		Connection con = BBDD.conectarBaseDatos(scan);
+
+		// Comprobamos si la conexión ha funcionado
+		if (con != null) {
+			System.out.println("¡Conexión exitosa!");
+		} else {
+			System.out.println("No se ha podido conectar.");
+		}
+
+		// Cerramos la conexión
+		BBDD.cerrar(con);
+		scan.close();
+	}
 
 	/**
 	 * Intenta establecer una conexión a la base de datos Oracle. NO HACE FALTA QUE
@@ -27,7 +47,7 @@ public class BBDD {
 		boolean valido = false;
 		while (!valido) {
 			// PODEIS HARDCODEAR ESTAS VARIABLES SI VAIS A USAR SIEMPRE LAS MISMAS
-			//VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+			// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 			System.out.println("Selecciona centro o fuera de centro (CENTRO/FUERA):");
 			entorno = scan.nextLine().trim().toLowerCase();
 
@@ -43,7 +63,7 @@ public class BBDD {
 
 		// 2) Pedir credenciales (con trim para evitar espacios raros)
 		// PODEIS HARDCODEAR ESTAS CREDENCIALES SI VAIS A USAR SIEMPRE LAS MISMAS
-		//VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+		// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 		System.out.println("¿Usuario?");
 		String user = scan.nextLine().trim();
 
