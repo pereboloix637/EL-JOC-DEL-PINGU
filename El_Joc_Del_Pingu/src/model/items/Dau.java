@@ -7,14 +7,12 @@ public class Dau extends Item {
 
 	private int min;
 	private int max;
-	private boolean especial;
 
 	// Constructor dau especial (s'emmagatzema a l'inventari)
 	public Dau(String nom, int quantitat, int min, int max) {
 		super(nom, quantitat);
 		this.min = min;
 		this.max = max;
-		this.especial = true;
 	}
 
 	// Constructor dau normal (no ocupa inventari)
@@ -22,7 +20,7 @@ public class Dau extends Item {
 		super("Dau normal", 0);
 		this.min = 1;
 		this.max = 6;
-		this.especial = false;
+	
 	}
 
 	// Getters i Setters
@@ -34,9 +32,6 @@ public class Dau extends Item {
 		return max;
 	}
 
-	public boolean esEspecial() {
-		return especial;
-	}
 
 	public void setMin(int min) {
 		this.min = min;
@@ -46,9 +41,7 @@ public class Dau extends Item {
 		this.max = max;
 	}
 
-	public void setEspecial(boolean especial) {
-		this.especial = especial;
-	}
+
 
 	// Tira el dau i retorna un valor aleatori entre min i max
 	public int tirar(Random r) {
@@ -58,10 +51,7 @@ public class Dau extends Item {
 	// Consumeix 1 unitat del dau especial. Retorna true si ha tingut èxit
 	@Override
 	public boolean usar() {
-		if (!especial) {
-			System.out.println("El dau normal no és un ítem d'inventari.");
-			return false;
-		}
+		
 		if (getQuantitat() > 0) {
 			setQuantitat(getQuantitat() - 1);
 			System.out.println("Has usat el " + getNom() + "! Et queden " + getQuantitat() + " daus especials.");
@@ -80,4 +70,5 @@ public class Dau extends Item {
 		}
 		return -1;
 	}
+	
 }
