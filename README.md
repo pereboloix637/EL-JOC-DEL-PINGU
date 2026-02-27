@@ -10,7 +10,7 @@ No hi ha dues partides iguals.
 
 Anima’t a jugar i descobreix totes les possibilitats que amaga el taulell!
 
-## ITEMS ESPECIALS
+## EVENTS ESPECIALS
 
 - Forat: Envia al jugador a una casella de forat anterior (fent-lo retrocedir)
 - Os: L'os atacara al jugador (Pingui), si aquest es vol defensar, pot utilizar un peix.
@@ -18,7 +18,7 @@ Anima’t a jugar i descobreix totes les possibilitats que amaga el taulell!
 - Terra trencadis: Quan caus amb aquesta casella, el jugador tornara al inici.
 
 
-## EVENTS ESPECIALS
+## ITEMS ESPECIALS
 
 - Bola de Neu: Fa retrocedir al oponent (maxim 6)
 - Dau: Existeixen 3 tipus de daus diferents, cada un tenint una cantitat de numeros diferents
