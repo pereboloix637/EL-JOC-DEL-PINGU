@@ -1,7 +1,5 @@
 package model.entitats;
 
-import model.items.Inventari;
-import model.items.Item;
 import model.items.Peix;
 import model.items.BolaNeu;
 import model.items.Dau;
