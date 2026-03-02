@@ -1,5 +1,8 @@
 package controlador;
 
-public class Main {
+import java.sql.Connection;
+import java.util.Scanner;
 
+public class Main {
+    
 }
