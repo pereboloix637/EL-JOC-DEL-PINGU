@@ -7,12 +7,14 @@ public class Dau extends Item {
 
 	private int min;
 	private int max;
+	private boolean especial;
 
 	// Constructor dau especial (s'emmagatzema a l'inventari)
 	public Dau(String nom, int quantitat, int min, int max) {
 		super(nom, quantitat);
 		this.min = min;
 		this.max = max;
+		this.especial = true;
 	}
 
 	// Constructor dau normal (no ocupa inventari)
@@ -69,6 +71,10 @@ public class Dau extends Item {
 			return resultat;
 		}
 		return -1;
+	}
+
+	public boolean esEspecial() {
+		return especial;
 	}
 	
 }
