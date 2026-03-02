@@ -6,7 +6,7 @@ import model.items.BolaNeu;
 
 public class Pingui extends Jugador {
 /// ATRIBUTS
-	private Inventari inventari;
+	public Inventari inventari;
 // Aixo es una expansio de Jugador
 
 /// CONSTRUCTOR
