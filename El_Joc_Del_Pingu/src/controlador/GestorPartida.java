@@ -31,8 +31,8 @@ public class GestorPartida {
     /**
      * Inicialitza una nova partida amb els jugadors i el taulell especificats.
      */
-    public void novaPartida(ArrayList<Jugador> jugadors, Taulell taulell) {
-        this.partida = new Partida(taulell, jugadors);
+    public void novaPartida(ArrayList<Jugador> jugadors, Taulell taulell, String seed) {
+        this.partida = new Partida(seed, taulell, jugadors);
     }
 
     /**
@@ -130,7 +130,7 @@ public class GestorPartida {
      */
     public void guardarPartida() {
         System.out.println("Guardant la partida a la base de dades...");
-        gestorBBDD.guardarBBDD(partida);
+        gestorBBDD.guardarBBDD(partida, null);
     }
 
     /**
@@ -138,6 +138,6 @@ public class GestorPartida {
      */
     public Partida carregarPartida(int id) {
         System.out.println("Carregant la partida amb ID " + id + " des de la base de dades...");
-        return gestorBBDD.carregarBBDD(id);
+        return gestorBBDD.carregarBBDD(id, null);
     }
 }

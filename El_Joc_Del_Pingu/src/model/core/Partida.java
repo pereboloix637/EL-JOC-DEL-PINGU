@@ -7,6 +7,8 @@ import model.entitats.Jugador;
 public class Partida {
 
     // Atributs
+    private int id;
+    private String seed;
     private Taulell taulell;
     private ArrayList<Jugador> jugadors;
     private int torns;
@@ -15,7 +17,9 @@ public class Partida {
     private Jugador guanyador;
 
     // Constructor
-    public Partida(Taulell taulell, ArrayList<Jugador> jugadors) {
+    public Partida(String seed, Taulell taulell, ArrayList<Jugador> jugadors) {
+        this.id = 0;
+        this.seed = seed;
         this.taulell = taulell;
         this.jugadors = jugadors;
         this.torns = 0;
@@ -49,6 +53,14 @@ public class Partida {
         return guanyador;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getSeed() {
+        return seed;
+    }
+
     // Setters
     public void setTaulell(Taulell taulell) {
         this.taulell = taulell;
@@ -72,6 +84,14 @@ public class Partida {
 
     public void setGuanyador(Jugador guanyador) {
         this.guanyador = guanyador;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setSeed(String seed) {
+        this.seed = seed;
     }
 
     // Mètode getJugadorActual
