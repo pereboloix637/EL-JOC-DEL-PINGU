@@ -47,10 +47,12 @@ public class Foca extends Jugador {
 /// METODES
 	public void aplastarPingu(Pingui p) { // La Foca aplasta al Pingui elegit
 
+		
 		int bolesB = p.getInventari().getBoles();
 		int bolesP = p.getInventari().getPeixos();
 		int bolesD = p.getInventari().getDausEspecials();
-
+		System.out.println(p.getNickname() + " sera aplastat/aplastada i perdra els seguents items:");
+		
 		// Eliminem totes les boles del aplastat (pingu)
 		for (int i = 0; i < bolesB; i++) {
 			p.getInventari().eliminarItemsPerTipus(BolaNeu.class);
@@ -66,6 +68,9 @@ public class Foca extends Jugador {
 		for (int i = 0; i < bolesD; i++) {
 			p.getInventari().eliminarItemsPerTipus(Dau.class);
 		}
+		
+        System.out.println("=====================================================");
+
 	}
 
 	public void pegarPingu(Pingui jugador, Partida partida) { // La Foca atacara al Pingui elegit
@@ -75,8 +80,9 @@ public class Foca extends Jugador {
 	    	
 	        // Si el jugador te un peix, la pot alimentar per que quedi bloquejada (2 torns)
 	        this.bloqueix = 2;
-	        System.out.println("La foca ha sido alimentada y queda bloqueada " + this.bloqueix + " turnos.");
-	        
+	        System.out.println("La foca ha sigut alimentada y queda bloqueajada per " + this.bloqueix + " turnos.");
+	        System.out.println("L'usuari alimenta la foca i perd 1 peix.");
+
 	        // I se li treu un "Peix" al Jugador/Pingui
 	        jugador.getInventari().eliminarItemsPerTipus(Peix.class);
 	        
