@@ -1,5 +1,6 @@
 package controlador;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -128,16 +129,16 @@ public class GestorPartida {
     /**
      * Guarda l'estat actual de la partida a la base de dades.
      */
-    public void guardarPartida() {
+    public void guardarPartida(Connection con) {
         System.out.println("Guardant la partida a la base de dades...");
-        gestorBBDD.guardarBBDD(partida, null);
+        gestorBBDD.guardarBBDD(partida, con);
     }
 
     /**
      * Carrega una partida existent des de la base de dades mitjançant la seva ID.
      */
-    public Partida carregarPartida(int id) {
+    public Partida carregarPartida(int id, Connection con) {
         System.out.println("Carregant la partida amb ID " + id + " des de la base de dades...");
-        return gestorBBDD.carregarBBDD(id, null);
+        return gestorBBDD.carregarBBDD(id, con);
     }
 }
