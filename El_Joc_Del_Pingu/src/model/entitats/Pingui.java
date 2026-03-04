@@ -63,16 +63,28 @@ public class Pingui extends Jugador {
 	    } else {
 
 	        System.out.println("Empat! Es perden totes les boles de neu.");
+	        System.out.println("--------------------------------------------------------------------");
 
 	        // Eliminem totes les boles del jugador atacant
+	        System.out.println("Inventari del atacant: " + this.getNickname());
+	        System.out.println("Se li treuran " + bolesJ1 + " Boles de Neu.");
+	        System.out.println("===============================");
+
 	        for (int i = 0; i < bolesJ1; i++) {
 	        	this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 	        }
+	        System.out.println("__________________________________________________________________________");
 
 	        // Eliminem totes les boles del rival
+	        System.out.println("Inventari del rival: " + pingu.getNickname());
+	        System.out.println("Se li treuran " + bolesJ2 + " Boles de Neu.");
+	        System.out.println("===============================");
+
 	        for (int i = 0; i < bolesJ2; i++) {
 	        	pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 	        }
+	        System.out.println("__________________________________________________________________________");
+
 	    }
 	}
 
