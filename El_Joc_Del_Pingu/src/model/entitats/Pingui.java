@@ -49,13 +49,15 @@ public class Pingui extends Jugador {
 	        System.out.println(this.getNickname() + " guanya!");
 
 	        this.mourePosicio(diferencia);
+	        System.out.println("El rival retrocedira " + diferencia + " caselles...");
 
 	    // CAS 2: Guanya el contrincant
 	    } else if (bolesJ1 < bolesJ2) {
 
 	        System.out.println(pingu.getNickname() + " guanya!");
-
+	        
 	        pingu.mourePosicio(diferencia);
+	        System.out.println("El rival retrocedira " + diferencia + " caselles...");
 
 	    // CAS 3: Empat
 	    } else {
