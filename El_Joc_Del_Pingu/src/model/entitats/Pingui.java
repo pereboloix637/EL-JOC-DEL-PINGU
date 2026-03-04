@@ -6,7 +6,7 @@ import model.items.BolaNeu;
 
 public class Pingui extends Jugador {
 /// ATRIBUTS
-	private Inventari inventari;
+	public Inventari inventari;
 // Aixo es una expansio de Jugador
 
 /// CONSTRUCTOR
@@ -49,28 +49,42 @@ public class Pingui extends Jugador {
 	        System.out.println(this.getNickname() + " guanya!");
 
 	        this.mourePosicio(diferencia);
+	        System.out.println("El rival retrocedira " + diferencia + " caselles...");
 
 	    // CAS 2: Guanya el contrincant
 	    } else if (bolesJ1 < bolesJ2) {
 
 	        System.out.println(pingu.getNickname() + " guanya!");
-
+	        
 	        pingu.mourePosicio(diferencia);
+	        System.out.println("El rival retrocedira " + diferencia + " caselles...");
 
 	    // CAS 3: Empat
 	    } else {
 
 	        System.out.println("Empat! Es perden totes les boles de neu.");
+	        System.out.println("--------------------------------------------------------------------");
 
 	        // Eliminem totes les boles del jugador atacant
+	        System.out.println("Inventari del atacant: " + this.getNickname());
+	        System.out.println("Se li treuran " + bolesJ1 + " Boles de Neu.");
+	        System.out.println("===============================");
+
 	        for (int i = 0; i < bolesJ1; i++) {
 	        	this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 	        }
+	        System.out.println("__________________________________________________________________________");
 
 	        // Eliminem totes les boles del rival
+	        System.out.println("Inventari del rival: " + pingu.getNickname());
+	        System.out.println("Se li treuran " + bolesJ2 + " Boles de Neu.");
+	        System.out.println("===============================");
+
 	        for (int i = 0; i < bolesJ2; i++) {
 	        	pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 	        }
+	        System.out.println("__________________________________________________________________________");
+
 	    }
 	}
 
