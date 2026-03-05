@@ -16,7 +16,6 @@ public class GestorPartida {
     private GestorTaulell gestorTaulell;
     private GestorJugador gestorJugador;
     private GestorBBDD gestorBBDD;
-    private Random random;
 
     /**
      * Constructor que inicialitza els gestors necessaris per controlar la partida.
@@ -25,7 +24,6 @@ public class GestorPartida {
         this.gestorTaulell = new GestorTaulell();
         this.gestorJugador = new GestorJugador();
         this.gestorBBDD = new GestorBBDD();
-        this.random = new Random();
     }
 
     /**
@@ -40,13 +38,13 @@ public class GestorPartida {
      */
     public int tirarDau(Jugador j, Dau dauOpcional) {
         if (dauOpcional != null && dauOpcional.esEspecial()) {
-            int resultat = dauOpcional.tirarIUsar(random);
+            int resultat = dauOpcional.tirarIUsar();
             if (resultat != -1) {
                 return resultat;
             }
         }
         Dau dauNormal = new Dau();
-        return dauNormal.tirar(random);
+        return dauNormal.tirar();
     }
 
     /**
