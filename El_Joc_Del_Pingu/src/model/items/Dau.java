@@ -19,10 +19,10 @@ public class Dau extends Item {
 
 	// Constructor dau normal (no ocupa inventari)
 	public Dau() {
-		super("Dau normal", 0);
+		super("Dau normal", 1);
 		this.min = 1;
 		this.max = 6;
-	
+
 	}
 
 	// Getters i Setters
@@ -34,7 +34,6 @@ public class Dau extends Item {
 		return max;
 	}
 
-
 	public void setMin(int min) {
 		this.min = min;
 	}
@@ -43,30 +42,33 @@ public class Dau extends Item {
 		this.max = max;
 	}
 
-
-
 	// Tira el dau i retorna un valor aleatori entre min i max
-	public int tirar(Random r) {
-		return r.nextInt((max - min) + 1) + min;
+	public int tirar() {
+		Random r = new Random();
+		int num = r.nextInt((max - min) + 1) + min;
+		return num;
 	}
 
 	// Consumeix 1 unitat del dau especial. Retorna true si ha tingut èxit
 	@Override
 	public boolean usar() {
-		
-		if (getQuantitat() > 0) {
-			setQuantitat(getQuantitat() - 1);
-			System.out.println("Has usat el " + getNom() + "! Et queden " + getQuantitat() + " daus especials.");
+		if (this.especial == true) { // Si es un dau especial, fer l'operacio
+			if (getQuantitat() > 0) { // Si dins de aquesta condicio, la quantitat es 0.
+				setQuantitat(getQuantitat() - 1);
+				System.out.println("Has usat el " + getNom() + "! Et queden " + getQuantitat() + " daus especials.");
+				return true;
+			} // Si tens 0 d'aquest.
+			System.out.println("No tens " + getNom() + "!");
+			return false;
+		} else { // Pero si el Dau NO ES especial (es a dir, un Dau Normal
 			return true;
 		}
-		System.out.println("No tens " + getNom() + "!");
-		return false;
 	}
 
 	// Tira el dau i consumeix 1 unitat. Retorna el resultat, o -1 si no en té
-	public int tirarIUsar(Random r) {
+	public int tirarIUsar() {
 		if (usar()) {
-			int resultat = tirar(r);
+			int resultat = tirar();
 			System.out.println("Tirada amb " + getNom() + ": " + resultat);
 			return resultat;
 		}
@@ -76,5 +78,5 @@ public class Dau extends Item {
 	public boolean esEspecial() {
 		return especial;
 	}
-	
+
 }

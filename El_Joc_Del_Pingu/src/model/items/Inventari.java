@@ -4,7 +4,8 @@ import java.util.ArrayList;
 
 // Gestiona la llista d'ítems d'un pingüí respectant els límits de RF-03
 public class Inventari {
-
+	
+	/// ATRIBUT: ArrayList
 	private ArrayList<Item> llista;
 
 	// Constructor
@@ -12,7 +13,7 @@ public class Inventari {
 		llista = new ArrayList<>();
 	}
 
-	// Getters i Setters
+	/// Getters i Setters
 	public ArrayList<Item> getLlista() {
 		return llista;
 	}
@@ -21,7 +22,7 @@ public class Inventari {
 		this.llista = llista;
 	}
 
-	// ── Consultes ─────────────────────────────────────────────────────────────
+	/// METODES
 
 	// Compta el total d'unitats d'un tipus d'ítem
 	public int contarTipus(Class<? extends Item> tipus) {
@@ -54,10 +55,9 @@ public class Inventari {
 		return null;
 	}
 
-	// ── Gestió ────────────────────────────────────────────────────────────────
-
 	// Afegeix un ítem respectant el límit màxim (hardcoded per tipus). Retorna les
 	// unitats afegides realment
+	/// Instanceof = instancia del objecte
 	public int afegirItem(Item item) {
 		int max;
 		if (item instanceof BolaNeu)
