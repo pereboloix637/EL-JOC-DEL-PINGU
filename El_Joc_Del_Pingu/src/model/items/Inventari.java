@@ -55,10 +55,9 @@ public class Inventari {
 		return null;
 	}
 
-	// ── Gestió ────────────────────────────────────────────────────────────────
-
 	// Afegeix un ítem respectant el límit màxim (hardcoded per tipus). Retorna les
 	// unitats afegides realment
+	/// Instanceof = instancia del objecte
 	public int afegirItem(Item item) {
 		int max;
 		if (item instanceof BolaNeu)
