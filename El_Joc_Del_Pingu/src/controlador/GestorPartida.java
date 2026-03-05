@@ -1,5 +1,6 @@
 package controlador;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -14,7 +15,6 @@ public class GestorPartida {
 
     private Partida partida;
     private GestorTaulell gestorTaulell;
-    private GestorJugador gestorJugador;
     private GestorBBDD gestorBBDD;
 
     /**
@@ -22,7 +22,7 @@ public class GestorPartida {
      */
     public GestorPartida() {
         this.gestorTaulell = new GestorTaulell();
-        this.gestorJugador = new GestorJugador();
+        new GestorJugador();
         this.gestorBBDD = new GestorBBDD();
     }
 
@@ -30,7 +30,11 @@ public class GestorPartida {
      * Inicialitza una nova partida amb els jugadors i el taulell especificats.
      */
     public void novaPartida(ArrayList<Jugador> jugadors, Taulell taulell) {
+        System.out.println("Inicialitzant nova partida al gestor...");
         this.partida = new Partida(taulell, jugadors);
+        if (this.partida != null) {
+            System.out.println("Partida inicialitzada correctament.");
+        }
     }
 
     /**
@@ -126,16 +130,20 @@ public class GestorPartida {
     /**
      * Guarda l'estat actual de la partida a la base de dades.
      */
-    public void guardarPartida() {
+    public void guardarPartida(Connection con) {
+        if (partida == null) {
+            System.err.println("ERROR: No es pot guardar la partida perquè és NULL al GestorPartida.");
+            return;
+        }
         System.out.println("Guardant la partida a la base de dades...");
-        gestorBBDD.guardarBBDD(partida);
+        gestorBBDD.guardarBBDD(partida, con);
     }
 
     /**
      * Carrega una partida existent des de la base de dades mitjançant la seva ID.
      */
-    public Partida carregarPartida(int id) {
+    public Partida carregarPartida(int id, Connection con) {
         System.out.println("Carregant la partida amb ID " + id + " des de la base de dades...");
-        return gestorBBDD.carregarBBDD(id);
+        return gestorBBDD.carregarBBDD(id, con);
     }
 }
