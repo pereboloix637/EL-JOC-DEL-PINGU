@@ -1,6 +1,7 @@
 package controlador;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 import model.items.Inventari;
 import model.items.Item;
@@ -11,13 +12,10 @@ import model.entitats.Foca;
 import model.entitats.Jugador;
 import model.entitats.Pingui;
 import model.items.BolaNeu;
+import model.items.Dau;
 import controlador.GestorTaulell;
 public class Main {
 	public static void main(String[] args) {
-		
+			
 			}
 		}
-
-
-
-
