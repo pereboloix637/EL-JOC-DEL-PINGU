@@ -80,8 +80,9 @@ public class Foca extends Jugador {
 	    	
 	        // Si el jugador te un peix, la pot alimentar per que quedi bloquejada (2 torns)
 	        this.bloqueix = 2;
-	        System.out.println("La foca ha sigut alimentada y queda bloqueajada per " + this.bloqueix + " turnos.");
-	        System.out.println("L'usuari alimenta la foca i perd 1 peix.");
+	        
+	        System.out.println("La foca ha sigut alimentada y queda bloqueajada per " + this.bloqueix + " torns.");
+	        System.out.println("L'usuari " + jugador.getNickname() + " alimenta la foca i perd 1 peix.");
 
 	        // I se li treu un "Peix" al Jugador/Pingui
 	        jugador.getInventari().eliminarItemsPerTipus(Peix.class);
