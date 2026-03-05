@@ -1,7 +1,5 @@
 package controlador;
 
-import java.util.Random;
-
 import model.core.Taulell;
 import model.entitats.Foca;
 import model.entitats.Jugador;
@@ -15,10 +13,7 @@ import model.items.Peix;
 // Gestiona les acciones del jugador en la partida
 public class GestorJugador {
 
-	private Random random;
-
 	public GestorJugador() {
-		this.random = new Random();
 	}
 
 	
@@ -44,14 +39,14 @@ public class GestorJugador {
 			Pingui p = (Pingui) j;
 			Dau dauEspecial = (Dau) p.getInventari().obtenirPrimer(Dau.class);
 			if (dauEspecial != null) {
-				resultat = dauEspecial.tirarIUsar(random);
+				resultat = dauEspecial.tirarIUsar();
 				if (resultat == -1)
-					resultat = new Dau().tirar(random);
+					resultat = new Dau().tirar();
 			} else {
-				resultat = new Dau().tirar(random);
+				resultat = new Dau().tirar();
 			}
 		} else {
-			resultat = new Dau().tirar(random);
+			resultat = new Dau().tirar();
 		}
 
 		int novaPos = Math.min(j.getPosicio() + resultat, t.getCaselles().size() - 1);

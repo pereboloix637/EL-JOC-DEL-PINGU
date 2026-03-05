@@ -14,9 +14,10 @@ import model.items.BolaNeu;
 import controlador.GestorTaulell;
 public class Main {
 	public static void main(String[] args) {
+		
+			}
+		}
 
-	}
-}
 
 
 
