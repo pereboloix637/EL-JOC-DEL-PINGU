@@ -2,7 +2,6 @@ package controlador;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Random;
 
 import model.caselles.Casella;
 import model.core.Partida;
