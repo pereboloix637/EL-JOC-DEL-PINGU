@@ -3,7 +3,6 @@ package controlador;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 import model.core.Partida;
@@ -15,6 +14,9 @@ import model.entitats.Pingui;
  * Clase que proporciona métodos para interactuar con una base de datos Oracle.
  */
 public class GestorBBDD {
+
+	// GESTOR DE TABLERO USADO EN GuardarBBDD()
+	GestorTaulell Gtaula = new GestorTaulell();
 
 	public static void main(String[] args) {
 
@@ -259,98 +261,104 @@ public class GestorBBDD {
 	 * @param con     Connexió activa a la base de dades.
 	 */
 	public void guardarBBDD(Partida partida, Connection con) {
+		try {
+			// 1. Gestionar l'ID de la Partida i la seva existència
+			int pId = partida.getId();
+			int torns = partida.getTorns();
+			int finalitzada = partida.isFinalitzada() ? 1 : 0;
 
-		try (Statement st = con.createStatement()) {
+			if (pId == 0) {
+				ArrayList<LinkedHashMap<String, String>> resultat = select(con, "SELECT MAX(id) AS MAX_ID FROM partida");
+				int nouId = (resultat.isEmpty() || resultat.get(0).get("MAX_ID") == null) ? 1
+						: Integer.parseInt(resultat.get(0).get("MAX_ID")) + 1;
+				partida.setId(nouId);
+				pId = nouId;
 
-			if (partida.getId() == 0) {
-				// ── NOVA PARTIDA: INSERT ──────────────────────────────────────────
+				String sqlInsPartida = "INSERT INTO partida (id, torn_actual, finalitzada) VALUES (" + pId + ", " + torns
+						+ ", " + finalitzada + ")";
+				insert(con, sqlInsPartida);
 
-				// Obtenim el pròxim ID disponible per a la partida
-				ArrayList<LinkedHashMap<String, String>> resultat = select(con,
-						"SELECT MAX(id) AS MAX_ID FROM partida");
-
-				int nouId = 1;
-				if (!resultat.isEmpty() && resultat.get(0).get("MAX_ID") != null) {
-					nouId = Integer.parseInt(resultat.get(0).get("MAX_ID")) + 1;
-				}
-
-				// Insertem la partida
-				String sqlPartida = "INSERT INTO partida (id) VALUES (" + nouId + ")";
-				insert(con, sqlPartida);
-
-				// Insertem el taulell
-				String sqlTaulell = "INSERT INTO taulell (partida_id, seed) VALUES (" + nouId + ", '"
-						+ partida.getSeed() + "')";
-				insert(con, sqlTaulell);
-
-				// Insertem cada jugador
-				for (Jugador jugador : partida.getJugadors()) {
-
-					// ── Si el jugador encara no existeix a la taula jugador, l'inserim ──
-					if (jugador.getId() == 0) {
-						ArrayList<LinkedHashMap<String, String>> resultatJug = select(con,
-								"SELECT MAX(id) AS MAX_ID FROM jugador");
-
-						int nouIdJug = 1;
-						if (!resultatJug.isEmpty() && resultatJug.get(0).get("MAX_ID") != null) {
-							nouIdJug = Integer.parseInt(resultatJug.get(0).get("MAX_ID")) + 1;
-						}
-						jugador.setId(nouIdJug);
-
-						// Si és una Foca és CPU, si és un Pingui és humà
-						int esCpu = jugador instanceof Foca ? 1 : 0;
-
-						String sqlJugador = "INSERT INTO jugador (id, nom, color, es_cpu) VALUES (" + nouIdJug + ", '"
-								+ jugador.getNickname() + "', '" + jugador.getColor() + "', " + esCpu + ")";
-						insert(con, sqlJugador);
-					}
-
-					// Insertem el jugador a jugador_partida
-					String sqlJP = "INSERT INTO jugador_partida (jugador_id, partida_id) VALUES (" + jugador.getId()
-							+ ", " + nouId + ")";
-					insert(con, sqlJP);
-
-					// Només els pinguins tenen inventari
-					if (jugador instanceof Pingui pingu) {
-						String sqlInv = "INSERT INTO inventari (jugador_id, partida_id) VALUES (" + pingu.getId() + ", "
-								+ nouId + ")";
-						insert(con, sqlInv);
-					}
-				}
-
+				String seed = Gtaula.obtenirSeedTaulell(partida.getTaulell());
+				String sqlInsTaulell = "INSERT INTO taulell (partida_id, seed) VALUES (" + pId + ", '" + seed + "')";
+				insert(con, sqlInsTaulell);
 			} else {
-				// ── PARTIDA EXISTENT: UPDATE ──────────────────────────────────────
+				String sqlUpdPartida = "UPDATE partida SET torn_actual = " + torns + ", finalitzada = " + finalitzada
+						+ " WHERE id = " + pId;
+				update(con, sqlUpdPartida);
+			}
 
-				// Actualitzem torn actual i finalitzada
-				int finalitzada = partida.isFinalitzada() ? 1 : 0;
-				String sqlPartida = "UPDATE partida SET torn_actual = " + partida.getTorns() + ", finalitzada = "
-						+ finalitzada + " WHERE id = " + partida.getId();
-				update(con, sqlPartida);
+			// 2. Gestionar cada Jugador
+			for (Jugador j : partida.getJugadors()) {
+				// ── 2.1 Garantir que el jugador existeix a la taula 'jugador' (global) ──
+				if (j.getId() == 0) {
+					String nomJ = j.getNickname();
+					String sqlCheck = "SELECT id FROM jugador WHERE nom = '" + nomJ + "'";
+					ArrayList<LinkedHashMap<String, String>> resCheck = select(con, sqlCheck);
 
-				// Actualitzem cada jugador
-				for (Jugador jugador : partida.getJugadors()) {
+					if (!resCheck.isEmpty()) {
+						j.setId(Integer.parseInt(resCheck.get(0).get("ID")));
+					} else {
+						ArrayList<LinkedHashMap<String, String>> resMax = select(con,
+								"SELECT MAX(id) AS MAX_ID FROM jugador");
+						int nouIdJ = (resMax.isEmpty() || resMax.get(0).get("MAX_ID") == null) ? 1
+								: Integer.parseInt(resMax.get(0).get("MAX_ID")) + 1;
+						j.setId(nouIdJ);
 
-					int esGuanyador = (partida.getGuanyador() != null
-							&& partida.getGuanyador().getId() == jugador.getId()) ? 1 : 0;
+						String colorJ = j.getColor();
+						int esCpu = (j instanceof Foca ? 1 : 0);
+						String sqlInsJ = "INSERT INTO jugador (id, nom, color, es_cpu) VALUES (" + nouIdJ + ", '" + nomJ
+								+ "', '" + colorJ + "', " + esCpu + ")";
+						insert(con, sqlInsJ);
+					}
+				}
 
-					String sqlJP = "UPDATE jugador_partida SET posicio = " + jugador.getPosicio()
-							+ ", torns_bloquejat = " + jugador.getTornsBloquejat() + ", es_guanyador = " + esGuanyador
-							+ " WHERE jugador_id = " + jugador.getId() + " AND partida_id = " + partida.getId();
-					update(con, sqlJP);
+				// ── 2.2 Upsert a 'jugador_partida' (estat del jugador en aquesta partida) ──
+				int jId = j.getId();
+				int pos = j.getPosicio();
+				int tBloq = j.getTornsBloquejat();
+				int esGuanyador = (partida.getGuanyador() != null
+						&& partida.getGuanyador().getNickname().equals(j.getNickname())) ? 1 : 0;
 
-					// Només els pinguins tenen inventari
-					if (jugador instanceof Pingui pingu) {
-						String sqlInv = "UPDATE inventari SET daus = " + pingu.getInventari().getDausEspecials()
-								+ ", peixos = " + pingu.getInventari().getPeixos() + ", boles_neu = "
-								+ pingu.getInventari().getBoles() + " WHERE jugador_id = " + pingu.getId()
-								+ " AND partida_id = " + partida.getId();
-						update(con, sqlInv);
+				String sqlCheckJP = "SELECT * FROM jugador_partida WHERE jugador_id = " + jId + " AND partida_id = "
+						+ pId;
+				ArrayList<LinkedHashMap<String, String>> resJP = select(con, sqlCheckJP);
+
+				if (resJP.isEmpty()) {
+					String sqlInsJP = "INSERT INTO jugador_partida (jugador_id, partida_id, posicio, torns_bloquejat, es_guanyador) VALUES ("
+							+ jId + ", " + pId + ", " + pos + ", " + tBloq + ", " + esGuanyador + ")";
+					insert(con, sqlInsJP);
+				} else {
+					String sqlUpdJP = "UPDATE jugador_partida SET posicio = " + pos + ", torns_bloquejat = " + tBloq
+							+ ", es_guanyador = " + esGuanyador + " WHERE jugador_id = " + jId + " AND partida_id = "
+							+ pId;
+					update(con, sqlUpdJP);
+				}
+
+				// ── 2.3 Upsert a 'inventari' (només Pinguins) ──
+				if (j instanceof Pingui p) {
+					int daus = p.getInventari().getDausEspecials();
+					int peixos = p.getInventari().getPeixos();
+					int boles = p.getInventari().getBoles();
+
+					String sqlCheckInv = "SELECT * FROM inventari WHERE jugador_id = " + jId + " AND partida_id = "
+							+ pId;
+					ArrayList<LinkedHashMap<String, String>> resInv = select(con, sqlCheckInv);
+
+					if (resInv.isEmpty()) {
+						String sqlInsInv = "INSERT INTO inventari (jugador_id, partida_id, daus, peixos, boles_neu) VALUES ("
+								+ jId + ", " + pId + ", " + daus + ", " + peixos + ", " + boles + ")";
+						insert(con, sqlInsInv);
+					} else {
+						String sqlUpdInv = "UPDATE inventari SET daus = " + daus + ", peixos = " + peixos
+								+ ", boles_neu = " + boles + " WHERE jugador_id = " + jId + " AND partida_id = " + pId;
+						update(con, sqlUpdInv);
 					}
 				}
 			}
-
-		} catch (SQLException e) {
-			System.out.println("Error en guardarBBDD: " + e.getMessage());
+			System.out.println("Partida guardada amb èxit.");
+		} catch (Exception e) {
+			System.err.println("Error en guardarBBDD: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
@@ -433,7 +441,7 @@ public class GestorBBDD {
 
 			// 3. Reconstruir l'objecte Partida
 			GestorTaulell gt = new GestorTaulell();
-			Partida partida = new Partida(seed, gt.generarTaulell(seed), llistaJugadors);
+			Partida partida = new Partida(gt.generarTaulell(seed), llistaJugadors);
 			partida.setId(id);
 			partida.setTorns(tornActual);
 			partida.setFinalitzada(finalitzada);

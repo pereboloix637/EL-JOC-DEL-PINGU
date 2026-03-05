@@ -8,7 +8,6 @@ public class Partida {
 
     // Atributs
     private int id;
-    private String seed;
     private Taulell taulell;
     private ArrayList<Jugador> jugadors;
     private int torns;
@@ -17,9 +16,8 @@ public class Partida {
     private Jugador guanyador;
 
     // Constructor
-    public Partida(String seed, Taulell taulell, ArrayList<Jugador> jugadors) {
+    public Partida(Taulell taulell, ArrayList<Jugador> jugadors) {
         this.id = 0;
-        this.seed = seed;
         this.taulell = taulell;
         this.jugadors = jugadors;
         this.torns = 0;
@@ -28,7 +26,7 @@ public class Partida {
         this.guanyador = null;
     }
 
-    // Getters
+	// Getters
     public Taulell getTaulell() {
         return taulell;
     }
@@ -55,10 +53,6 @@ public class Partida {
 
     public int getId() {
         return id;
-    }
-
-    public String getSeed() {
-        return seed;
     }
 
     // Setters
@@ -88,10 +82,6 @@ public class Partida {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public void setSeed(String seed) {
-        this.seed = seed;
     }
 
     // Mètode getJugadorActual
