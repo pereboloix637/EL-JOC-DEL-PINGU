@@ -2,7 +2,7 @@ package model.caselles;
 
 import model.core.Partida;
 import model.entitats.Jugador;
-import model.entitats.Pingui;
+import model.entitats.Pinguino;
 import model.items.BolaNeu;
 import model.items.Dau;
 import model.items.Peix;
@@ -37,9 +37,9 @@ public class Event extends Casella {
 	@Override
 	public void realitzarAccio(Partida partida, Jugador jugador) {
 		// Només els pingüins poden activar events
-		if (!(jugador instanceof Pingui))
+		if (!(jugador instanceof Pinguino))
 			return;
-		Pingui pingui = (Pingui) jugador;
+		Pinguino pingui = (Pinguino) jugador;
 
 		Random random = new Random();
 		int index = random.nextInt(4);

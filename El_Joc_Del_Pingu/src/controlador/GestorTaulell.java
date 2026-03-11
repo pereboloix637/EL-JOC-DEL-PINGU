@@ -7,14 +7,14 @@ import model.caselles.Casella;
 import model.core.Partida;
 import model.core.Taulell;
 import model.entitats.Jugador;
-import model.entitats.Pingui;
+import model.entitats.Pinguino;
 
 public class GestorTaulell {
 
 	/**
 	 * Executa l'acció de la casella sobre el pingüí.
 	 */
-	public void executarCasella(Partida partida, Pingui pingui, Casella casella) {
+	public void executarCasella(Partida partida, Pinguino pingui, Casella casella) {
 		casella.realitzarAccio(partida, pingui);
 	}
 

@@ -8,7 +8,7 @@ import java.util.Scanner;
 import model.core.Partida;
 import model.entitats.Foca;
 import model.entitats.Jugador;
-import model.entitats.Pingui;
+import model.entitats.Pinguino;
 
 /**
  * Clase que proporciona métodos para interactuar con una base de datos Oracle.
@@ -335,7 +335,7 @@ public class GestorBBDD {
 				}
 
 				// ── 2.3 Upsert a 'inventari' (només Pinguins) ──
-				if (j instanceof Pingui p) {
+				if (j instanceof Pinguino p) {
 					int daus = p.getInventari().getDausEspecials();
 					int peixos = p.getInventari().getPeixos();
 					int boles = p.getInventari().getBoles();
@@ -426,7 +426,7 @@ public class GestorBBDD {
 							inv.afegirItem(new model.items.BolaNeu("Bola de Neu", 1));
 						}
 					}
-					j = new Pingui(nom, color, inv);
+					j = new Pinguino(nom, color, inv);
 				}
 
 				j.setId(jId);

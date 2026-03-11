@@ -45,7 +45,7 @@ public class Foca extends Jugador {
 	}
 
 /// METODES
-	public void aplastarPingu(Pingui p) { // La Foca aplasta al Pingui elegit
+	public void aplastarPingu(Pinguino p) { // La Foca aplasta al Pingui elegit
 
 		
 		int itemB = p.getInventari().getBoles();
@@ -72,7 +72,7 @@ public class Foca extends Jugador {
 
 	}
 
-	public void pegarPingu(Pingui jugador, Partida partida) { // La Foca atacara al Pingui elegit
+	public void pegarPingu(Pinguino jugador, Partida partida) { // La Foca atacara al Pingui elegit
 	    if (this.soborno == false) {
 	        System.out.println("Accion denegada, la foca no ha siguit soboronada");
 	    } else if (jugador.getInventari().getPeixos() >= 1) {
@@ -111,7 +111,7 @@ public class Foca extends Jugador {
 	    }
 	}
 	
-	public void sobornarFoca(Pingui p) { // Permet sobornar a la Foca
+	public void sobornarFoca(Pinguino p) { // Permet sobornar a la Foca
 // Si el jugador te suficients peixos, es sobornada, sino no fara res i mostrara un missatje d'error.
 		if (p.getInventari().getPeixos() >= 1) {
 			System.out.println(p.getNickname() + " ha sobornat a la foca " + this.getNickname());
