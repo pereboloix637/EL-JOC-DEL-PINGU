@@ -10,7 +10,11 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.util.Duration;
+
 import model.caselles.Casella;
 import model.core.Taulell;
 import model.entitats.Jugador;
@@ -31,7 +35,10 @@ public class PantallaJuego {
 	private MenuItem loadGame;
 	@FXML
 	private MenuItem quitGame;
-
+	
+	
+	
+	
 	// Buttons
 	@FXML
 	private Button dado;
@@ -139,8 +146,10 @@ public class PantallaJuego {
 	@FXML
 	private void handleSaveGame() {
 		System.out.println("Saved game.");
-		// TODO
+		// Implementación del guardado llamando al gestor
+		gestorPartida.guardarPartida(null); 
 	}
+
 
 	@FXML
 	private void handleLoadGame() {
@@ -150,9 +159,27 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleQuitGame() {
-		System.out.println("Exit...");
-		// TODO
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Salir del Juego");
+		alert.setHeaderText("¿Deseas guardar la partida antes de salir?");
+		alert.setContentText("Elige una opción:");
+
+		ButtonType buttonTypeYes = new ButtonType("Sí, guardar y salir");
+		ButtonType buttonTypeNo = new ButtonType("No, salir sin guardar");
+		ButtonType buttonTypeCancel = new ButtonType("Cancelar", ButtonType.CANCEL.getButtonData());
+
+		alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo, buttonTypeCancel);
+
+		alert.showAndWait().ifPresent(response -> {
+			if (response == buttonTypeYes) {
+				handleSaveGame();
+				System.exit(0);
+			} else if (response == buttonTypeNo) {
+				System.exit(0);
+			}
+		});
 	}
+
 
 	// Button actions
 	@FXML
