@@ -10,5 +10,5 @@ module El_Joc_Del_Pingu {
 	requires javafx.controls;
 	opens vista to javafx.fxml;
 	exports vista;
-	
+	exports controlador;
 }

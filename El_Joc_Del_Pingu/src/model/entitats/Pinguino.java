@@ -4,13 +4,13 @@ import model.items.Inventari;
 import model.items.Item;
 import model.items.BolaNeu;
 
-public class Pingui extends Jugador {
+public class Pinguino extends Jugador {
 /// ATRIBUTS
 	public Inventari inventari;
 // Aixo es una expansio de Jugador
 
 /// CONSTRUCTOR
-	public Pingui(String nickname, String color, Inventari inventari) {
+	public Pinguino(String nickname, String color, Inventari inventari) {
 		super(nickname, color); // OBLIGATORIO
 		this.inventari = inventari;
 	}
@@ -22,7 +22,7 @@ public class Pingui extends Jugador {
 
 /// METODES
 	// METODE PER BATALLAR AMB UN RIVAL
-	public void gestionarBatalla(Pingui pingu) {
+	public void gestionarBatalla(Pinguino pingu) {
 
 	    // Comprovació previa
 	    if (pingu == null) {

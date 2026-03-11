@@ -1,7 +1,6 @@
 package vista;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
@@ -12,8 +11,14 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import model.caselles.Casella;
+import model.core.Taulell;
 import model.entitats.Jugador;
+import model.entitats.Pinguino;
+import model.items.Inventari;
+import model.items.Dau;
 import controlador.GestorPartida;
+import controlador.GestorTaulell;
 
 public class PantallaJuego {
 
@@ -71,44 +76,39 @@ public class PantallaJuego {
 	private static final int COLUMNS = 5;
 
 	private static final String TAG_CASILLA_TEXT = "CASILLA_TEXT";
-	private final Random rand = new Random();
+
 
 	@FXML
 	private void initialize() {
 		eventos.setText("¡El juego ha comenzado!");
 
-		// Generate model board
-		/*
-		 * ArrayList<Jugador> jugadores = new ArrayList<>(); jugadores.add(new
-		 * Pinguino(0, "Jugador 1", "Rojo", new Inventario(new ArrayList<>()))); Tablero
-		 * modeloTablero = new Tablero(new ArrayList<>(), jugadores, 0,
-		 * jugadores.get(0)); modeloTablero.generarCasillasAleatorias();
-		 */
-
-		// Partida p = new Partida();
 		gestorPartida = new GestorPartida();
+		GestorTaulell gestorTaulell = new GestorTaulell();
 		
-		ArrayList<Jugador> jugadores = new ArrayList<Jugador>();
-		Inventario inventario = new Inventario();
-		Dado dado = new Dado("normal", 1, 1, 6);
-		inventario.getLista().add(dado);
+		// Generar taulell aleatori seguint les regles del GestorTaulell
+		String seed = gestorTaulell.generarSeedAleatori();
+		Taulell taulell = gestorTaulell.generarTaulell(seed);
 		
-		jugadores.add(new Pinguino("Jugador1", "Azul", 0, inventario));
+		ArrayList<Jugador> jugadors = new ArrayList<Jugador>();
+		Inventari inventari = new Inventari();
+		Dau dau = new Dau("Dau normal", 1, 1, 6);
+		inventari.afegirItem(dau);
+		
+		Pinguino pingu = new Pinguino("Jugador1", "Blau", inventari);
+		jugadors.add(pingu);
 
-		gestorPartida.nuevaPartida();
-		
-		gestorPartida.getPartida().setJugadores(jugadores);
+		gestorPartida.novaPartida(jugadors, taulell);
 
 		// Show board info
-		mostrarTiposDeCasillasEnTablero(gestorPartida.getPartida().getTablero());
+		mostrarTiposDeCasillasEnTablero(gestorPartida.getPartida().getTaulell());
 	}
 
-	private void mostrarTiposDeCasillasEnTablero(Tablero t) {
+	private void mostrarTiposDeCasillasEnTablero(Taulell t) {
 		// Clear only the labels we generated in previous calls
 		tablero.getChildren().removeIf(node -> TAG_CASILLA_TEXT.equals(node.getUserData()));
 
-		for (int i = 0; i < t.getCasillas().size(); i++) {
-			Casilla casilla = t.getCasillas().get(i);
+		for (int i = 0; i < t.getCaselles().size(); i++) {
+			Casella casilla = t.getCaselles().get(i);
 
 			// Skip position 0 and 49 if you want them to be special (start/end)
 			if (i > 0 && i < 49) {
@@ -157,19 +157,27 @@ public class PantallaJuego {
 	// Button actions
 	@FXML
 	private void handleDado(ActionEvent event) {
-		Pinguino pingu = (Pinguino) gestorPartida.getPartida().getJugadores().get(0);
-		Dado d = (Dado) pingu.getInv().getLista().get(0);
+		Pinguino pingu = (Pinguino) gestorPartida.getPartida().getJugadors().get(0);
+		Dau d = (Dau) pingu.getInventari().obtenirPrimer(Dau.class);
 		
-		System.out.println("Pos pingu previa:" + pingu.getPosicion());
+		if (d == null) {
+			d = new Dau(); // Default dice if none in inventory
+		}
 		
-		int resultado = gestorPartida.tirarDado((Jugador) pingu, d);
+		System.out.println("Pos pingu previa:" + pingu.getPosicio());
 		
-		System.out.println("Pos pingu actual:" + pingu.getPosicion());
+		int resultado = gestorPartida.tirarDau(pingu, d);
+		
+		// Actualitzar el model (GestorPartida.tirarDau no mou el jugador automàticament si només crida tirar)
+		// Processar torn complet o moure el jugador manualment per reflectir el canvi
+		pingu.mourePosicio(resultado);
+		
+		System.out.println("Pos pingu actual:" + pingu.getPosicio());
 
 		// Update the Text
 		dadoResultText.setText("Ha salido: " + resultado);
 
-		// Update the position
+		// Update the position in UI
 		moveP1(resultado);
 	}
 
@@ -253,29 +261,49 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleRapido() {
-		System.out.println("Fast.");
-		// TODO
+		Pinguino pingu = (Pinguino) gestorPartida.getPartida().getJugadors().get(0);
+		// Cercar un Dau que es digui "Dau Ràpid" o similar, o que tingui rang superior
+		// Per simplificar, busquem el primer Dau especial
+		Dau d = (Dau) pingu.getInventari().obtenirPrimer(Dau.class);
+		if (d != null && d.getMax() > 6) {
+			handleDado(null); // Reuse dice logic if it's the right one
+		} else {
+			System.out.println("No tens Dau Ràpid!");
+		}
 	}
 
 	@FXML
 	private void handleLento() {
-		System.out.println("Slow.");
-		// TODO
+		Pinguino pingu = (Pinguino) gestorPartida.getPartida().getJugadors().get(0);
+		Dau d = (Dau) pingu.getInventari().obtenirPrimer(Dau.class);
+		if (d != null && d.getMax() <= 3) {
+			handleDado(null);
+		} else {
+			System.out.println("No tens Dau Lent!");
+		}
 	}
 
 	@FXML
 	private void handlePeces() {
-		System.out.println("Fish.");
-		// TODO
+		Pinguino pingu = (Pinguino) gestorPartida.getPartida().getJugadors().get(0);
+		if (pingu.getInventari().getPeixos() > 0) {
+			System.out.println("Has usat un peix!");
+			// TODO: Aplicar efecte peix (p.ex. moure posició o inventari)
+		} else {
+			System.out.println("No tens peixos!");
+		}
 	}
 
 	@FXML
 	private void handleNieve() {
-		System.out.println("Snow.");
-		// TODO
+		Pinguino pingu = (Pinguino) gestorPartida.getPartida().getJugadors().get(0);
+		if (pingu.getInventari().getBoles() > 0) {
+			System.out.println("Has usat una bola de neu!");
+			// TODO: Aplicar efecte bola de neu
+		} else {
+			System.out.println("No tens boles de neu!");
+		}
 	}
 
-	public void setGestorPartida(GestorPartida gestorPartida) {
-		this.gestorPartida = gestorPartida;
-	}
+	
 }
