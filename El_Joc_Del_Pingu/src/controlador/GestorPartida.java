@@ -2,13 +2,12 @@ package controlador;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Random;
 
 import model.caselles.Casella;
 import model.core.Partida;
 import model.core.Taulell;
 import model.entitats.Jugador;
-import model.entitats.Pingui;
+import model.entitats.Pinguino;
 import model.items.Dau;
 
 public class GestorPartida {
@@ -88,8 +87,8 @@ public class GestorPartida {
         
         System.out.println(j.getNickname() + " es mou a la casella " + posicio + ".");
 
-        if (j instanceof Pingui) {
-            gestorTaulell.executarCasella(partida, (Pingui) j, caselles.get(posicio));
+        if (j instanceof Pinguino) {
+            gestorTaulell.executarCasella(partida, (Pinguino) j, caselles.get(posicio));
         }
         
         gestorTaulell.comprovarFiTorn(partida);

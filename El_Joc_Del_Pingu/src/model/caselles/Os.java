@@ -2,7 +2,7 @@ package model.caselles;
 
 import model.core.Partida;
 import model.entitats.Jugador;
-import model.entitats.Pingui;
+import model.entitats.Pinguino;
 import model.items.Peix;
 
 /** Casella Os: l'ós ataca el jugador. El pingüí es pot defensar amb un peix. */
@@ -16,9 +16,9 @@ public class Os extends Casella {
 	// Si el pingüí té un peix el gasta; sense peix torna a l'inici
 	@Override
 	public void realitzarAccio(Partida partida, Jugador jugador) {
-		if (!(jugador instanceof Pingui))
+		if (!(jugador instanceof Pinguino))
 			return;
-		Pingui pingui = (Pingui) jugador;
+		Pinguino pingui = (Pinguino) jugador;
 
 		Peix peix = (Peix) pingui.getInventari().getLlista().stream()
 				.filter(i -> i instanceof Peix && i.getQuantitat() > 0).findFirst().orElse(null);

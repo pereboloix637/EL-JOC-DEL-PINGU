@@ -3,7 +3,7 @@ package controlador;
 import model.core.Taulell;
 import model.entitats.Foca;
 import model.entitats.Jugador;
-import model.entitats.Pingui;
+import model.entitats.Pinguino;
 import model.items.Dau;
 import model.items.Item;
 import model.items.Peix;
@@ -18,7 +18,7 @@ public class GestorJugador {
 
 	
 	// Usa l'ítem de l'inventari que coincideixi amb el nom
-	public void jugadorUsaItem(Pingui p, String nombreItem) {
+	public void jugadorUsaItem(Pinguino p, String nombreItem) {
 		for (Item item : p.getInventari().getLlista()) {
 			if (item.getNom().equalsIgnoreCase(nombreItem)) {
 				p.usarItem(item);
@@ -35,8 +35,8 @@ public class GestorJugador {
 
 		if (pasos > 0) {
 			resultat = pasos;
-		} else if (j instanceof Pingui) {
-			Pingui p = (Pingui) j;
+		} else if (j instanceof Pinguino) {
+			Pinguino p = (Pinguino) j;
 			Dau dauEspecial = (Dau) p.getInventari().obtenirPrimer(Dau.class);
 			if (dauEspecial != null) {
 				resultat = dauEspecial.tirarIUsar();
@@ -62,7 +62,7 @@ public class GestorJugador {
 
 	
 	// El pingüí rep un event: guanya un peix si l'inventari no esta ple
-	public void pinguinoEvento(Pingui p) {
+	public void pinguinoEvento(Pinguino p) {
 		Peix peixRecompensa = new Peix("Peix", 1);
 		int afegits = p.getInventari().afegirItem(peixRecompensa);
 		if (afegits > 0)
@@ -73,13 +73,13 @@ public class GestorJugador {
 
 	
 	// Inicia la batalla de boles de neu entre dos pingüins
-	public void pinguinoGuerra(Pingui p1, Pingui p2) {
+	public void pinguinoGuerra(Pinguino p1, Pinguino p2) {
 		System.out.println("Guerra entre " + p1.getNickname() + " i " + p2.getNickname() + "!");
 		p1.gestionarBatalla(p2);
 	}
 
 	// El pingüí interactua amb la foca: usa un peix per salvar-se o torna a l'inici
-	public void focaInteractua(Pingui p, Foca f) {
+	public void focaInteractua(Pinguino p, Foca f) {
 		if (f.isSoborno()) {
 			System.out.println("La foca deixa passar a " + p.getNickname() + " (sobornada).");
 		} else {
