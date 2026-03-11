@@ -8,7 +8,6 @@ El_Joc_Del_Pingu/bin/
 
 # Java
 *.class
-*.jar
 *.war
 *.ear
 
