@@ -16,49 +16,35 @@ public class GestorPartida {
     private GestorTaulell gestorTaulell;
     private GestorBBDD gestorBBDD;
 
-    /**
-     * Constructor que inicialitza els gestors necessaris per controlar la partida.
-     */
     public GestorPartida() {
         this.gestorTaulell = new GestorTaulell();
         new GestorJugador();
         this.gestorBBDD = new GestorBBDD();
     }
 
-    /**
-     * Inicialitza una nova partida amb els jugadors i el taulell especificats.
-     */
-    public void novaPartida(ArrayList<Jugador> jugadors, Taulell taulell) {
-        System.out.println("Inicialitzant nova partida al gestor...");
-        this.partida = new Partida(taulell, jugadors);
-        if (this.partida != null) {
-            System.out.println("Partida inicialitzada correctament.");
-        }
+    public void setPartida(Partida p) {
+        this.partida = p;
     }
 
-    /**
-     * Tira un dau especial si s'indica, altrament tira un dau normal (1-6).
-     */
+    public Partida getPartida() {
+        return this.partida;
+    }
+
+    public void novaPartida(ArrayList<Jugador> jugadors, Taulell taulell) {
+        this.partida = new Partida(taulell, jugadors);
+    }
+
     public int tirarDau(Jugador j, Dau dauOpcional) {
         if (dauOpcional != null && dauOpcional.esEspecial()) {
             int resultat = dauOpcional.tirarIUsar();
-            if (resultat != -1) {
-                return resultat;
-            }
+            if (resultat != -1) return resultat;
         }
         Dau dauNormal = new Dau();
         return dauNormal.tirar();
     }
 
-    /**
-     * Gestiona el cicle complet d'un torn: moviment, acció i canvi de jugador.
-     */
     public void executarTornComplet() {
-        if (partida == null || partida.isFinalitzada()) {
-            System.out.println("La partida no ha començat o ja ha finalitzat.");
-            return;
-        }
-        
+        if (partida == null || partida.isFinalitzada()) return;
         Jugador jugadorActual = partida.getJugadorActual();
         if (jugadorActual != null) {
             processarTornJugador(jugadorActual);
@@ -67,82 +53,42 @@ public class GestorPartida {
         }
     }
 
-    /**
-     * S'encarrega de tirar el dau, moure el jugador i executar l'acció de la casella.
-     */
     public void processarTornJugador(Jugador j) {
-        // Obtenim la tirada amb un dau normal per defecte
         int tirada = tirarDau(j, null);
-        System.out.println("El jugador " + j.getNickname() + " ha tret un " + tirada + ".");
-        
         j.mourePosicio(tirada);
-        
         int posicio = j.getPosicio();
         ArrayList<Casella> caselles = partida.getTaulell().getCaselles();
-        
         if (posicio >= caselles.size() - 1) {
             posicio = caselles.size() - 1;
             j.setPosicio(posicio);
         }
-        
-        System.out.println(j.getNickname() + " es mou a la casella " + posicio + ".");
-
         if (j instanceof Pinguino) {
             gestorTaulell.executarCasella(partida, (Pinguino) j, caselles.get(posicio));
         }
-        
         gestorTaulell.comprovarFiTorn(partida);
     }
 
-    /**
-     * Comprova si la partida ha finalitzat i anuncia el guanyador si n'hi ha.
-     */
     public void actualitzarEstatTaulell() {
-        System.out.println("S'ha actualitzat l'estat del taulell.");
         if (partida.isFinalitzada()) {
-            System.out.println("Partida finalitzada! Guanyador: " + partida.getGuanyador().getNickname());
+            System.out.println("Partida finalitzada!");
         }
     }
 
-    /**
-     * Passa el torn al següent jugador. Si tots han jugat, incrementa el número de torns.
-     */
     public void seguentTorn() {
         if (!partida.isFinalitzada()) {
             int seguentIndex = (partida.getIndexJugadorActual() + 1) % partida.getJugadors().size();
             partida.setIndexJugadorActual(seguentIndex);
-            
-            // Si hem donat la volta completa a la llista de jugadors, incrementem els torns globals de la partida
             if (seguentIndex == 0) {
                 partida.setTorns(partida.getTorns() + 1);
             }
         }
     }
 
-    /**
-     * Retorna la instància de la partida actual.
-     */
-    public Partida getPartida() {
-        return partida;
-    }
-
-    /**
-     * Guarda l'estat actual de la partida a la base de dades.
-     */
     public void guardarPartida(Connection con) {
-        if (partida == null) {
-            System.err.println("ERROR: No es pot guardar la partida perquè és NULL al GestorPartida.");
-            return;
-        }
-        System.out.println("Guardant la partida a la base de dades...");
-        gestorBBDD.guardarBBDD(partida, con);
+        if (partida != null) gestorBBDD.guardarBBDD(partida, con);
     }
 
-    /**
-     * Carrega una partida existent des de la base de dades mitjançant la seva ID.
-     */
     public Partida carregarPartida(int id, Connection con) {
-        System.out.println("Carregant la partida amb ID " + id + " des de la base de dades...");
         return gestorBBDD.carregarBBDD(id, con);
     }
 }

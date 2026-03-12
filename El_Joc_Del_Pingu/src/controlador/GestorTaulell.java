@@ -12,10 +12,10 @@ import model.entitats.Pinguino;
 public class GestorTaulell {
 
 	/**
-	 * Executa l'acció de la casella sobre el pingüí.
+	 * Executa l'acció de la casella sobre el jugador.
 	 */
-	public void executarCasella(Partida partida, Pinguino pingui, Casella casella) {
-		casella.realitzarAccio(partida, pingui);
+	public void executarCasella(Partida partida, Jugador j, Casella casella) {
+		casella.realitzarAccio(partida, j);
 	}
 
 	/**
