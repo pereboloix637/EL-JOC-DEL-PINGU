@@ -135,6 +135,9 @@ public class PantallaJuego {
 		// Mostrar info del tablero
 		mostrarTiposDeCasillasEnTablero(gestorPartida.getPartida().getTaulell());
 		actualizarUI();
+		
+		// Verificar si el primer turno es de la CPU
+		checkTurnoCPU();
 	}
 
 	/**
@@ -189,21 +192,31 @@ public class PantallaJuego {
 	}
 
 	/**
+	 * Habilita o deshabilita todos los controles de interacción del jugador.
+	 */
+	private void bloquearControles(boolean bloquear) {
+	    dado.setDisable(bloquear);
+	    rapido.setDisable(bloquear);
+	    lento.setDisable(bloquear);
+	    peces.setDisable(bloquear);
+	    nieve.setDisable(bloquear);
+	}
+
+	/**
 	 * Actualitza els comptadors d'objectes a la UI i habilita/deshabilita
 	 * els botons segons l'inventari del jugador humà actiu.
 	 */
 	private void actualizarContadoresObjetos() {
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 
-		// Si no és el torn d'un Pingüí, deshabilitar tots els botons d'ítems
+		// Si no és el torn d'un Pingüí (humano), deshabilitar todos los controles
 		if (!(actual instanceof Pinguino pingu)) {
-			rapido.setDisable(true);
-			lento.setDisable(true);
-			peces.setDisable(true);
-			nieve.setDisable(true);
+			bloquearControles(true);
 			return;
 		}
 
+		// Si es humano, primero desbloqueamos la base y luego afinamos según inventario
+		bloquearControles(false);
 		Inventari inv = pingu.getInventari();
 
 		// Cercar daus especials: ràpid (max > 6) i lent (max <= 3)
@@ -429,7 +442,10 @@ public class PantallaJuego {
 	// Button actions
 	@FXML
 	private void handleDado(ActionEvent event) {
-		executartorn();
+	    // Solo permitimos el clic manual si es el turno del jugador humano
+	    if (gestorPartida.getPartida().getJugadorActual() instanceof Pinguino) {
+	        executartorn();
+	    }
 	}
 
 	/**
@@ -443,6 +459,9 @@ public class PantallaJuego {
 			registrarEvento("¡Partida acabada! Guanyador: " + p.getGuanyador().getNickname(), "log-warning");
 			return;
 		}
+
+		// Bloqueamos controles inmediatamente para evitar doble clic o interferencias
+		bloquearControles(true);
 
 		registrarEvento("Torn de: " + actual.getNickname(), "log-turn");
 
@@ -469,7 +488,7 @@ public class PantallaJuego {
 	 * Mou una peça amb una animació de transició i actualitza el model en acabar.
 	 */
 	private void moverPieza(Jugador j, int steps) {
-	    dado.setDisable(true);
+	    bloquearControles(true);
 	    Circle pieza = getPiezaParaJugador(j);
 	    if (pieza == null) return;
 
@@ -498,14 +517,34 @@ public class PantallaJuego {
 	        // Actualitzar model
 	        j.setPosicio(newPos);
 	        
+	        // --- LÓGICA DE BATALLA ---
+	        // Si el jugador acabado de mover es un pingüino, buscamos colisiones
+	        if (j instanceof Pinguino pActual) {
+	            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
+	                // Si hay otro pingüino en la misma casilla (y no soy yo mismo)
+	                if (rival != pActual && rival.getPosicio() == newPos && rival instanceof Pinguino pRival) {
+	                    registrarEvento("¡Colisión! Batalla entre " + pActual.getNickname() + " y " + pRival.getNickname(), "log-warning");
+	                    pActual.gestionarBatalla(pRival);
+	                    break; // Un solo encuentro por turno
+	                }
+	            }
+	        }
+	        
 	        // Executar lògica de la casella on arribat
-	        new GestorTaulell().executarCasella(gestorPartida.getPartida(), j, gestorPartida.getPartida().getTaulell().getCaselles().get(newPos));
+	        GestorTaulell gt = new GestorTaulell();
+	        gt.executarCasella(gestorPartida.getPartida(), j, gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio()));
 	        
-	        
+	        // Verificar victoria tras movimiento y efectos
+	        gt.comprovarFiTorn(gestorPartida.getPartida());
+	        if (gestorPartida.getPartida().isFinalitzada()) {
+	            actualizarUI();
+	            mostrarAlertaGanador(gestorPartida.getPartida().getGuanyador());
+	            return;
+	        }
+
 	        // Passar el torn
 	        gestorPartida.seguentTorn();
 	        
-	        dado.setDisable(false);
 	        actualizarUI();
 	        
 	        // Comprovar si el següent és CPU
@@ -516,12 +555,66 @@ public class PantallaJuego {
 	}
 
 	/**
+	 * Muestra un diálogo de victoria y ofrece opciones al usuario.
+	 */
+	private void mostrarAlertaGanador(Jugador g) {
+	    Platform.runLater(() -> {
+	        Alert alert = new Alert(AlertType.INFORMATION);
+	        alert.setTitle("¡Fin de la partida!");
+	        alert.setHeaderText("¡Tenemos un ganador!");
+	        alert.setContentText("Enhorabuena " + g.getNickname() + ", ¡has llegado a la meta! \n\n ¿Qué quieres hacer ahora?");
+
+	        ButtonType btnGuardar = new ButtonType("Guardar Seed");
+	        ButtonType btnSalir = new ButtonType("Salir");
+	        
+	        alert.getButtonTypes().setAll(btnGuardar, btnSalir);
+
+	        Optional<ButtonType> result = alert.showAndWait();
+	        
+	        if (result.isPresent()) {
+	            if (result.get() == btnGuardar) {
+	                guardarSeedTablero();
+	                mostrarAlertaGanador(g); // Re-mostrar tras guardar
+	            } else if (result.get() == btnSalir) {
+	                handleQuitGame();
+	            }
+	        }
+	    });
+	}
+
+	/**
+	 * Guarda el seed del tablero actual en un archivo de texto.
+	 */
+	private void guardarSeedTablero() {
+	    FileChooser fileChooser = new FileChooser();
+	    fileChooser.setTitle("Guardar Semilla del Tablero");
+	    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos de texto (*.txt)", "*.txt"));
+	    fileChooser.setInitialFileName("seed_pinguino.txt");
+	    
+	    Stage stage = (Stage) tablero.getScene().getWindow();
+	    File file = fileChooser.showSaveDialog(stage);
+	    
+	    if (file != null) {
+	        try (PrintWriter writer = new PrintWriter(file)) {
+	            String seed = new GestorTaulell().obtenirSeedTaulell(gestorPartida.getPartida().getTaulell());
+	            writer.print(seed);
+	            registrarEvento("Seed guardada en: " + file.getName(), "log-info");
+	        } catch (Exception e) {
+	            registrarEvento("Error al guardar seed: " + e.getMessage(), "log-warning");
+	        }
+	    }
+	}
+
+	/**
 	 * Comprova si el següent torn l'ha de fer la CPU i l'executa automàticament.
 	 */
 	private void checkTurnoCPU() {
+		if (gestorPartida.getPartida().isFinalitzada()) return;
+
 		Jugador proximo = gestorPartida.getPartida().getJugadorActual();
 		// En aquest model, les Foques sempre són CPU
 		if (proximo instanceof model.entitats.Foca) {
+		    bloquearControles(true);
 			new Thread(() -> {
 				try { Thread.sleep(1000); } catch (InterruptedException e) {}
 				javafx.application.Platform.runLater(this::executartorn);

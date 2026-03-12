@@ -48,24 +48,23 @@ public class Foca extends Jugador {
 	public void aplastarPingu(Pinguino p) { // La Foca aplasta al Pingui elegit
 
 		
-		int bolesB = p.getInventari().getBoles();
-		int bolesP = p.getInventari().getPeixos();
-		int bolesD = p.getInventari().getDausEspecials();
+		int itemB = p.getInventari().getBoles();
+		int itemP = p.getInventari().getPeixos();
+		int itemD = p.getInventari().getDausEspecials();
 		System.out.println(p.getNickname() + " sera aplastat/aplastada i perdra els seguents items:");
 		
 		// Eliminem totes les boles del aplastat (pingu)
-		for (int i = 0; i < bolesB; i++) {
+		for (int i = 0; i < itemB; i++) {
 			p.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 		}
 
 		// Eliminem tots els peixos del aplastat (pingu)
-		for (int i = 0; i < bolesP; i++) {
+		for (int i = 0; i < itemP; i++) {
 			p.getInventari().eliminarItemsPerTipus(Peix.class);
-			;
 		}
 
 		// Eliminem tots els daus especials del aplastat (pingu)
-		for (int i = 0; i < bolesD; i++) {
+		for (int i = 0; i < itemD; i++) {
 			p.getInventari().eliminarItemsPerTipus(Dau.class);
 		}
 		

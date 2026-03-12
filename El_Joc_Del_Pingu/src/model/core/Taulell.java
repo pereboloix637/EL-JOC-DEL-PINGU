@@ -23,9 +23,4 @@ public class Taulell {
     public void setCaselles(ArrayList<Casella> caselles) {
         this.caselles = caselles;
     }
-
-    // Mètode actualitzarTaulell
-    public void actualitzarTaulell() {
-        // Lògica per actualitzar el taulell
-    }
 }
