@@ -353,7 +353,7 @@ public class PantallaJuego {
 
 	private Connection getBDConnection() {
 		// Patrón basado en PantallaMenu para entorno de desarrollo
-		return GestorBBDD.conectarBaseDatos(new Scanner("centro\nadmin\nadmin\n"));
+		return GestorBBDD.conectarBaseDatos();
 	}
 
 	@FXML
@@ -573,7 +573,6 @@ public class PantallaJuego {
 	        
 	        if (result.isPresent()) {
 	            if (result.get() == btnGuardar) {
-	                guardarSeedTablero();
 	                mostrarAlertaGanador(g); // Re-mostrar tras guardar
 	            } else if (result.get() == btnSalir) {
 	                handleQuitGame();
@@ -582,28 +581,7 @@ public class PantallaJuego {
 	    });
 	}
 
-	/**
-	 * Guarda el seed del tablero actual en un archivo de texto.
-	 */
-	private void guardarSeedTablero() {
-	    FileChooser fileChooser = new FileChooser();
-	    fileChooser.setTitle("Guardar Semilla del Tablero");
-	    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos de texto (*.txt)", "*.txt"));
-	    fileChooser.setInitialFileName("seed_pinguino.txt");
-	    
-	    Stage stage = (Stage) tablero.getScene().getWindow();
-	    File file = fileChooser.showSaveDialog(stage);
-	    
-	    if (file != null) {
-	        try (PrintWriter writer = new PrintWriter(file)) {
-	            String seed = new GestorTaulell().obtenirSeedTaulell(gestorPartida.getPartida().getTaulell());
-	            writer.print(seed);
-	            registrarEvento("Seed guardada en: " + file.getName(), "log-info");
-	        } catch (Exception e) {
-	            registrarEvento("Error al guardar seed: " + e.getMessage(), "log-warning");
-	        }
-	    }
-	}
+	
 
 	/**
 	 * Comprova si el següent torn l'ha de fer la CPU i l'executa automàticament.
