@@ -8,72 +8,129 @@
     -fx-background-color: #0D1B2A;
 }
 
-/* ---- TABLERO ---- */
-.board {
-    -fx-background-color: transparent;
-    -fx-padding: 16;
-    -fx-hgap: 4;
-    -fx-vgap: 4;
+/* ---- MENU BAR ---- */
+.menu-bar {
+    -fx-background-color: #1C3A52;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 0 0 2 0;
 }
 
-/* ---- CELDAS BASE (bloque de nieve/hielo pixelado) ---- */
+.menu-bar .label {
+    -fx-text-fill: #F0F4FF;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.menu-bar .menu:hover,
+.menu-bar .menu:showing {
+    -fx-background-color: #2E6B8A;
+}
+
+.menu-bar .menu:hover .label,
+.menu-bar .menu:showing .label {
+    -fx-text-fill: #7FD4F0;
+}
+
+.context-menu {
+    -fx-background-color: #1C3A52;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 2;
+}
+
+.menu-item .label {
+    -fx-text-fill: #C8D8E8;
+}
+
+.menu-item:focused {
+    -fx-background-color: #2E6B8A;
+}
+
+.menu-item:focused .label {
+    -fx-text-fill: #7FD4F0;
+}
+
+/* ---- TABLERO ---- */
+.board {
+    -fx-background-image: url("../assets/tablero.png");
+    -fx-background-size: contain;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-padding: 45 75 75 75; 
+    -fx-hgap: 2;
+    -fx-vgap: 2;
+    -fx-alignment: center;
+}
+
+/* ---- CELDAS BASE (Bloque transparente para assets) ---- */
 .board-cell {
-    -fx-background-color: #213F5C;
+    -fx-background-color: transparent;
     -fx-background-radius: 0;
     -fx-padding: 8;
-    /* Sombra offset dura, sin blur — da profundidad pixel art */
-    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
-    /* Borde interior simulando bloque de hielo */
-    -fx-border-color: #2E6B8A #1C3A52 #1C3A52 #2E6B8A;
-    -fx-border-width: 2;
+    -fx-effect: null;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
     -fx-border-radius: 0;
-    -fx-pref-width: 112;
-    -fx-pref-height: 48;
 }
 
 
 /* ---- TIPOS DE CELDA ---- */
 
-/* Normal: nieve compacta */
+/* Normal: nieve compacta / Imagen dedicada */
 .cell-Normal {
-    -fx-background-color: #253A50;
-    -fx-border-color: #2E6B8A #1C3A52 #1C3A52 #2E6B8A;
+    -fx-background-image: url("../assets/casilla_normal.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-position: center;
+    -fx-border-color: transparent;
 }
 
-/* Oso: peligro rojo frío */
+/* Oso: peligro rojo frío / Imagen */
 .cell-Os {
-    -fx-background-color: #3B1A1A;
-    -fx-border-color: #8B1A1A #2B0000 #2B0000 #8B1A1A;
+    -fx-background-image: url("../assets/casilla_oso.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-position: center;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
 
-/* Agujero: agua oscura profunda */
+/* Agujero: agua oscura profunda / Imagen */
 .cell-Forat {
-    -fx-background-color: #060E18;
-    -fx-border-color: #0D1B2A #03070E #03070E #0D1B2A;
+    -fx-background-image: url("../assets/casilla_agujero.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-position: center;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
 
 .cell-Forat .cell-type {
     -fx-fill: #2E6B8A;
 }
 
-/* Trineo: aurora, acento dorado */
+/* Trineo: aurora, acento dorado / Imagen */
 .cell-Trineu {
-    -fx-background-color: #1E3A2A;
-    -fx-border-color: #E8D87F #1A2E1A #1A2E1A #E8D87F;
+    -fx-background-image: url("../assets/casilla_trineo.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-position: center;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
 
-/* Hielo resquebrajado: borde más claro, fondo más pálido */
+/* Hielo resquebrajado: borde más claro / Imagen */
 .cell-Trencadis {
-    -fx-background-color: #1C3A52;
-    -fx-border-color: #C8D8E8 #2E6B8A #2E6B8A #C8D8E8;
-    -fx-border-width: 1;
-    -fx-opacity: 0.75;
+    -fx-background-image: url("../assets/casilla_fragmentado.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-position: center;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-opacity: 0.85;
 }
 
-/* Evento: acento púrpura frío */
+/* Evento: acento púrpura frío / Imagen Interrogante */
 .cell-Event {
-    -fx-background-color: #2A1A3E;
-    -fx-border-color: #9B7FD4 #1A0E2E #1A0E2E #9B7FD4;
+    -fx-background-image: url("../assets/casilla_interrogante.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-position: center;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
 
 /* Inicio: cian brillante */
@@ -112,37 +169,33 @@
 }
 
 /* ---- PANEL DE EVENTOS / LOGS ---- */
-.events-panel {
-    -fx-background-color: #0A1A0F;
-    -fx-background-radius: 0;
-    -fx-border-color: #2ED573;
+.log-scroll {
+    -fx-background-color: #0D1B2A;
+    -fx-background: #0D1B2A;
+    -fx-border-color: #2E6B8A;
     -fx-border-width: 2;
-    -fx-effect: dropshadow(one-pass-box, #2ED573, 0, 0, 4, 4);
 }
 
-.events-title {
-    -fx-font-size: 13px;
+.log-scroll .viewport {
+    -fx-background-color: #0D1B2A;
+}
+
+.log-container {
+    -fx-background-color: #0D1B2A;
+    -fx-padding: 8;
+}
+
+.log-info {
+    -fx-text-fill: #7FD4F0;
+}
+
+.log-turn {
+    -fx-text-fill: #F0F4FF;
     -fx-font-weight: bold;
-    -fx-text-fill: #2ED573;
 }
 
-/* TextArea de logs */
-.text-area {
-    -fx-background-color: #051009;
-    -fx-background-radius: 0;
-    -fx-border-color: #1A5C30;
-    -fx-border-width: 2;
-    -fx-text-fill: #7FFFA0;
-    -fx-font-size: 12px;
-    -fx-highlight-fill: #2ED573;
-}
-
-.text-area .content {
-    -fx-background-color: #051009;
-}
-
-.text-area:focused {
-    -fx-border-color: #2ED573;
+.log-warning {
+    -fx-text-fill: #E8D87F;
 }
 .bottom-bar {
     -fx-background-color: #0D1B2A;
@@ -300,17 +353,17 @@
 
 /* Rojo hielo */
 #P2 {
-    -fx-fill: #7FD4F0;
+    -fx-fill: #3498DB;
 }
 
 /* Cian helado */
 #P3 {
-    -fx-fill: #3AB5E6;
+    -fx-fill: #27AE60;
 }
 
 /* Azul eléctrico frío */
 #P4 {
-    -fx-fill: #E8D87F;
+    -fx-fill: #F1C40F;
 }
 
 /* Amarillo luna */

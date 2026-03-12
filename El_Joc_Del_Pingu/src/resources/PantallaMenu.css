@@ -12,14 +12,43 @@
 
 /* ---- MENU BAR ---- */
 .menu-bar {
-    -fx-background-color: #0D1B2A;
+    -fx-background-color: #1C3A52;
     -fx-border-color: #2E6B8A;
     -fx-border-width: 0 0 2 0;
 }
 
 .menu-bar .label {
-    -fx-text-fill: #C8D8E8;
+    -fx-text-fill: #F0F4FF;
     -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.menu-bar .menu:hover,
+.menu-bar .menu:showing {
+    -fx-background-color: #2E6B8A;
+}
+
+.menu-bar .menu:hover .label,
+.menu-bar .menu:showing .label {
+    -fx-text-fill: #7FD4F0;
+}
+
+.context-menu {
+    -fx-background-color: #1C3A52;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 2;
+}
+
+.menu-item .label {
+    -fx-text-fill: #C8D8E8;
+}
+
+.menu-item:focused {
+    -fx-background-color: #2E6B8A;
+}
+
+.menu-item:focused .label {
+    -fx-text-fill: #7FD4F0;
 }
 
 /* ---- CARD (panel cristal de hielo, sin blur) ---- */

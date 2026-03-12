@@ -104,7 +104,7 @@ public class PantallaMenu {
             }
 
             ArrayList<Jugador> allPlayers = new ArrayList<>(humanPlayers);
-            String[] colors = {"Rojo", "Verde", "Amarillo", "Violeta"};
+            String[] colors = {"Rojo", "Azul", "Verde", "Amarillo"};
             
             // Rellenar con CPUs hasta llegar a 4
             while (allPlayers.size() < 4) {
