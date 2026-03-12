@@ -455,4 +455,18 @@ public class GestorBBDD {
 			return null;
 		}
 	}
+
+	public ArrayList<String> llistarPartides(Connection con) {
+		ArrayList<String> llista = new ArrayList<>();
+		String sql = "SELECT id, torn_actual, finalitzada FROM partida ORDER BY id DESC";
+		ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
+
+		for (LinkedHashMap<String, String> row : res) {
+			String id = row.get("ID");
+			String torn = row.get("TORN_ACTUAL");
+			String fin = "1".equals(row.get("FINALITZADA")) ? "Finalitzada" : "En curs";
+			llista.add("ID: " + id + " | Torn: " + torn + " | " + fin);
+		}
+		return llista;
+	}
 }
