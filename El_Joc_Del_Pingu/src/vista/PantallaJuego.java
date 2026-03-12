@@ -328,8 +328,45 @@ public class PantallaJuego {
 	// Menu actions
 	@FXML
 	private void handleNewGame() {
-		System.out.println("New game.");
-		// TODO
+	    // Notificar reinicio
+	    registrarEvento("Reiniciando partida...", "log-info");
+
+	    // 1. Obtener y resetear jugadores actuales
+	    ArrayList<Jugador> jugadors = new ArrayList<>();
+	    if (gestorPartida.getPartida() != null) {
+	        jugadors = gestorPartida.getPartida().getJugadors();
+	        for (Jugador j : jugadors) {
+	            j.setPosicio(0);
+	            j.setTornsBloquejat(0);
+	            if (j instanceof Pinguino p) {
+	                p.inventari = new Inventari();
+	            }
+	        }
+	    } else {
+	        // Fallback si no hay partida (p.ej. inicio directo)
+	        jugadors.add(new Pinguino("Jugador1", "Azul", new Inventari()));
+	    }
+
+	    // 2. Generar nuevo tablero
+	    GestorTaulell gt = new GestorTaulell();
+	    String seed = gt.generarSeedAleatori();
+	    Taulell taulell = gt.generarTaulell(seed);
+
+	    // 3. Reiniciar el Gestor con la nueva configuración
+	    gestorPartida.novaPartida(jugadors, taulell);
+
+	    // 4. Limpiar UI y logs
+	    if (logEventos != null) logEventos.getChildren().clear();
+	    if (dadoResultText != null) dadoResultText.setText("Ha salido: -");
+
+	    // 5. Refrescar visualmente
+	    mostrarTiposDeCasillasEnTablero(taulell);
+	    actualizarUI();
+
+	    registrarEvento("¡Partida reiniciada! Tablero nuevo generado.", "log-info");
+	    
+	    // Resetear dado seleccionado
+	    dauSeleccionat = null;
 	}
 
 	@FXML
