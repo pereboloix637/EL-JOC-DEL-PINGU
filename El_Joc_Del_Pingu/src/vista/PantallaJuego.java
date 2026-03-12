@@ -6,21 +6,32 @@ import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ScrollPane;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import javafx.util.Duration;
 
 import model.caselles.Casella;
+import model.core.Partida;
 import model.core.Taulell;
 import model.entitats.Jugador;
 import model.entitats.Pinguino;
 import model.items.Inventari;
 import model.items.Dau;
+import model.items.Peix;
+import model.items.BolaNeu;
+import javafx.application.Platform;
 import controlador.GestorPartida;
 import controlador.GestorTaulell;
 
@@ -64,6 +75,10 @@ public class PantallaJuego {
 	private Text nieve_t;
 	@FXML
 	private Text eventos;
+	@FXML
+	private VBox logEventos;
+	@FXML
+	private ScrollPane scrollEventos;
 
 	// Game board and player pieces
 	@FXML
@@ -78,36 +93,196 @@ public class PantallaJuego {
 	private Circle P4;
 
 	private GestorPartida gestorPartida;
-	// ONLY FOR TESTING!!!
-	private int p1Position = 0; // Tracks current position (from 0 to 49 in a 5x10 grid)
+	private static Partida partidaInicial;
+
+	// Dado especial seleccionado para el próximo turno (null = dado estándar)
+	private Dau dauSeleccionat = null;
+
 	private static final int COLUMNS = 5;
+
+	@FXML
+	private VBox sidebarPlayers;
 
 	private static final String TAG_CASILLA_TEXT = "CASILLA_TEXT";
 
+	public static void setPartidaInicial(Partida p) {
+		partidaInicial = p;
+	}
 
 	@FXML
 	private void initialize() {
-		eventos.setText("¡El juego ha comenzado!");
+		registrarEvento("¡El juego ha comenzado!", "log-info");
 
 		gestorPartida = new GestorPartida();
-		GestorTaulell gestorTaulell = new GestorTaulell();
 		
-		// Generar taulell aleatori seguint les regles del GestorTaulell
-		String seed = gestorTaulell.generarSeedAleatori();
-		Taulell taulell = gestorTaulell.generarTaulell(seed);
-		
-		ArrayList<Jugador> jugadors = new ArrayList<Jugador>();
-		Inventari inventari = new Inventari();
-		Dau dau = new Dau("Dau normal", 1, 1, 6);
-		inventari.afegirItem(dau);
-		
-		Pinguino pingu = new Pinguino("Jugador1", "Blau", inventari);
-		jugadors.add(pingu);
+		if (partidaInicial != null) {
+			gestorPartida.setPartida(partidaInicial);
+			partidaInicial = null; // Limpiar para la próxima vez
+		} else {
+			// Fallback: Nueva partida por defecto
+			GestorTaulell gestorTaulell = new GestorTaulell();
+			String seed = gestorTaulell.generarSeedAleatori();
+			Taulell taulell = gestorTaulell.generarTaulell(seed);
+			ArrayList<Jugador> jugadors = new ArrayList<Jugador>();
+			jugadors.add(new Pinguino("Jugador1", "Azul", new Inventari()));
+			gestorPartida.novaPartida(jugadors, taulell);
+		}
 
-		gestorPartida.novaPartida(jugadors, taulell);
-
-		// Show board info
+		// Mostrar info del tablero
 		mostrarTiposDeCasillasEnTablero(gestorPartida.getPartida().getTaulell());
+		actualizarUI();
+	}
+
+	/**
+	 * Actualitza tota la interfície per reflectir l'estat actual de la partida.
+	 * Sincronitza posicions de fitxes, visibilitat i indicadors de torn.
+	 */
+	public void actualizarUI() {
+		ArrayList<Jugador> js = gestorPartida.getPartida().getJugadors();
+		
+		// Gestió de la visibilitat de les peces segons el nombre de jugadors
+		P2.setVisible(js.size() > 1);
+		P3.setVisible(js.size() > 2);
+		P4.setVisible(js.size() > 3);
+		
+		// Actualitzar la posició física de cada peça al GridPane
+		for (int i = 0; i < js.size(); i++) {
+			Jugador j = js.get(i);
+			Circle pieza = getPiezaParaJugador(j);
+			if (pieza != null) {
+				int pos = j.getPosicio();
+				GridPane.setRowIndex(pieza, pos / COLUMNS);
+				GridPane.setColumnIndex(pieza, pos % COLUMNS);
+			}
+		}
+		
+		// Actualitzar barra lateral de jugadors
+		actualizarSidebarJugadores();
+
+		// Actualitzar comptadors d'objectes i estat dels botons
+		actualizarContadoresObjetos();
+	}
+
+	/**
+	 * Registra un nou esdeveniment al log persistent.
+	 */
+	private void registrarEvento(String mensaje, String styleClass) {
+		if (logEventos == null) return;
+
+		String timestamp = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+		Label entry = new Label("[" + timestamp + "] " + mensaje);
+		entry.getStyleClass().add(styleClass);
+		entry.setWrapText(true);
+		entry.setMaxWidth(280);
+
+		logEventos.getChildren().add(entry);
+
+		// Auto-scroll al final
+		Platform.runLater(() -> scrollEventos.setVvalue(1.0));
+		
+		// Compatibility fallback if anyone else uses the old label
+		if (eventos != null) eventos.setText(mensaje);
+	}
+
+	/**
+	 * Actualitza els comptadors d'objectes a la UI i habilita/deshabilita
+	 * els botons segons l'inventari del jugador humà actiu.
+	 */
+	private void actualizarContadoresObjetos() {
+		Jugador actual = gestorPartida.getPartida().getJugadorActual();
+
+		// Si no és el torn d'un Pingüí, deshabilitar tots els botons d'ítems
+		if (!(actual instanceof Pinguino pingu)) {
+			rapido.setDisable(true);
+			lento.setDisable(true);
+			peces.setDisable(true);
+			nieve.setDisable(true);
+			return;
+		}
+
+		Inventari inv = pingu.getInventari();
+
+		// Cercar daus especials: ràpid (max > 6) i lent (max <= 3)
+		Dau dRapid = null, dLent = null;
+		for (model.items.Item obj : inv.getLlista()) {
+			if (obj instanceof Dau d) {
+				if (d.getMax() > 6  && dRapid == null) dRapid = d;
+				if (d.getMax() <= 3 && dLent  == null) dLent  = d;
+			}
+		}
+
+		// Actualitzar textos amb quantitats reals de l'inventari
+		rapido_t.setText("Dado rápido: " + (dRapid != null ? dRapid.getQuantitat() : 0));
+		lento_t.setText( "Dado lento: "  + (dLent  != null ? dLent.getQuantitat()  : 0));
+		peces_t.setText( "Peces: "        + inv.getPeixos());
+		nieve_t.setText( "Bolas de nieve: " + inv.getBoles());
+
+		// Habilitar/deshabilitar botons
+		rapido.setDisable(dRapid == null || dRapid.getQuantitat() <= 0);
+		lento.setDisable( dLent  == null || dLent.getQuantitat()  <= 0);
+		peces.setDisable( inv.getPeixos() <= 0);
+		nieve.setDisable( inv.getBoles()  <= 0);
+	}
+
+	private void actualizarSidebarJugadores() {
+		sidebarPlayers.getChildren().clear();
+		
+		Label title = new Label("Estado Jugadores");
+		title.getStyleClass().add("sidebar-title");
+		sidebarPlayers.getChildren().add(title);
+
+		Partida pActual = gestorPartida.getPartida();
+		for (Jugador j : pActual.getJugadors()) {
+			VBox card = new VBox(5);
+			card.getStyleClass().add("player-status-card");
+			
+			// Highlight del jugador amb torn actiu
+			if (j == pActual.getJugadorActual()) {
+				card.getStyleClass().add("is-current-turn");
+			}
+
+			HBox header = new HBox(10);
+			Circle colorIndicator = new Circle(8);
+			colorIndicator.setStyle("-fx-fill: " + j.getColor() + ";");
+			
+			Label name = new Label(j.getNickname());
+			name.getStyleClass().add("player-name");
+			
+			header.getChildren().addAll(colorIndicator, name);
+			card.getChildren().add(header);
+
+			if (j instanceof Pinguino p) {
+				VBox inv = new VBox(2);
+				inv.getStyleClass().add("player-inv-mini");
+				
+				Label peces = new Label("Peces: " + p.getInventari().getPeixos());
+				Label boles = new Label("Boles: " + p.getInventari().getBoles());
+				Label daus = new Label("Daus: " + p.getInventari().getDausEspecials());
+				
+				inv.getChildren().addAll(peces, boles, daus);
+				card.getChildren().add(inv);
+			} else {
+				Label cpuLabel = new Label("(CPU - Foca)");
+				cpuLabel.getStyleClass().add("cpu-label");
+				card.getChildren().add(cpuLabel);
+			}
+
+			sidebarPlayers.getChildren().add(card);
+		}
+	}
+
+	/**
+	 * Retorna l'element visual (Cercle) associat a un jugador segons el seu índex.
+	 */
+	private Circle getPiezaParaJugador(Jugador j) {
+		int idx = gestorPartida.getPartida().getJugadors().indexOf(j);
+		switch (idx) {
+			case 0: return P1;
+			case 1: return P2;
+			case 2: return P3;
+			case 3: return P4;
+			default: return null;
+		}
 	}
 
 	private void mostrarTiposDeCasillasEnTablero(Taulell t) {
@@ -116,23 +291,44 @@ public class PantallaJuego {
 
 		for (int i = 0; i < t.getCaselles().size(); i++) {
 			Casella casilla = t.getCaselles().get(i);
-
-			// Skip position 0 and 49 if you want them to be special (start/end)
-			if (i > 0 && i < 49) {
-			String tipo = casilla.getClass().getSimpleName();
+			String tipo = "";
+			
+			if (i == 0) {
+				tipo = "INICI";
+			} else if (i == t.getCaselles().size() - 1) {
+				tipo = "FINAL";
+			} else {
+				tipo = casilla.getClass().getSimpleName();
+			}
 
 			Text texto = new Text(tipo);
-			texto.setUserData(TAG_CASILLA_TEXT);
 			texto.getStyleClass().add("cell-type");
+			
+			// Add specific styles for start/finish for easier CSS targetting if needed
+			if (i == 0) texto.getStyleClass().add("text-start");
+			if (i == t.getCaselles().size() - 1) texto.getStyleClass().add("text-finish");
+
+			// Wrap in a StackPane to represent the "Ice Block"
+			StackPane iceBlock = new StackPane(texto);
+			iceBlock.setUserData(TAG_CASILLA_TEXT);
+			iceBlock.getStyleClass().add("board-cell");
+			
+			// Add specific type class for coloring
+			if (i == 0) {
+				iceBlock.getStyleClass().add("start-cell");
+			} else if (i == t.getCaselles().size() - 1) {
+				iceBlock.getStyleClass().add("finish-cell");
+			} else {
+				iceBlock.getStyleClass().add("cell-" + casilla.getClass().getSimpleName());
+			}
 
 			int row = i / COLUMNS;
 			int col = i % COLUMNS;
 
-			GridPane.setRowIndex(texto, row);
-			GridPane.setColumnIndex(texto, col);
+			GridPane.setRowIndex(iceBlock, row);
+			GridPane.setColumnIndex(iceBlock, col);
 
-			tablero.getChildren().add(texto);
-			}
+			tablero.getChildren().add(0, iceBlock); // Add to back to ensure players are on top
 		}
 	}
 
@@ -184,152 +380,188 @@ public class PantallaJuego {
 	// Button actions
 	@FXML
 	private void handleDado(ActionEvent event) {
-		Pinguino pingu = (Pinguino) gestorPartida.getPartida().getJugadors().get(0);
-		Dau d = (Dau) pingu.getInventari().obtenirPrimer(Dau.class);
-		
-		if (d == null) {
-			d = new Dau(); // Default dice if none in inventory
-		}
-		
-		System.out.println("Pos pingu previa:" + pingu.getPosicio());
-		
-		int resultado = gestorPartida.tirarDau(pingu, d);
-		
-		// Actualitzar el model (GestorPartida.tirarDau no mou el jugador automàticament si només crida tirar)
-		// Processar torn complet o moure el jugador manualment per reflectir el canvi
-		pingu.mourePosicio(resultado);
-		
-		System.out.println("Pos pingu actual:" + pingu.getPosicio());
-
-		// Update the Text
-		dadoResultText.setText("Ha salido: " + resultado);
-
-		// Update the position in UI
-		moveP1(resultado);
+		executartorn();
 	}
 
-	
-/*	Old simple version
- * private void moveP1(int steps) {
-		p1Position += steps;
-
-		// Bound player
-		if (p1Position >= 50) {
-			p1Position = 49; // 5 columns * 10 rows = 50 cells (index 0 to 49)
-		}
+	/**
+	 * Executa la lògica d'un torn complet: tirada de dau i moviment.
+	 */
+	private void executartorn() {
+		Partida p = gestorPartida.getPartida();
+		Jugador actual = p.getJugadorActual();
 		
-		if (p1Position < 0) {
-			p1Position = 0;
+		if (p.isFinalitzada()) {
+			registrarEvento("¡Partida acabada! Guanyador: " + p.getGuanyador().getNickname(), "log-warning");
+			return;
 		}
 
-		// Check row and column
-		int row = p1Position / COLUMNS;
-		int col = p1Position % COLUMNS;
+		registrarEvento("Torn de: " + actual.getNickname(), "log-turn");
 
-		// Change P1 property to match row and column
-		GridPane.setRowIndex(P1, row);
-		GridPane.setColumnIndex(P1, col);
-	}*/
-	
-	private void moveP1(int steps) {
+		// Obtenir dau: prioritzar el seleccionat manualment per l'usuari
+		Dau d;
+		if (dauSeleccionat != null) {
+			d = dauSeleccionat;
+			dauSeleccionat = null; // Consumir la selecció un cop usada
+		} else if (actual instanceof Pinguino ping) {
+			d = (Dau) ping.getInventari().obtenirPrimer(Dau.class);
+			if (d == null) d = new Dau();
+		} else {
+			d = new Dau();
+		}
 
-	    // Evita spam del botón
+		int resultado = gestorPartida.tirarDau(actual, d);
+		dadoResultText.setText("Dau: " + resultado);
+		
+		// Animació a la UI abans de canviar el torn al model
+		moverPieza(actual, resultado);
+	}
+
+	/**
+	 * Mou una peça amb una animació de transició i actualitza el model en acabar.
+	 */
+	private void moverPieza(Jugador j, int steps) {
 	    dado.setDisable(true);
+	    Circle pieza = getPiezaParaJugador(j);
+	    if (pieza == null) return;
 
-	    int oldPosition = p1Position;
+	    int oldPos = j.getPosicio();
+	    int newPos = Math.min(oldPos + steps, gestorPartida.getPartida().getTaulell().getCaselles().size() - 1);
 
-	    p1Position += steps;
+	    int oldRow = oldPos / COLUMNS;
+	    int oldCol = oldPos % COLUMNS;
+	    int newRow = newPos / COLUMNS;
+	    int newCol = newPos % COLUMNS;
 
-	    // Bound player
-	    if (p1Position >= 50) {
-	        p1Position = 49;
-	    }
-
-	    if (p1Position < 0) {
-	        p1Position = 0;
-	    }
-
-	    // OLD position
-	    int oldRow = oldPosition / COLUMNS;
-	    int oldCol = oldPosition % COLUMNS;
-
-	    // NEW position
-	    int newRow = p1Position / COLUMNS;
-	    int newCol = p1Position % COLUMNS;
-
-	    // Cell size (aproximado)
 	    double cellWidth = tablero.getWidth() / COLUMNS;
 	    double cellHeight = tablero.getHeight() / 10;
 
 	    double dx = (newCol - oldCol) * cellWidth;
 	    double dy = (newRow - oldRow) * cellHeight;
 
-	    TranslateTransition slide = new TranslateTransition(Duration.millis(350), P1);
-
+	    TranslateTransition slide = new TranslateTransition(Duration.millis(500), pieza);
 	    slide.setByX(dx);
 	    slide.setByY(dy);
 
 	    slide.setOnFinished(e -> {
-
-	        // reset translation
-	        P1.setTranslateX(0);
-	        P1.setTranslateY(0);
-
-	        // set real position in grid
-	        GridPane.setRowIndex(P1, newRow);
-	        GridPane.setColumnIndex(P1, newCol);
-
-	        // volver a activar el botón
+	        pieza.setTranslateX(0);
+	        pieza.setTranslateY(0);
+	        
+	        // Actualitzar model
+	        j.setPosicio(newPos);
+	        
+	        // Executar lògica de la casella on arribat
+	        new GestorTaulell().executarCasella(gestorPartida.getPartida(), j, gestorPartida.getPartida().getTaulell().getCaselles().get(newPos));
+	        
+	        
+	        // Passar el torn
+	        gestorPartida.seguentTorn();
+	        
 	        dado.setDisable(false);
+	        actualizarUI();
+	        
+	        // Comprovar si el següent és CPU
+	        checkTurnoCPU();
 	    });
 
 	    slide.play();
 	}
 
+	/**
+	 * Comprova si el següent torn l'ha de fer la CPU i l'executa automàticament.
+	 */
+	private void checkTurnoCPU() {
+		Jugador proximo = gestorPartida.getPartida().getJugadorActual();
+		// En aquest model, les Foques sempre són CPU
+		if (proximo instanceof model.entitats.Foca) {
+			new Thread(() -> {
+				try { Thread.sleep(1000); } catch (InterruptedException e) {}
+				javafx.application.Platform.runLater(this::executartorn);
+			}).start();
+		}
+	}
+
 	@FXML
 	private void handleRapido() {
-		Pinguino pingu = (Pinguino) gestorPartida.getPartida().getJugadors().get(0);
-		// Cercar un Dau que es digui "Dau Ràpid" o similar, o que tingui rang superior
-		// Per simplificar, busquem el primer Dau especial
-		Dau d = (Dau) pingu.getInventari().obtenirPrimer(Dau.class);
-		if (d != null && d.getMax() > 6) {
-			handleDado(null); // Reuse dice logic if it's the right one
-		} else {
-			System.out.println("No tens Dau Ràpid!");
+		Jugador actual = gestorPartida.getPartida().getJugadorActual();
+		if (!(actual instanceof Pinguino pingu)) return;
+
+		// Buscar dau ràpid (max > 6) a la llista real de l'inventari
+		Dau dRapid = null;
+		for (model.items.Item obj : pingu.getInventari().getLlista()) {
+			if (obj instanceof Dau d && d.getMax() > 6) { dRapid = d; break; }
 		}
+
+		if (dRapid == null || dRapid.getQuantitat() <= 0) {
+			registrarEvento("No tienes dado rápido.", "log-warning");
+			return;
+		}
+
+		// usarItem decrementa quantitat i l'elimina si arriba a 0
+		pingu.getInventari().usarItem(dRapid);
+		dauSeleccionat = dRapid;
+		registrarEvento(pingu.getNickname() + " usa dado rápido (1-" + dRapid.getMax() + ")", "log-info");
+		executartorn();
 	}
 
 	@FXML
 	private void handleLento() {
-		Pinguino pingu = (Pinguino) gestorPartida.getPartida().getJugadors().get(0);
-		Dau d = (Dau) pingu.getInventari().obtenirPrimer(Dau.class);
-		if (d != null && d.getMax() <= 3) {
-			handleDado(null);
-		} else {
-			System.out.println("No tens Dau Lent!");
+		Jugador actual = gestorPartida.getPartida().getJugadorActual();
+		if (!(actual instanceof Pinguino pingu)) return;
+
+		// Buscar dau lent (max <= 3)
+		Dau dLent = null;
+		for (model.items.Item obj : pingu.getInventari().getLlista()) {
+			if (obj instanceof Dau d && d.getMax() <= 3) { dLent = d; break; }
 		}
+
+		if (dLent == null || dLent.getQuantitat() <= 0) {
+			registrarEvento("No tienes dado lento.", "log-warning");
+			return;
+		}
+
+		pingu.getInventari().usarItem(dLent);
+		dauSeleccionat = dLent;
+		registrarEvento(pingu.getNickname() + " usa dado lento (1-" + dLent.getMax() + ")", "log-info");
+		executartorn();
 	}
 
 	@FXML
 	private void handlePeces() {
-		Pinguino pingu = (Pinguino) gestorPartida.getPartida().getJugadors().get(0);
-		if (pingu.getInventari().getPeixos() > 0) {
-			System.out.println("Has usat un peix!");
-			// TODO: Aplicar efecte peix (p.ex. moure posició o inventari)
-		} else {
-			System.out.println("No tens peixos!");
+		Jugador actual = gestorPartida.getPartida().getJugadorActual();
+		if (!(actual instanceof Pinguino pingu)) return;
+
+		// usarPrimer busca el primer Peix disponible, el usa y lo elimina si llega a 0
+		boolean usat = pingu.getInventari().usarPrimer(Peix.class);
+		if (!usat) {
+			registrarEvento("No tienes peces.", "log-warning");
+			return;
 		}
+
+		registrarEvento(pingu.getNickname() + " usa un pez: avanza 2 casillas extra.", "log-info");
+		int maxPos = gestorPartida.getPartida().getTaulell().getCaselles().size() - 1;
+		pingu.setPosicio(Math.min(pingu.getPosicio() + 2, maxPos));
+		actualizarUI();
 	}
 
 	@FXML
 	private void handleNieve() {
-		Pinguino pingu = (Pinguino) gestorPartida.getPartida().getJugadors().get(0);
-		if (pingu.getInventari().getBoles() > 0) {
-			System.out.println("Has usat una bola de neu!");
-			// TODO: Aplicar efecte bola de neu
-		} else {
-			System.out.println("No tens boles de neu!");
+		Jugador actual = gestorPartida.getPartida().getJugadorActual();
+		if (!(actual instanceof Pinguino pingu)) return;
+
+		boolean usat = pingu.getInventari().usarPrimer(BolaNeu.class);
+		if (!usat) {
+			registrarEvento("No tienes bolas de nieve.", "log-warning");
+			return;
 		}
+
+		registrarEvento(pingu.getNickname() + " lanza una bola de nieve: el siguiente jugador retrocede 1 casilla.", "log-info");
+
+		// El jugador següent retrocedeix 1 casella
+		ArrayList<Jugador> js = gestorPartida.getPartida().getJugadors();
+		int idxSeguent = (js.indexOf(pingu) + 1) % js.size();
+		Jugador seguent = js.get(idxSeguent);
+		seguent.setPosicio(Math.max(0, seguent.getPosicio() - 1));
+		actualizarUI();
 	}
 
 	

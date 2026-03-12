@@ -7,6 +7,7 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
@@ -42,40 +43,55 @@
     <center>
         <StackPane>
             <padding>
-                <Insets top="28" right="28" bottom="28" left="28"/>
+                <Insets bottom="20" left="20" right="20" top="20" />
             </padding>
 
-            <VBox spacing="16" styleClass="card" maxWidth="420">
+            <VBox maxWidth="500" spacing="16" styleClass="card">
                 <padding>
-                    <Insets top="18" right="18" bottom="18" left="18"/>
+                    <Insets bottom="20" left="20" right="20" top="20" />
                 </padding>
 
-                <!-- Cabecera -->
-                <VBox spacing="6" alignment="CENTER">
-                    <Label text="EL JUEGO DEL PINGÜINO" styleClass="title" wrapText="true"/>
+                <VBox alignment="CENTER" spacing="6">
+                    <Label styleClass="title" text="EL JUEGO DEL PINGÜINO" wrapText="true" />
+                    <Label styleClass="subtitle" text="Configura tu expedición ártica" />
                 </VBox>
 
-                <Region prefHeight="8"/>
+                <javafx.scene.control.TabPane fx:id="mainTabPane" side="TOP" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                    <tabs>
+                        <!-- NUEVA PARTIDA -->
+                        <javafx.scene.control.Tab text="Nueva Partida">
+                            <content>
+                                <VBox spacing="15" style="-fx-padding: 15;">
+                                    <VBox spacing="10" VBox.vgrow="ALWAYS">
+                                        <Label styleClass="hint" text="Todas las partidas tendrán 4 jugadores. Las plazas vacías se llenarán con CPUs." wrapText="true" />
+                                        <Separator />
+                                        <Label styleClass="field-label" text="Jugadores Humanos (Mínimo 1):" />
+                                        <javafx.scene.control.ListView fx:id="playersList" prefHeight="100" styleClass="players-list" />
+                                        
+                                        <VBox spacing="5" styleClass="login-mini-card">
+                                            <TextField fx:id="userField" promptText="Nombre de usuario..." styleClass="field-small" />
+                                            <PasswordField fx:id="passField" promptText="Contraseña..." styleClass="field-small" />
+                                            <Button maxWidth="Infinity" onAction="#handleLogin" styleClass="secondary" text="Añadir Jugador" />
+                                        </VBox>
+                                    </VBox>
+                                </VBox>
+                            </content>
+                        </javafx.scene.control.Tab>
 
-                <!-- Formulario -->
-                <VBox spacing="10">
-                    <Label text="Usuario" styleClass="field-label"/>
-                    <TextField fx:id="userField" promptText="Usuario..." styleClass="field"/>
+                        <!-- CARGAR PARTIDA -->
+                        <javafx.scene.control.Tab text="Cargar Partida">
+                            <content>
+                                <VBox spacing="15" style="-fx-padding: 15;">
+                                    <Label styleClass="field-label" text="Selecciona una partida guardada:" />
+                                    <javafx.scene.control.ListView fx:id="savedGamesList" VBox.vgrow="ALWAYS" />
+                                    <Button maxWidth="Infinity" onAction="#handleRefreshGames" text="Actualizar Lista" />
+                                </VBox>
+                            </content>
+                        </javafx.scene.control.Tab>
+                    </tabs>
+                </javafx.scene.control.TabPane>
 
-                    <Label text="Contraseña" styleClass="field-label"/>
-                    <PasswordField fx:id="passField" promptText="Contraseña..." styleClass="field"/>
-                </VBox>
-
-                <Region prefHeight="6"/>
-
-                <!-- Botonera -->
-                <HBox spacing="10">
-                    <Button fx:id="loginButton" text="Login" onAction="#handleLogin" maxWidth="Infinity" styleClass="primary"/>
-                    <Button fx:id="registerButton" text="Registro" onAction="#handleRegister" maxWidth="Infinity"/>
-                </HBox>
-
-                <Label text="Tip: para la demo, puedes entrar con cualquier usuario si aún no hay validación."
-                       styleClass="hint" wrapText="true"/>
+                <Button fx:id="startGameButton" maxWidth="Infinity" onAction="#handleStartGame" styleClass="primary-large" text="COMENZAR PARTIDA" />
             </VBox>
         </StackPane>
     </center>
