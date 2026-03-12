@@ -19,7 +19,6 @@ import javafx.scene.Node;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 import model.core.Partida;
 import model.entitats.Jugador;
@@ -68,7 +67,7 @@ public class PantallaMenu {
 
     @FXML
     private void handleRefreshGames() {
-        try (Connection con = GestorBBDD.conectarBaseDatos(new java.util.Scanner("centro\nadmin\nadmin\n"))) { // Hardcoded for demo/dev
+        try (Connection con = GestorBBDD.conectarBaseDatos()) { // Hardcoded for demo/dev
             if (con != null) {
                 ArrayList<String> games = dbManager.llistarPartides(con);
                 savedGamesList.getItems().setAll(games);
@@ -92,7 +91,7 @@ public class PantallaMenu {
             }
             int id = Integer.parseInt(selected.split(":")[1].trim().split(" ")[0]);
             
-            try (Connection con = GestorBBDD.conectarBaseDatos(new java.util.Scanner("centro\nadmin\nadmin\n"))) {
+            try (Connection con = GestorBBDD.conectarBaseDatos()) {
                 partida = dbManager.carregarBBDD(id, con);
             } catch (Exception e) {
                 e.printStackTrace();
