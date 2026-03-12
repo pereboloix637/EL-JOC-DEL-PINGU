@@ -46,8 +46,6 @@ public class PantallaJuego {
 
 	// Menu items
 	@FXML
-	private MenuItem newGame;
-	@FXML
 	private MenuItem saveGame;
 	@FXML
 	private MenuItem loadGame;
@@ -351,49 +349,6 @@ public class PantallaJuego {
 
 	// Menu actions
 	@FXML
-	private void handleNewGame() {
-	    // Notificar reinicio
-	    registrarEvento("Reiniciando partida...", "log-info");
-
-	    // 1. Obtener y resetear jugadores actuales
-	    ArrayList<Jugador> jugadors = new ArrayList<>();
-	    if (gestorPartida.getPartida() != null) {
-	        jugadors = gestorPartida.getPartida().getJugadors();
-	        for (Jugador j : jugadors) {
-	            j.setPosicio(0);
-	            j.setTornsBloquejat(0);
-	            if (j instanceof Pinguino p) {
-	                p.inventari = new Inventari();
-	            }
-	        }
-	    } else {
-	        // Fallback si no hay partida (p.ej. inicio directo)
-	        jugadors.add(new Pinguino("Jugador1", "Azul", new Inventari()));
-	    }
-
-	    // 2. Generar nuevo tablero
-	    GestorTaulell gt = new GestorTaulell();
-	    String seed = gt.generarSeedAleatori();
-	    Taulell taulell = gt.generarTaulell(seed);
-
-	    // 3. Reiniciar el Gestor con la nueva configuración
-	    gestorPartida.novaPartida(jugadors, taulell);
-
-	    // 4. Limpiar UI y logs
-	    if (logEventos != null) logEventos.getChildren().clear();
-	    if (dadoResultText != null) dadoResultText.setText("Ha salido: -");
-
-	    // 5. Refrescar visualmente
-	    mostrarTiposDeCasillasEnTablero(taulell);
-	    actualizarUI();
-
-	    registrarEvento("¡Partida reiniciada! Tablero nuevo generado.", "log-info");
-	    
-	    // Resetear dado seleccionado
-	    dauSeleccionat = null;
-	}
-
-	@FXML
 	private void handleSaveGame() {
 		System.out.println("Saved game.");
 		// TODO
@@ -536,23 +491,17 @@ public class PantallaJuego {
 	        alert.setHeaderText("¡Tenemos un ganador!");
 	        alert.setContentText("Enhorabuena " + g.getNickname() + ", ¡has llegado a la meta! \n\n ¿Qué quieres hacer ahora?");
 
-	        ButtonType btnNuevo = new ButtonType("Nueva Partida");
 	        ButtonType btnGuardar = new ButtonType("Guardar Seed");
-	        ButtonType btnMenu = new ButtonType("Volver al Menú");
 	        ButtonType btnSalir = new ButtonType("Salir");
 	        
-	        alert.getButtonTypes().setAll(btnNuevo, btnGuardar, btnMenu, btnSalir);
+	        alert.getButtonTypes().setAll(btnGuardar, btnSalir);
 
 	        Optional<ButtonType> result = alert.showAndWait();
 	        
 	        if (result.isPresent()) {
-	            if (result.get() == btnNuevo) {
-	                handleNewGame();
-	            } else if (result.get() == btnGuardar) {
+	            if (result.get() == btnGuardar) {
 	                guardarSeedTablero();
 	                mostrarAlertaGanador(g); // Re-mostrar tras guardar
-	            } else if (result.get() == btnMenu) {
-	                volverAlMenu();
 	            } else if (result.get() == btnSalir) {
 	                handleQuitGame();
 	            }
@@ -580,22 +529,6 @@ public class PantallaJuego {
 	        } catch (Exception e) {
 	            registrarEvento("Error al guardar seed: " + e.getMessage(), "log-warning");
 	        }
-	    }
-	}
-
-	/**
-	 * Regresa a la pantalla de menú principal.
-	 */
-	private void volverAlMenu() {
-	    try {
-	        FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/PantallaMenu.fxml"));
-	        Parent root = loader.load();
-	        Stage stage = (Stage) tablero.getScene().getWindow();
-	        stage.setScene(new Scene(root));
-	        stage.setTitle("El Juego del Pingüino - Menú");
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        registrarEvento("Error al volver al menú.", "log-warning");
 	    }
 	}
 
