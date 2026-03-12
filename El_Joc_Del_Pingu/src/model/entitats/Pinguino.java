@@ -23,69 +23,46 @@ public class Pinguino extends Jugador {
 /// METODES
 	// METODE PER BATALLAR AMB UN RIVAL
 	public void gestionarBatalla(Pinguino pingu) {
+		int bolesJ1 = this.getInventari().getBoles();
+		int bolesJ2 = (pingu != null) ? pingu.getInventari().getBoles() : -1;
 
-	    // Comprovació previa
-	    if (pingu == null) {
-	        System.out.println("ERROR: OPERACIO INVALIDA (JUGADOR BUIT)");
-	        return;
-	    }
+		// Validamos: Rival no nulo y que las cantidades de bolas sean lógicas
+		if (pingu != null && bolesJ1 >= 0 && bolesJ2 >= 0) {
+			int diferencia = bolesJ1 - bolesJ2;
 
-	    int bolesJ1 = this.getInventari().getBoles();
-	    int bolesJ2 = pingu.getInventari().getBoles();
+			if (bolesJ1 > bolesJ2) {
+				// CAS 1: Guanya el atacant
+				System.out.println(this.getNickname() + " guanya!");
+				this.mourePosicio(diferencia);
+				System.out.println("El rival retrocedira " + diferencia + " caselles...");
+			} else if (bolesJ1 < bolesJ2) {
+				// CAS 2: Guanya el contrincant
+				System.out.println(pingu.getNickname() + " guanya!");
+				pingu.mourePosicio(diferencia);
+				System.out.println("El rival retrocedira " + diferencia + " caselles...");
+			} else {
+				// CAS 3: Empat - Se pierden todas las bolas
+				System.out.println("Empat! Es perden totes les boles de neu.");
+				System.out.println("--------------------------------------------------------------------");
 
+				System.out.println("Inventari del atacant: " + this.getNickname());
+				System.out.println("Se li treuran " + bolesJ1 + " Boles de Neu.");
+				this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
+				System.out.println("__________________________________________________________________________");
 
-
-	    if (bolesJ1 < 0 || bolesJ2 < 0) {
-	        System.out.println("ERROR: OPERACIO INVALIDA AMB LES BOLES DE NEU");
-	        return;
-	    }
-	    
-	    // MESURAR DISTANCIA ENTRE LES BOLES DE NEU DEL ATACANT I DEL OPONENT
-        int diferencia = bolesJ1 - bolesJ2;
-        
-	    // CAS 1: Guanya el atacant
-	    if (bolesJ1 > bolesJ2) {
-
-	        System.out.println(this.getNickname() + " guanya!");
-
-	        this.mourePosicio(diferencia);
-	        System.out.println("El rival retrocedira " + diferencia + " caselles...");
-
-	    // CAS 2: Guanya el contrincant
-	    } else if (bolesJ1 < bolesJ2) {
-
-	        System.out.println(pingu.getNickname() + " guanya!");
-	        
-	        pingu.mourePosicio(diferencia);
-	        System.out.println("El rival retrocedira " + diferencia + " caselles...");
-
-	    // CAS 3: Empat
-	    } else {
-
-	        System.out.println("Empat! Es perden totes les boles de neu.");
-	        System.out.println("--------------------------------------------------------------------");
-
-	        // Eliminem totes les boles del jugador atacant
-	        System.out.println("Inventari del atacant: " + this.getNickname());
-	        System.out.println("Se li treuran " + bolesJ1 + " Boles de Neu.");
-	        System.out.println("===============================");
-
-	        for (int i = 0; i < bolesJ1; i++) {
-	        	this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
-	        }
-	        System.out.println("__________________________________________________________________________");
-
-	        // Eliminem totes les boles del rival
-	        System.out.println("Inventari del rival: " + pingu.getNickname());
-	        System.out.println("Se li treuran " + bolesJ2 + " Boles de Neu.");
-	        System.out.println("===============================");
-
-	        for (int i = 0; i < bolesJ2; i++) {
-	        	pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
-	        }
-	        System.out.println("__________________________________________________________________________");
-
-	    }
+				System.out.println("Inventari del rival: " + pingu.getNickname());
+				System.out.println("Se li treuran " + bolesJ2 + " Boles de Neu.");
+				pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
+				System.out.println("__________________________________________________________________________");
+			}
+		} else {
+			// Gestión de errores unificada
+			if (pingu == null) {
+				System.out.println("ERROR: OPERACIO INVALIDA (JUGADOR BUIT)");
+			} else {
+				System.out.println("ERROR: OPERACIO INVALIDA AMB LES BOLES DE NEU");
+			}
+		}
 	}
 
 // Usa un ítem de l'inventari (consumeix 1 unitat)

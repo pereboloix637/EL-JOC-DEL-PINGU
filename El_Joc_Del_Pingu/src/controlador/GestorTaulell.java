@@ -58,7 +58,7 @@ public class GestorTaulell {
 	/**
 	 * Genera un taulell a partir d'un seed de 50 caràcters (funciona tant si l'usuari passa un String
 	 * "0123...45" o qualsevol altra representació numèrica com a text).
-	 * 0=NORMAL, 1=OS, 2=TRINEU, 3=AIGUERO(Forat), 4=ESDEVENIMENT(Event), 5=TRENCADIS
+	 * 0=NORMAL, 1=OS, 2=TRINEU, 3=Forat, 4=ESDEVENIMENT(Event), 5=TRENCADIS
 	 *
 	 * @param seed Un string amb 50 dígits, on cadascun representa el tipus de casella.
 	 * @return El taulell instanciat amb les caselles corresponents.
