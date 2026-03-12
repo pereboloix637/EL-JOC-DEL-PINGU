@@ -1,10 +1,13 @@
 package vista;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TabPane;
 import javafx.fxml.FXMLLoader;
@@ -27,9 +30,9 @@ import controlador.GestorTaulell;
 
 public class PantallaMenu {
 
-    @FXML private MenuItem newGame;
     @FXML private MenuItem saveGame;
     @FXML private MenuItem loadGame;
+    @FXML private MenuItem menuItem;
     @FXML private MenuItem quitGame;
 
     @FXML private TextField userField;
@@ -132,8 +135,43 @@ public class PantallaMenu {
         }
     }
 
+
+    @FXML
+    private void handleLoadGame() {
+        mainTabPane.getSelectionModel().select(1);
+        handleRefreshGames(); // Aprovechar para refrescar la lista
+    }
+
+    @FXML
+    private void handleGoToMenu() {
+        mainTabPane.getSelectionModel().select(0);
+    }
+
+    @FXML
+    private void handleSaveGame() {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Guardar Partida");
+        alert.setHeaderText(null);
+        alert.setContentText("No hay ninguna partida activa para guardar. Comienza una partida primero.");
+        alert.showAndWait();
+    }
+
     @FXML
     private void handleQuitGame() {
-        System.exit(0);
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Salir del Juego");
+        alert.setHeaderText("¿Estás seguro de que quieres salir?");
+        alert.setContentText("Se perderá cualquier progreso no guardado.");
+
+        ButtonType buttonTypeNo = new ButtonType("Sí, salir");
+        ButtonType buttonTypeCancel = new ButtonType("Cancelar", ButtonType.CANCEL.getButtonData());
+
+        alert.getButtonTypes().setAll(buttonTypeNo, buttonTypeCancel);
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == buttonTypeNo) {
+                System.exit(0);
+            }
+        });
     }
 }
