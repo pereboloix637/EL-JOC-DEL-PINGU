@@ -517,15 +517,15 @@ public class PantallaJuego {
 	        // Actualitzar model
 	        j.setPosicio(newPos);
 	        
-	        // --- LÓGICA DE BATALLA ---
-	        // Si el jugador acabado de mover es un pingüino, buscamos colisiones
+	        // --- LÒGICA DE BATALLA ---
+	        // Si el jugador acabat de moure és un pingüí, busquem col·lisions
 	        if (j instanceof Pinguino pActual) {
 	            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
-	                // Si hay otro pingüino en la misma casilla (y no soy yo mismo)
+	                // Si hi ha un altre pingüí a la mateixa casella (i no sóc jo mateix)
 	                if (rival != pActual && rival.getPosicio() == newPos && rival instanceof Pinguino pRival) {
-	                    registrarEvento("¡Colisión! Batalla entre " + pActual.getNickname() + " y " + pRival.getNickname(), "log-warning");
+	                    registrarEvento("Col·lisió! Batalla entre " + pActual.getNickname() + " i " + pRival.getNickname(), "log-warning");
 	                    pActual.gestionarBatalla(pRival);
-	                    break; // Un solo encuentro por turno
+	                    break; // Una única trobada per torn
 	                }
 	            }
 	        }
@@ -560,12 +560,12 @@ public class PantallaJuego {
 	private void mostrarAlertaGanador(Jugador g) {
 	    Platform.runLater(() -> {
 	        Alert alert = new Alert(AlertType.INFORMATION);
-	        alert.setTitle("¡Fin de la partida!");
-	        alert.setHeaderText("¡Tenemos un ganador!");
-	        alert.setContentText("Enhorabuena " + g.getNickname() + ", ¡has llegado a la meta! \n\n ¿Qué quieres hacer ahora?");
+	        alert.setTitle("Fi de la partida!");
+	        alert.setHeaderText("Tenim un guanyador!");
+	        alert.setContentText("Enhorabona " + g.getNickname() + ", has arribat a la meta! \n\n Què vols fer ara?");
 
-	        ButtonType btnGuardar = new ButtonType("Guardar Seed");
-	        ButtonType btnSalir = new ButtonType("Salir");
+	        ButtonType btnGuardar = new ButtonType("Guardar Partida");
+	        ButtonType btnSalir = new ButtonType("Sortir");
 	        
 	        alert.getButtonTypes().setAll(btnGuardar, btnSalir);
 
@@ -574,7 +574,7 @@ public class PantallaJuego {
 	        if (result.isPresent()) {
 	            if (result.get() == btnGuardar) {
 	            	handleSaveGame();
-	                mostrarAlertaGanador(g); // Re-mostrar tras guardar
+	                mostrarAlertaGanador(g); // Re-mostrar després de guardar
 	            } else if (result.get() == btnSalir) {
 	                handleQuitGame();
 	            }
