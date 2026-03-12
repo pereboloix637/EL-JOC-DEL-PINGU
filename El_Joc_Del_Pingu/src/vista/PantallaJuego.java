@@ -353,7 +353,7 @@ public class PantallaJuego {
 
 	private Connection getBDConnection() {
 		// Patrón basado en PantallaMenu para entorno de desarrollo
-		return GestorBBDD.conectarBaseDatos(new Scanner("centro\nadmin\nadmin\n"));
+		return GestorBBDD.conectarBaseDatos();
 	}
 
 	@FXML
@@ -582,6 +582,7 @@ public class PantallaJuego {
 	    });
 	}
 
+	
 
 	/**
 	 * Comprova si el següent torn l'ha de fer la CPU i l'executa automàticament.

@@ -23,7 +23,7 @@ public class GestorBBDD {
 		Scanner scan = new Scanner(System.in);
 
 		// Conectamos usando el método del archivo BBDD.java
-		Connection con = GestorBBDD.conectarBaseDatos(scan);
+		Connection con = GestorBBDD.conectarBaseDatos();
 
 		// Comprobamos si la conexión ha funcionado
 		if (con != null) {
@@ -37,71 +37,60 @@ public class GestorBBDD {
 		scan.close();
 	}
 
-	/**
-	 * Intenta establecer una conexión a la base de datos Oracle. NO HACE FALTA QUE
-	 * ENTENDÁIS CÓMO FUNCIONA, SE HACE TODO DE MANERA AUTOMÁTICA.
-	 *
-	 * @param scan Scanner de main con el que vais a leer por consola
-	 * @return Objeto Connection si la conexión es exitosa, null en caso contrario.
-	 *         LA VARIABLE QUE DEVUELVE LA TENÉIS QUE GUARDAR PARA LAS DEMÁS
-	 *         FUNCIONES
-	 */
-	public static Connection conectarBaseDatos(Scanner scan) {
-		System.out.println("Intentando conectarse a la base de datos...");
+	  /**
+     * Intenta conectar a CENTRO, si falla intenta FUERA
+     */
+    public static Connection conectarBaseDatos() {
+        System.out.println("Intentando conectarse a la base de datos...");
 
-		// 1) Elegir entorno con validación
-		String entorno = "";
-		boolean valido = false;
-		while (!valido) {
-			// PODEIS HARDCODEAR ESTAS VARIABLES SI VAIS A USAR SIEMPRE LAS MISMAS
-			// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-			System.out.println("Selecciona centro o fuera de centro (CENTRO/FUERA):");
-			entorno = scan.nextLine().trim().toLowerCase();
+        // Intenta CENTRO primero
+        Connection con = intentarConexion("CENTRO");
+        if (con != null) {
+            return con;
+        }
 
-			if (entorno.equalsIgnoreCase("centro") || entorno.equalsIgnoreCase("fuera")) {
-				valido = true;
-			} else {
-				System.out.println("Entrada no válida. Escribe CENTRO o FUERA.");
-			}
-		}
+        // Si falla, intenta FUERA
+        System.out.println("CENTRO no disponible. Intentando FUERA...");
+        con = intentarConexion("FUERA");
+        if (con != null) {
+            return con;
+        }
 
-		String url = entorno.equals("centro") ? "jdbc:oracle:thin:@//192.168.3.26:1521/XEPDB2"
-				: "jdbc:oracle:thin:@//oracle.ilerna.com:1521/XEPDB2";
+        // Si ambas fallan
+        System.out.println("No se pudo conectar a ningún entorno.");
+        return null;
+    }
+    /**
+     * Intenta conectar a un entorno específico (CENTRO o FUERA)
+     */
+    private static Connection intentarConexion(String entorno) {
+        try {
+            // Carga el driver de Oracle
+            Class.forName("oracle.jdbc.driver.OracleDriver");
 
-		// 2) Pedir credenciales (con trim para evitar espacios raros)
-		// PODEIS HARDCODEAR ESTAS CREDENCIALES SI VAIS A USAR SIEMPRE LAS MISMAS
-		// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-		System.out.println("¿Usuario?");
-		String user = scan.nextLine().trim();
+            // Obtiene credenciales del .env
+            String url = LlegirEnv.get("DB_URL_" + entorno);
+            String user = LlegirEnv.get("DB_USER");
+            String pwd = LlegirEnv.get("DB_PASSWORD");
 
-		System.out.println("¿Contraseña?");
-		String pwd = scan.nextLine(); // aquí NO hago trim por si la contraseña tuviera espacios
+            // Crea la conexión
+            Connection con = DriverManager.getConnection(url, user, pwd);
 
-		// 3) Conectar
-		try {
-			// En muchos casos con JDBC moderno no hace falta, pero lo dejamos por si acaso
-			Class.forName("oracle.jdbc.driver.OracleDriver");
+            // Valida que funcione
+            if (con.isValid(5)) {
+                System.out.println("✓ Conectado a " + entorno + ".");
+                return con;
+            }
 
-			Connection con = DriverManager.getConnection(url, user, pwd);
+        } catch (SQLException e) {
+            // Fallo de conexión (silencioso)
+        } catch (ClassNotFoundException e) {
+            System.out.println("✗ Driver Oracle no encontrado.");
+        }
 
-			// 4) Comprobar que la conexión es válida (timeout 5 s)
-			if (con.isValid(5)) {
-				System.out.println("Conectados a la base de datos (" + entorno.toUpperCase() + ").");
-			} else {
-				System.out.println("Conexión creada, pero no parece válida. Revisa red/URL.");
-			}
+        return null;
+    }
 
-			return con;
-
-		} catch (ClassNotFoundException e) {
-			System.out.println("No se ha encontrado el driver de Oracle. ¿Está el ojdbc en el proyecto?");
-		} catch (SQLException e) {
-			System.out.println("No se pudo conectar. Revisa URL/usuario/contraseña.");
-			System.out.println("Detalle: " + e.getMessage());
-		}
-
-		return null;
-	}
 
 	/**
 	 * Cierra la conexión con la BBDD.
@@ -268,14 +257,15 @@ public class GestorBBDD {
 			int finalitzada = partida.isFinalitzada() ? 1 : 0;
 
 			if (pId == 0) {
-				ArrayList<LinkedHashMap<String, String>> resultat = select(con, "SELECT MAX(id) AS MAX_ID FROM partida");
+				ArrayList<LinkedHashMap<String, String>> resultat = select(con,
+						"SELECT MAX(id) AS MAX_ID FROM partida");
 				int nouId = (resultat.isEmpty() || resultat.get(0).get("MAX_ID") == null) ? 1
 						: Integer.parseInt(resultat.get(0).get("MAX_ID")) + 1;
 				partida.setId(nouId);
 				pId = nouId;
 
-				String sqlInsPartida = "INSERT INTO partida (id, torn_actual, finalitzada) VALUES (" + pId + ", " + torns
-						+ ", " + finalitzada + ")";
+				String sqlInsPartida = "INSERT INTO partida (id, torn_actual, finalitzada) VALUES (" + pId + ", "
+						+ torns + ", " + finalitzada + ")";
 				insert(con, sqlInsPartida);
 
 				String seed = Gtaula.obtenirSeedTaulell(partida.getTaulell());
