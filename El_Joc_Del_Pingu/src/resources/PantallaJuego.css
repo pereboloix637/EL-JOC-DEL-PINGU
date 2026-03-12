@@ -1,58 +1,190 @@
+/* ============================================================
+   PANTALLA JUEGO — Estilo Pixel Art Invernal
+   Paleta: azul noche, glaciar, cian helado, blanco nieve
+   ============================================================ */
+
 .root {
-    -fx-font-family: "System";
-    -fx-background-color: #f6f7fb;
+    -fx-font-family: "Press Start 2P", "Courier New", "Monospaced";
+    -fx-background-color: #0D1B2A;
 }
 
-/* MENU */
-.menu-bar {
-    -fx-background-color: white;
-    -fx-border-color: #e6e7ee;
-    -fx-border-width: 0 0 1 0;
-}
-
-/* TABLERO */
+/* ---- TABLERO ---- */
 .board {
-    -fx-background-color: white;
-    -fx-background-radius: 14;
-    -fx-padding: 14;
-    -fx-border-color: #e6e7ee;
-    -fx-border-radius: 14;
-
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 14, 0.15, 0, 2);
-}
-
-/* TEXTOS DEL TABLERO */
-.cell-title {
-    -fx-font-size: 22px;
-    -fx-opacity: 0.65;
-}
-
-.cell-type {
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-opacity: 0.85;
-}
-
-/* BARRA INFERIOR */
-.bottom-bar {
     -fx-background-color: transparent;
+    -fx-padding: 16;
+    -fx-hgap: 4;
+    -fx-vgap: 4;
 }
 
-/* TARJETAS */
-.card {
-    -fx-background-color: white;
-    -fx-background-radius: 14;
-    -fx-padding: 14;
-    -fx-border-color: #e6e7ee;
-    -fx-border-radius: 14;
-
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 14, 0.15, 0, 2);
+/* ---- CELDAS BASE (bloque de nieve/hielo pixelado) ---- */
+.board-cell {
+    -fx-background-color: #213F5C;
+    -fx-background-radius: 0;
+    -fx-padding: 8;
+    /* Sombra offset dura, sin blur — da profundidad pixel art */
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
+    /* Borde interior simulando bloque de hielo */
+    -fx-border-color: #2E6B8A #1C3A52 #1C3A52 #2E6B8A;
+    -fx-border-width: 2;
+    -fx-border-radius: 0;
+    -fx-pref-width: 112;
+    -fx-pref-height: 48;
 }
 
-.card-title {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
+
+/* ---- TIPOS DE CELDA ---- */
+
+/* Normal: nieve compacta */
+.cell-Normal {
+    -fx-background-color: #253A50;
+    -fx-border-color: #2E6B8A #1C3A52 #1C3A52 #2E6B8A;
+}
+
+/* Oso: peligro rojo frío */
+.cell-Os {
+    -fx-background-color: #3B1A1A;
+    -fx-border-color: #8B1A1A #2B0000 #2B0000 #8B1A1A;
+}
+
+/* Agujero: agua oscura profunda */
+.cell-Forat {
+    -fx-background-color: #060E18;
+    -fx-border-color: #0D1B2A #03070E #03070E #0D1B2A;
+}
+
+.cell-Forat .cell-type {
+    -fx-fill: #2E6B8A;
+}
+
+/* Trineo: aurora, acento dorado */
+.cell-Trineu {
+    -fx-background-color: #1E3A2A;
+    -fx-border-color: #E8D87F #1A2E1A #1A2E1A #E8D87F;
+}
+
+/* Hielo resquebrajado: borde más claro, fondo más pálido */
+.cell-Trencadis {
+    -fx-background-color: #1C3A52;
+    -fx-border-color: #C8D8E8 #2E6B8A #2E6B8A #C8D8E8;
+    -fx-border-width: 1;
     -fx-opacity: 0.75;
+}
+
+/* Evento: acento púrpura frío */
+.cell-Event {
+    -fx-background-color: #2A1A3E;
+    -fx-border-color: #9B7FD4 #1A0E2E #1A0E2E #9B7FD4;
+}
+
+/* Inicio: cian brillante */
+.start-cell {
+    -fx-background-color: #0D3347;
+    -fx-border-color: #7FD4F0 #1C3A52 #1C3A52 #7FD4F0;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 4, 4);
+}
+
+/* Final: dorado helado */
+.finish-cell {
+    -fx-background-color: #2E2200;
+    -fx-border-color: #E8D87F #1A1400 #1A1400 #E8D87F;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(one-pass-box, #E8D87F, 0, 0, 4, 4);
+}
+
+/* ---- TEXTOS DEL TABLERO ---- */
+.cell-type {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-fill: #C8D8E8;
+}
+
+.text-start {
+    -fx-fill: #7FD4F0;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.text-finish {
+    -fx-fill: #E8D87F;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+/* ---- PANEL DE EVENTOS / LOGS ---- */
+.events-panel {
+    -fx-background-color: #0A1A0F;
+    -fx-background-radius: 0;
+    -fx-border-color: #2ED573;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(one-pass-box, #2ED573, 0, 0, 4, 4);
+}
+
+.events-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2ED573;
+}
+
+/* TextArea de logs */
+.text-area {
+    -fx-background-color: #051009;
+    -fx-background-radius: 0;
+    -fx-border-color: #1A5C30;
+    -fx-border-width: 2;
+    -fx-text-fill: #7FFFA0;
+    -fx-font-size: 12px;
+    -fx-highlight-fill: #2ED573;
+}
+
+.text-area .content {
+    -fx-background-color: #051009;
+}
+
+.text-area:focused {
+    -fx-border-color: #2ED573;
+}
+.bottom-bar {
+    -fx-background-color: #0D1B2A;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 2 0 0 0;
+    -fx-padding: 12;
+}
+
+/* ---- TARJETAS GENERALES ---- */
+.card {
+    -fx-background-color: #1C3A52;
+    -fx-background-radius: 0;
+    -fx-padding: 12;
+    -fx-border-color: #2E6B8A;
+    -fx-border-radius: 0;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
+}
+
+.objects-scroll,
+.objects-scroll .viewport,
+.objects-scroll .content {
+    -fx-background-color: transparent !important;
+    -fx-background: transparent !important;
+}
+
+.card .label,
+.card Label {
+    -fx-text-fill: #C8D8E8;
+    -fx-font-size: 13px;
+}
+
+.card .text,
+.card Text {
+    -fx-fill: #C8D8E8;
+    -fx-font-size: 13px;
+}
+
+.big-text,
+.stat,
+.events {
+    -fx-fill: #F0F4FF !important;
 }
 
 .big-text {
@@ -60,68 +192,125 @@
     -fx-font-weight: bold;
 }
 
-.stat {
-    -fx-font-size: 15px;
-    -fx-opacity: 0.85;
-}
-
-.events {
-    -fx-font-size: 14px;
-    -fx-opacity: 0.85;
-}
-
-/* BOTONES */
+/* ---- BOTONES ---- */
 .button {
-    -fx-background-radius: 10;
-    -fx-padding: 8 14;
-    -fx-background-color: #eef0f6;
-    -fx-text-fill: #1f2330;
+    -fx-background-radius: 0;
+    -fx-padding: 10 16;
+    -fx-background-color: #1C3A52;
+    -fx-text-fill: #C8D8E8;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
 }
 
 .button:hover {
-    -fx-background-color: #e6e8f0;
+    -fx-background-color: #2E6B8A;
+    -fx-text-fill: #7FD4F0;
+    -fx-border-color: #7FD4F0;
+    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 3, 3);
+}
+
+.button:pressed {
+    -fx-background-color: #0D1B2A;
+    -fx-text-fill: #3AB5E6;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 1, 1);
+    -fx-translate-y: 2;
 }
 
 .button.primary {
-    -fx-background-color: #2f6fed;
-    -fx-text-fill: white;
+    -fx-background-color: #2E6B8A;
+    -fx-text-fill: #F0F4FF;
+    -fx-border-color: #7FD4F0;
+    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 3, 3);
 }
 
 .button.primary:hover {
-    -fx-background-color: #295fd0;
+    -fx-background-color: #3AB5E6;
+    -fx-text-fill: #0D1B2A;
 }
 
-/* SCROLL */
-.objects-scroll {
-    -fx-background-color: transparent;
+/* ---- BARRA LATERAL ---- */
+.sidebar {
+    -fx-background-color: #0D1B2A;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 0 0 0 2;
 }
 
-.objects-scroll > .viewport {
-    -fx-background-color: transparent;
+.sidebar-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #7FD4F0;
+    -fx-padding: 0 0 10 0;
 }
 
-/* ========================= */
-/*        JUGADORES          */
-/* ========================= */
+/* ---- TARJETA DE ESTADO DE JUGADOR ---- */
+.player-status-card {
+    -fx-background-color: #1C3A52;
+    -fx-background-radius: 0;
+    -fx-padding: 10;
+    -fx-border-color: #2E6B8A;
+    -fx-border-radius: 0;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
+}
 
+/* Jugador activo: borde cian brillante con sombra */
+.player-status-card.is-current-turn {
+    -fx-background-color: #213F5C;
+    -fx-border-color: #7FD4F0;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 4, 4);
+}
+
+.player-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0F4FF;
+}
+
+.player-inv-mini {
+    -fx-padding: 4 0 0 16;
+}
+
+.player-inv-mini .label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #C8D8E8;
+}
+
+.cpu-label {
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+    -fx-text-fill: #2E6B8A;
+    -fx-padding: 0 0 0 16;
+}
+
+/* ---- FICHAS DE JUGADOR ---- */
 .player {
-    -fx-stroke: white;
-    -fx-stroke-width: 3;
-
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 8, 0.35, 0, 2);
-
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
+    -fx-stroke: #F0F4FF;
+    -fx-stroke-width: 2;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
 }
 
-/* Colores por ID (robusto en JavaFX 21) */
-#P1 { -fx-fill: #2f6fed; }  /* azul */
-#P2 { -fx-fill: #ef4444; }  /* rojo */
-#P3 { -fx-fill: #22c55e; }  /* verde */
-#P4 { -fx-fill: #facc15; }  /* amarillo */
-
-/* Si quieres marcar el jugador activo, añade/quita esta clase desde Java */
-.current-player {
-    -fx-effect: dropshadow(gaussian, gold, 12, 0.6, 0, 0);
+/* Colores adaptados a paleta fría pixel art */
+#P1 {
+    -fx-fill: #C0392B;
 }
+
+/* Rojo hielo */
+#P2 {
+    -fx-fill: #7FD4F0;
+}
+
+/* Cian helado */
+#P3 {
+    -fx-fill: #3AB5E6;
+}
+
+/* Azul eléctrico frío */
+#P4 {
+    -fx-fill: #E8D87F;
+}
+
+/* Amarillo luna */

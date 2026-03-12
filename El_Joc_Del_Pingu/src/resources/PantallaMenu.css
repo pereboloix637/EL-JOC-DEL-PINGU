@@ -1,77 +1,224 @@
+/* ============================================================
+   PANTALLA MENU — Estilo Pixel Art Invernal
+   Paleta: azul noche, glaciar, cian helado, blanco nieve
+   ============================================================ */
+
+/* FUENTE: cargar "Press Start 2P" o "Silkscreen" desde Java con Font.loadFont() */
+
 .root {
-    -fx-font-family: "System";
-    -fx-background-color: #f6f7fb;
+    -fx-font-family: "Press Start 2P", "Courier New", "Monospaced";
+    -fx-background-color: #0D1B2A;
 }
 
-/* MENU */
+/* ---- MENU BAR ---- */
 .menu-bar {
-    -fx-background-color: white;
-    -fx-border-color: #e6e7ee;
-    -fx-border-width: 0 0 1 0;
+    -fx-background-color: #0D1B2A;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 0 0 2 0;
 }
 
-/* CARD */
+.menu-bar .label {
+    -fx-text-fill: #C8D8E8;
+    -fx-font-size: 13px;
+}
+
+/* ---- CARD (panel cristal de hielo, sin blur) ---- */
 .card {
-    -fx-background-color: white;
-    -fx-background-radius: 16;
-    -fx-border-color: #e6e7ee;
-    -fx-border-radius: 16;
-
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 16, 0.15, 0, 2);
+    -fx-background-color: #1C3A52;
+    -fx-background-radius: 0;
+    -fx-border-color: #7FD4F0;
+    -fx-border-radius: 0;
+    -fx-border-width: 2;
+    /* Sombra offset pixel-exacta, sin blur */
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 4, 4);
+    -fx-padding: 24;
 }
 
-/* TITLES */
+/* ---- TÍTULOS ---- */
 .title {
-    -fx-font-size: 26px;
-    -fx-font-weight: 800;
-    -fx-text-fill: #1f2330;
+    -fx-font-size: 36px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #F0F4FF;
     -fx-alignment: center;
+    /* Sombra offset fija, cian helado */
+    -fx-effect: dropshadow(one-pass-box, #3AB5E6, 0, 0, 3, 3);
 }
 
 .subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #C8D8E8;
+}
+
+/* ---- TABS ---- */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #0D1B2A;
+}
+
+.tab-pane .tab {
+    -fx-background-color: #1C3A52;
+    -fx-background-radius: 0;
+    -fx-padding: 8 20;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 2 2 0 2;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #C8D8E8;
     -fx-font-size: 13px;
-    -fx-opacity: 0.65;
 }
 
-/* FIELDS */
-.field-label {
-    -fx-font-size: 12px;
-    -fx-opacity: 0.75;
+.tab-pane .tab:selected {
+    -fx-background-color: #2E6B8A;
+    -fx-background-radius: 0;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #7FD4F0;
     -fx-font-weight: bold;
 }
 
-.field {
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-border-color: #e6e7ee;
-    -fx-background-color: #fbfbfe;
-    -fx-padding: 10 12;
+/* ---- LISTAS ---- */
+.list-view {
+    -fx-background-color: #0D1B2A;
+    -fx-background-radius: 0;
+    -fx-border-color: #2E6B8A;
+    -fx-border-radius: 0;
+    -fx-border-width: 2;
 }
 
-/* BUTTONS */
-.button {
-    -fx-background-radius: 10;
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #C8D8E8;
+    -fx-font-size: 13px;
     -fx-padding: 10 14;
-    -fx-background-color: #eef0f6;
-    -fx-text-fill: #1f2330;
+}
+
+.list-cell:hover {
+    -fx-background-color: #1C3A52;
+    -fx-text-fill: #7FD4F0;
+}
+
+.list-cell:selected {
+    -fx-background-color: #2E6B8A;
+    -fx-text-fill: #7FD4F0;
+    -fx-border-color: #7FD4F0;
+    -fx-border-width: 0 0 0 3;
+}
+
+/* ---- CAMPOS DE TEXTO ---- */
+.text-field,
+.password-field {
+    -fx-background-color: #0D1B2A;
+    -fx-background-radius: 0;
+    -fx-border-color: #2E6B8A;
+    -fx-border-radius: 0;
+    -fx-border-width: 2;
+    -fx-text-fill: #F0F4FF;
+    -fx-prompt-text-fill: #2E6B8A;
+    -fx-font-size: 13px;
+    -fx-padding: 10 14;
+}
+
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: #7FD4F0;
+    -fx-background-color: #1C3A52;
+    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 2, 2);
+}
+
+.login-mini-card {
+    -fx-padding: 16;
+    -fx-background-color: #0D1B2A;
+    -fx-background-radius: 0;
+    -fx-border-color: #2E6B8A;
+    -fx-border-radius: 0;
+    -fx-border-width: 2;
+}
+
+.field-label {
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
+    -fx-text-fill: #C8D8E8;
+}
+
+.hint {
+    -fx-font-size: 12px;
+    -fx-text-fill: #2E6B8A;
+}
+
+/* ---- BOTONES ---- */
+.button {
+    -fx-background-radius: 0;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-background-color: #1C3A52;
+    -fx-text-fill: #C8D8E8;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 2;
+    -fx-padding: 10 20;
+    /* Sombra offset pixel art */
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
 }
 
 .button:hover {
-    -fx-background-color: #e6e8f0;
+    -fx-background-color: #2E6B8A;
+    -fx-text-fill: #7FD4F0;
+    -fx-border-color: #7FD4F0;
+    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 3, 3);
 }
 
-.button.primary {
-    -fx-background-color: #2f6fed;
-    -fx-text-fill: white;
+.button:pressed {
+    -fx-background-color: #0D1B2A;
+    -fx-text-fill: #3AB5E6;
+    -fx-border-color: #3AB5E6;
+    -fx-border-width: 2;
+    /* Simula pulsación bajando 1px el offset */
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 1, 1);
+    -fx-translate-y: 2;
 }
 
-.button.primary:hover {
-    -fx-background-color: #295fd0;
-}
-
-/* Hint */
-.hint {
-    -fx-font-size: 12px;
+.button:disabled {
+    -fx-background-color: #1C3A52;
+    -fx-text-fill: #2E6B8A;
+    -fx-border-color: #1C3A52;
+    -fx-effect: none;
     -fx-opacity: 0.6;
+}
+
+.button.secondary {
+    -fx-background-color: #0D1B2A;
+    -fx-text-fill: #C8D8E8;
+    -fx-border-color: #2E6B8A;
+}
+
+.button.secondary:hover {
+    -fx-background-color: #1C3A52;
+    -fx-text-fill: #7FD4F0;
+    -fx-border-color: #7FD4F0;
+}
+
+.button.primary-large {
+    -fx-background-color: #2E6B8A;
+    -fx-text-fill: #F0F4FF;
+    -fx-font-size: 20px;
+    -fx-padding: 16 32;
+    -fx-background-radius: 0;
+    -fx-border-color: #7FD4F0;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 4, 4);
+}
+
+.button.primary-large:hover {
+    -fx-background-color: #3AB5E6;
+    -fx-text-fill: #0D1B2A;
+    -fx-border-color: #F0F4FF;
+    -fx-effect: dropshadow(one-pass-box, #F0F4FF, 0, 0, 6, 6);
+}
+
+.button.primary-large:pressed {
+    -fx-background-color: #1C3A52;
+    -fx-text-fill: #7FD4F0;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 1, 1);
+    -fx-translate-y: 2;
 }
