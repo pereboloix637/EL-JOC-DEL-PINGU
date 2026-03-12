@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -14,10 +15,18 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.Scanner;
+import java.sql.Connection;
 import javafx.util.Duration;
+import javafx.scene.control.ChoiceDialog;
+
 import model.caselles.Casella;
 import model.core.Partida;
 import model.core.Taulell;
@@ -30,19 +39,21 @@ import model.items.BolaNeu;
 import javafx.application.Platform;
 import controlador.GestorPartida;
 import controlador.GestorTaulell;
+import controlador.GestorBBDD;
 
 public class PantallaJuego {
 
 	// Menu items
 	@FXML
-	private MenuItem newGame;
-	@FXML
 	private MenuItem saveGame;
 	@FXML
-	private MenuItem loadGame;
+	private MenuItem menuItem;
 	@FXML
 	private MenuItem quitGame;
-
+	
+	
+	
+	
 	// Buttons
 	@FXML
 	private Button dado;
@@ -326,29 +337,94 @@ public class PantallaJuego {
 	}
 
 	// Menu actions
-	@FXML
-	private void handleNewGame() {
-		System.out.println("New game.");
-		// TODO
+
+	private Connection getBDConnection() {
+		// Patrón basado en PantallaMenu para entorno de desarrollo
+		return GestorBBDD.conectarBaseDatos(new Scanner("centro\nadmin\nadmin\n"));
 	}
 
 	@FXML
 	private void handleSaveGame() {
 		System.out.println("Saved game.");
-		// TODO
+		try (Connection con = getBDConnection()) {
+			if (con != null) {
+				gestorPartida.guardarPartida(con);
+				registrarEvento("Partida guardada correctamente.", "log-info");
+			} else {
+				registrarEvento("No se pudo conectar a la base de datos para guardar.", "log-warning");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			registrarEvento("Error al guardar la partida.", "log-warning");
+		}
 	}
 
+
 	@FXML
-	private void handleLoadGame() {
-		System.out.println("Loaded game.");
-		// TODO
+	private void handleGoToMenu() {
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Volver al Menú");
+		alert.setHeaderText("¿Deseas guardar la partida antes de volver al menú?");
+		alert.setContentText("Elige una opción:");
+
+		ButtonType buttonTypeYes = new ButtonType("Sí, guardar y salir");
+		ButtonType buttonTypeNo = new ButtonType("No, salir sin guardar");
+		ButtonType buttonTypeCancel = new ButtonType("Cancelar", ButtonType.CANCEL.getButtonData());
+
+		alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo, buttonTypeCancel);
+
+		alert.showAndWait().ifPresent(response -> {
+			if (response == buttonTypeYes) {
+				handleSaveGame();
+				goToMenu();
+			} else if (response == buttonTypeNo) {
+				goToMenu();
+			}
+		});
+	}
+
+	private void goToMenu() {
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/PantallaMenu.fxml"));
+			javafx.scene.Parent root = loader.load();
+			
+			// Seleccionar la pestaña de carga en el menú (o la principal)
+			PantallaMenu controller = loader.getController();
+			// controller.selectLoadTab(); // Puedes decidir si quieres que vaya a la de carga o a la principal
+			
+			javafx.scene.Scene scene = new javafx.scene.Scene(root);
+			javafx.stage.Stage stage = (javafx.stage.Stage) tablero.getScene().getWindow();
+			stage.setScene(scene);
+			stage.setTitle("Menú Principal - El Juego del Pingüino");
+		} catch (Exception e) {
+			e.printStackTrace();
+			registrarEvento("Error al volver al menú.", "log-warning");
+		}
 	}
 
 	@FXML
 	private void handleQuitGame() {
-		System.out.println("Exit...");
-		// TODO
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Salir del Juego");
+		alert.setHeaderText("¿Deseas guardar la partida antes de salir?");
+		alert.setContentText("Elige una opción:");
+
+		ButtonType buttonTypeYes = new ButtonType("Sí, guardar y salir");
+		ButtonType buttonTypeNo = new ButtonType("No, salir sin guardar");
+		ButtonType buttonTypeCancel = new ButtonType("Cancelar", ButtonType.CANCEL.getButtonData());
+
+		alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo, buttonTypeCancel);
+
+		alert.showAndWait().ifPresent(response -> {
+			if (response == buttonTypeYes) {
+				handleSaveGame();
+				System.exit(0);
+			} else if (response == buttonTypeNo) {
+				System.exit(0);
+			}
+		});
 	}
+
 
 	// Button actions
 	@FXML
