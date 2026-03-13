@@ -109,24 +109,34 @@
 
             <GridPane fx:id="tablero" alignment="CENTER" gridLinesVisible="false" maxHeight="Infinity" maxWidth="Infinity" styleClass="board">
                 <columnConstraints>
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                    <!-- Padding Left (110/2688) -->
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="4.09" />
+                    <!-- Play Area (10 cols, each ~9.185%) -->
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
+                    <!-- Padding Right (109/2688) -->
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="4.05" />
                 </columnConstraints>
 
                 <rowConstraints>
-                    <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
+                    <!-- Padding Top (124/1472) -->
+                    <RowConstraints percentHeight="8.42" vgrow="SOMETIMES" />
+                    <!-- Play Area (5 rows, each ~17.116%) -->
+                    <RowConstraints percentHeight="17.11" vgrow="SOMETIMES" />
+                    <RowConstraints percentHeight="17.11" vgrow="SOMETIMES" />
+                    <RowConstraints percentHeight="17.11" vgrow="SOMETIMES" />
+                    <RowConstraints percentHeight="17.11" vgrow="SOMETIMES" />
+                    <RowConstraints percentHeight="17.11" vgrow="SOMETIMES" />
+                    <!-- Padding Bottom (Increased for labels) -->
+                    <RowConstraints percentHeight="6.0" vgrow="SOMETIMES" />
                 </rowConstraints>
 
                 <children>
