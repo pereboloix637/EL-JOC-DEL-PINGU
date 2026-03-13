@@ -117,9 +117,8 @@ public class PantallaJuego {
 
 	@FXML
 	private void initialize() {
-		// Forzar aspecto 1:2 (horizontal) para que las casillas sean cuadradas (10 columnas, 5 filas)
-		// Ratio (Heigth/Width) = 5 / 10 = 0.5
-		tablero.prefHeightProperty().bind(tablero.widthProperty().multiply(0.5));
+		// Forzar aspecto exacto de tablero.png (1472 / 2688 = 0.5476)
+		tablero.prefHeightProperty().bind(tablero.widthProperty().multiply(0.547619));
 		tablero.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 		tablero.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
@@ -166,8 +165,9 @@ public class PantallaJuego {
 			Circle pieza = getPiezaParaJugador(j);
 			if (pieza != null) {
 				int pos = j.getPosicio();
-				GridPane.setRowIndex(pieza, (ROWS - 1) - (pos / COLUMNS));
-				GridPane.setColumnIndex(pieza, pos % COLUMNS);
+				// Mapping to inner 10x5 area of 12x7 grid
+				GridPane.setRowIndex(pieza, ((ROWS - 1) - (pos / COLUMNS)) + 1);
+				GridPane.setColumnIndex(pieza, (pos % COLUMNS) + 1);
 			}
 		}
 		
@@ -326,49 +326,35 @@ public class PantallaJuego {
 	}
 
 	private void mostrarTiposDeCasillasEnTablero(Taulell t) {
-		// Clear only the labels we generated in previous calls
+		// Clear only the tiles we generated in previous calls
 		tablero.getChildren().removeIf(node -> TAG_CASILLA_TEXT.equals(node.getUserData()));
 
-		for (int i = 0; i < t.getCaselles().size(); i++) {
+		int total = t.getCaselles().size();
+		for (int i = 0; i < total; i++) {
 			Casella casilla = t.getCaselles().get(i);
-			String tipo = "";
-			
-			if (i == 0) {
-				tipo = "INICI";
-			} else if (i == t.getCaselles().size() - 1) {
-				tipo = "FINAL";
-			} else {
-				tipo = casilla.getClass().getSimpleName();
-			}
 
-			Text texto = new Text(tipo);
-			texto.getStyleClass().add("cell-type");
-			
-			// Add specific styles for start/finish for easier CSS targetting if needed
-			if (i == 0) texto.getStyleClass().add("text-start");
-			if (i == t.getCaselles().size() - 1) texto.getStyleClass().add("text-finish");
-
-			// Wrap in a StackPane to represent the "Ice Block"
-			StackPane iceBlock = new StackPane(texto);
+			// Wrap in a StackPane to represent the cell (no text, only CSS class)
+			StackPane iceBlock = new StackPane();
 			iceBlock.setUserData(TAG_CASILLA_TEXT);
 			iceBlock.getStyleClass().add("board-cell");
-			
-			// Add specific type class for coloring
+
+			// Add specific type class for coloring/assets
 			if (i == 0) {
 				iceBlock.getStyleClass().add("start-cell");
-			} else if (i == t.getCaselles().size() - 1) {
+			} else if (i == total - 1) {
 				iceBlock.getStyleClass().add("finish-cell");
 			} else {
 				iceBlock.getStyleClass().add("cell-" + casilla.getClass().getSimpleName());
 			}
 
-			int row = (ROWS - 1) - (i / COLUMNS);
-			int col = i % COLUMNS;
+			// Mapping to inner 10x5 area of 12x7 grid
+			int row = ((ROWS - 1) - (i / COLUMNS)) + 1;
+			int col = (i % COLUMNS) + 1;
 
 			GridPane.setRowIndex(iceBlock, row);
 			GridPane.setColumnIndex(iceBlock, col);
 
-			tablero.getChildren().add(0, iceBlock); // Add to back to ensure players are on top
+			tablero.getChildren().add(0, iceBlock); // Add to back so players stay on top
 		}
 	}
 
