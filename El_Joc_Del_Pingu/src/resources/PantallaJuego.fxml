@@ -109,24 +109,24 @@
 
             <GridPane fx:id="tablero" alignment="CENTER" gridLinesVisible="false" maxHeight="Infinity" maxWidth="Infinity" styleClass="board">
                 <columnConstraints>
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
                 </columnConstraints>
 
                 <rowConstraints>
-                    <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
+                    <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
+                    <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
+                    <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
+                    <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
+                    <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
                 </rowConstraints>
 
                 <children>

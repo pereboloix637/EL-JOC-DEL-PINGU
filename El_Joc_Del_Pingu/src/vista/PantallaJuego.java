@@ -14,6 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -102,7 +103,8 @@ public class PantallaJuego {
 	// Dado especial seleccionado para el próximo turno (null = dado estándar)
 	private Dau dauSeleccionat = null;
 
-	private static final int COLUMNS = 5;
+	private static final int COLUMNS = 10;
+	private static final int ROWS = 5;
 
 	@FXML
 	private VBox sidebarPlayers;
@@ -115,6 +117,12 @@ public class PantallaJuego {
 
 	@FXML
 	private void initialize() {
+		// Forzar aspecto 1:2 (horizontal) para que las casillas sean cuadradas (10 columnas, 5 filas)
+		// Ratio (Heigth/Width) = 5 / 10 = 0.5
+		tablero.prefHeightProperty().bind(tablero.widthProperty().multiply(0.5));
+		tablero.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+		tablero.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+
 		registrarEvento("¡El juego ha comenzado!", "log-info");
 
 		gestorPartida = new GestorPartida();
@@ -158,7 +166,7 @@ public class PantallaJuego {
 			Circle pieza = getPiezaParaJugador(j);
 			if (pieza != null) {
 				int pos = j.getPosicio();
-				GridPane.setRowIndex(pieza, pos / COLUMNS);
+				GridPane.setRowIndex(pieza, (ROWS - 1) - (pos / COLUMNS));
 				GridPane.setColumnIndex(pieza, pos % COLUMNS);
 			}
 		}
@@ -260,7 +268,8 @@ public class PantallaJuego {
 
 			HBox header = new HBox(10);
 			Circle colorIndicator = new Circle(8);
-			colorIndicator.setStyle("-fx-fill: " + j.getColor() + ";");
+			String colorHex = getColorForPlayerIndex(pActual.getJugadors().indexOf(j));
+			colorIndicator.setStyle("-fx-fill: " + colorHex + ";");
 			
 			Label name = new Label(j.getNickname());
 			name.getStyleClass().add("player-name");
@@ -302,6 +311,20 @@ public class PantallaJuego {
 		}
 	}
 
+	/**
+	 * Retorna el color HEX que correspon a la fitxa del jugador segons el seu índex.
+	 * Sincronitzat amb els colors definits a PantallaJuego.css
+	 */
+	private String getColorForPlayerIndex(int index) {
+		switch (index) {
+			case 0: return "#C0392B"; // P1 - Rojo
+			case 1: return "#3498DB"; // P2 - Azul
+			case 2: return "#27AE60"; // P3 - Verde
+			case 3: return "#F1C40F"; // P4 - Amarillo
+			default: return "#FFFFFF";
+		}
+	}
+
 	private void mostrarTiposDeCasillasEnTablero(Taulell t) {
 		// Clear only the labels we generated in previous calls
 		tablero.getChildren().removeIf(node -> TAG_CASILLA_TEXT.equals(node.getUserData()));
@@ -339,7 +362,7 @@ public class PantallaJuego {
 				iceBlock.getStyleClass().add("cell-" + casilla.getClass().getSimpleName());
 			}
 
-			int row = i / COLUMNS;
+			int row = (ROWS - 1) - (i / COLUMNS);
 			int col = i % COLUMNS;
 
 			GridPane.setRowIndex(iceBlock, row);
