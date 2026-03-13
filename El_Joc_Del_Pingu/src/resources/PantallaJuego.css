@@ -55,17 +55,16 @@
     -fx-background-size: contain;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
-    -fx-padding: 45 75 75 75; 
-    -fx-hgap: 2;
-    -fx-vgap: 2;
+    -fx-padding: 0; 
+    -fx-hgap: 0;
+    -fx-vgap: 0;
     -fx-alignment: center;
 }
 
 /* ---- CELDAS BASE (Bloque transparente para assets) ---- */
 .board-cell {
     -fx-background-color: transparent;
-    -fx-background-radius: 0;
-    -fx-padding: 8;
+    -fx-padding: 0;
     -fx-effect: null;
     -fx-border-color: transparent;
     -fx-border-width: 0;
@@ -81,6 +80,7 @@
     -fx-background-size: 100% 100%;
     -fx-background-position: center;
     -fx-border-color: transparent;
+    -fx-background-color: transparent;
 }
 
 /* Oso: peligro rojo frío / Imagen */
@@ -133,19 +133,19 @@
     -fx-border-color: transparent;
 }
 
-/* Inicio: cian brillante */
+/* Inicio: Transparente (Asset fondo tiene "START") */
 .start-cell {
-    -fx-background-color: #0D3347;
-    -fx-border-color: #7FD4F0 #1C3A52 #1C3A52 #7FD4F0;
-    -fx-border-width: 3;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
     -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 4, 4);
 }
 
-/* Final: dorado helado */
+/* Final: Transparente (Asset fondo tiene "GOAL") */
 .finish-cell {
-    -fx-background-color: #2E2200;
-    -fx-border-color: #E8D87F #1A1400 #1A1400 #E8D87F;
-    -fx-border-width: 3;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
     -fx-effect: dropshadow(one-pass-box, #E8D87F, 0, 0, 4, 4);
 }
 
