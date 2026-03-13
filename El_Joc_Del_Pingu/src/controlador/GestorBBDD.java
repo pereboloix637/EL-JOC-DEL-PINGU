@@ -296,8 +296,14 @@ public class GestorBBDD {
 
 						String colorJ = j.getColor();
 						int esCpu = (j instanceof Foca ? 1 : 0);
-						String sqlInsJ = "INSERT INTO jugador (id, nom, color, es_cpu) VALUES (" + nouIdJ + ", '" + nomJ
-								+ "', '" + colorJ + "', " + esCpu + ")";
+                        String pass = "";
+                        int vic = 0;
+                        if (j instanceof Pinguino pingu) {
+                            pass = pingu.getContrasenya() != null ? pingu.getContrasenya() : "";
+                            vic = pingu.getVictories();
+                        }
+						String sqlInsJ = "INSERT INTO jugador (id, nom, color, es_cpu, contrasenya, victories) VALUES (" + nouIdJ + ", '" + nomJ
+								+ "', '" + colorJ + "', " + esCpu + ", '" + pass + "', " + vic + ")";
 						insert(con, sqlInsJ);
 					}
 				}
@@ -458,5 +464,61 @@ public class GestorBBDD {
 			llista.add("ID: " + id + " | Torn: " + torn + " | " + fin);
 		}
 		return llista;
+	}
+
+	public boolean esborrarPartida(int id, Connection con) {
+		try {
+			// Esborrar dependències primer si no hi ha ON DELETE CASCADE configurat
+			delete(con, "DELETE FROM jugador_partida WHERE partida_id = " + id);
+			delete(con, "DELETE FROM inventari WHERE partida_id = " + id);
+			delete(con, "DELETE FROM taulell WHERE partida_id = " + id);
+			
+			// Esborrar la partida
+			int rows = delete(con, "DELETE FROM partida WHERE id = " + id);
+			
+			// Opcional: esborrar jugadors que no tinguin més partides? 
+			// Per mantenir-ho simple i segur, ens limitarem a esborrar la partida i les seves relacions directes.
+			
+			return rows > 0;
+		} catch (Exception e) {
+			System.err.println("Error esborrant partida: " + e.getMessage());
+			return false;
+		}
+	}
+
+	public boolean validarLogin(String username, String password, Connection con) {
+		String sql = "SELECT contrasenya FROM jugador WHERE nom = '" + username + "'";
+		ArrayList<LinkedHashMap<String, String>> result = select(con, sql);
+
+		if (!result.isEmpty()) {
+			String dbPassword = result.get(0).get("CONTRASENYA");
+			if (dbPassword != null && dbPassword.equals(password)) {
+				return true; 
+			} else {
+				return false;
+			}
+		} else {
+			return true; // Si no existeix a la BD, és un usuari nou i pot entrar (es crearà automàticament)
+		}
+	}
+
+	public void registrarVictoria(int jugadorId, Connection con) {
+		String sql = "UPDATE jugador SET victories = victories + 1 WHERE id = " + jugadorId;
+		update(con, sql);
+	}
+
+	public ArrayList<String> obtenerRanking(Connection con) {
+		ArrayList<String> ranking = new ArrayList<>();
+		String sql = "SELECT nom, victories FROM jugador WHERE es_cpu = 0 ORDER BY victories DESC";
+		ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
+
+		int pos = 1;
+		for (LinkedHashMap<String, String> row : res) {
+			String nom = row.get("NOM");
+			String vic = row.get("VICTORIES") != null ? row.get("VICTORIES") : "0";
+			ranking.add(pos + ". " + nom + " - Victorias: " + vic);
+			pos++;
+		}
+		return ranking;
 	}
 }
