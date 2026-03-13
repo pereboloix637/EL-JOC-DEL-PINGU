@@ -61,7 +61,7 @@
                             <content>
                                 <VBox spacing="15" style="-fx-padding: 15;">
                                     <VBox spacing="10" VBox.vgrow="ALWAYS">
-                                        <Label styleClass="hint" text="Todas las partidas tendrán 4 jugadores. Las plazas vacías se llenarán con CPUs." wrapText="true" />
+                                        <Label styleClass="hint" text="Añade jugadores humanos o CPUs. Mínimo 2 jugadores en total, al menos 1 humano. Máximo 4." wrapText="true" />
                                         <Separator />
                                         <Label styleClass="field-label" text="Jugadores Humanos (Mínimo 1):" />
                                         <javafx.scene.control.ListView fx:id="playersList" prefHeight="100" styleClass="players-list" />
@@ -69,7 +69,9 @@
                                         <VBox spacing="5" styleClass="login-mini-card">
                                             <TextField fx:id="userField" promptText="Nombre de usuario..." styleClass="field-small" />
                                             <PasswordField fx:id="passField" promptText="Contraseña..." styleClass="field-small" />
-                                            <Button maxWidth="Infinity" onAction="#handleLogin" styleClass="secondary" text="Añadir Jugador" />
+                                            <Button maxWidth="Infinity" onAction="#handleLogin" styleClass="secondary" text="Añadir Jugador Humano" />
+                                            <Button maxWidth="Infinity" onAction="#handleAddCPU" styleClass="secondary" text="Añadir CPU" />
+                                            <Button maxWidth="Infinity" onAction="#handleClearPlayers" styleClass="secondary" text="Limpiar Jugadores" />
                                         </VBox>
                                     </VBox>
                                 </VBox>
@@ -82,7 +84,22 @@
                                 <VBox spacing="15" style="-fx-padding: 15;">
                                     <Label styleClass="field-label" text="Selecciona una partida guardada:" />
                                     <javafx.scene.control.ListView fx:id="savedGamesList" VBox.vgrow="ALWAYS" />
-                                    <Button maxWidth="Infinity" onAction="#handleRefreshGames" text="Actualizar Lista" />
+                                    <Label fx:id="deleteFeedbackLabel" text="" visible="false" style="-fx-text-fill: green; -fx-font-weight: bold; -fx-alignment: center;" maxWidth="Infinity" />
+                                    <HBox spacing="10">
+                                        <Button maxWidth="Infinity" onAction="#handleRefreshGames" text="Actualizar Lista" HBox.hgrow="ALWAYS" />
+                                        <Button maxWidth="Infinity" onAction="#handleDeleteGame" style="-fx-text-fill: red; -fx-border-color: red;" text="Borrar Partida" HBox.hgrow="ALWAYS" />
+                                    </HBox>
+                                </VBox>
+                            </content>
+                        </javafx.scene.control.Tab>
+
+                        <!-- RANKING -->
+                        <javafx.scene.control.Tab text="Ranking (Victorias)">
+                            <content>
+                                <VBox spacing="15" style="-fx-padding: 15;">
+                                    <Label styleClass="field-label" text="Clasificación de jugadores con más victorias:" />
+                                    <javafx.scene.control.ListView fx:id="rankingList" VBox.vgrow="ALWAYS" />
+                                    <Button maxWidth="Infinity" onAction="#handleRefreshRanking" text="Actualizar Ranking" />
                                 </VBox>
                             </content>
                         </javafx.scene.control.Tab>

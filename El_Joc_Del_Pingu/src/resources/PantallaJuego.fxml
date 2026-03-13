@@ -102,7 +102,7 @@
         </HBox>
     </bottom>
     <center>
-        <StackPane BorderPane.alignment="CENTER">
+        <StackPane fx:id="boardContainer" BorderPane.alignment="CENTER">
             <padding>
                 <Insets bottom="10" left="10" right="10" top="10" />
             </padding>

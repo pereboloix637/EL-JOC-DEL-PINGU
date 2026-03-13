@@ -2,6 +2,8 @@ package vista;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
@@ -13,6 +15,7 @@ import javafx.scene.control.TabPane;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
@@ -39,30 +42,84 @@ public class PantallaMenu {
 
     @FXML private ListView<String> playersList;
     @FXML private ListView<String> savedGamesList;
+    @FXML private ListView<String> rankingList;
     @FXML private TabPane mainTabPane;
+    @FXML private Label deleteFeedbackLabel;
 
-    private ArrayList<Jugador> humanPlayers = new ArrayList<>();
+    private ArrayList<Jugador> joinedPlayers = new ArrayList<>();
+    private int cpuCount = 0;
     private GestorBBDD dbManager = new GestorBBDD();
 
     @FXML
     private void initialize() {
         System.out.println("PantallaMenu inicializada");
         handleRefreshGames();
+        handleRefreshRanking();
     }
 
     @FXML
     private void handleLogin(ActionEvent event) {
-        String username = userField.getText().trim();
-        if (username.isEmpty()) return;
+        if (joinedPlayers.size() >= 4) {
+            Alert alert = new Alert(AlertType.WARNING, "Máximo 4 jugadores permitidos.", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
 
-        // Añadir a la lista de humanos
+        String username = userField.getText().trim();
+        String password = passField.getText().trim();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            Alert alert = new Alert(AlertType.WARNING, "Debes introducir un usuario y una contraseña.", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+
+        try (Connection con = GestorBBDD.conectarBaseDatos()) {
+            if (con != null) {
+                boolean valid = dbManager.validarLogin(username, password, con);
+                if (!valid) {
+                    Alert alert = new Alert(AlertType.ERROR, "Contraseña incorrecta para el usuario: " + username, ButtonType.OK);
+                    alert.showAndWait();
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error validando login: " + e.getMessage());
+        }
+
+        // Añadir a la lista de jugadores (Si pasa, o es nuevo o está OK)
         Pinguino p = new Pinguino(username, "Azul", new model.items.Inventari());
-        humanPlayers.add(p);
+        p.setContrasenya(password);
+        
+        joinedPlayers.add(p);
         playersList.getItems().add(username + " (Humano)");
         
         userField.clear();
         passField.clear();
         System.out.println("Jugador añadido: " + username);
+    }
+
+    @FXML
+    private void handleAddCPU(ActionEvent event) {
+        if (joinedPlayers.size() >= 4) {
+            Alert alert = new Alert(AlertType.WARNING, "Máximo 4 jugadores permitidos.", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        cpuCount++;
+        String cpuName = "CPU " + cpuCount;
+        Foca cpu = new Foca(cpuName, "tempColor");
+        joinedPlayers.add(cpu);
+        playersList.getItems().add(cpuName + " (CPU)");
+        System.out.println("CPU añadida: " + cpuName);
+    }
+
+    @FXML
+    private void handleClearPlayers(ActionEvent event) {
+        joinedPlayers.clear();
+        playersList.getItems().clear();
+        cpuCount = 0;
+        System.out.println("Lista de jugadores limpiada.");
     }
 
     @FXML
@@ -74,6 +131,18 @@ public class PantallaMenu {
             }
         } catch (Exception e) {
             System.err.println("Error cargando partidas: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleRefreshRanking() {
+        try (Connection con = GestorBBDD.conectarBaseDatos()) {
+            if (con != null) {
+                ArrayList<String> ranking = dbManager.obtenerRanking(con);
+                rankingList.getItems().setAll(ranking);
+            }
+        } catch (Exception e) {
+            System.err.println("Error cargando ranking: " + e.getMessage());
         }
     }
 
@@ -98,19 +167,31 @@ public class PantallaMenu {
                 return;
             }
         } else { // Tab "Nueva Partida"
-            if (humanPlayers.isEmpty()) {
-                System.out.println("Añade al menos un jugador humano.");
+            boolean hasHuman = false;
+            for (Jugador j : joinedPlayers) {
+                if (j instanceof Pinguino) {
+                    hasHuman = true;
+                    break;
+                }
+            }
+
+            if (!hasHuman) {
+                Alert alert = new Alert(AlertType.WARNING, "Debe haber al menos 1 jugador humano.", ButtonType.OK);
+                alert.showAndWait();
+                return;
+            }
+            if (joinedPlayers.size() < 2) {
+                Alert alert = new Alert(AlertType.WARNING, "Se necesitan al menos 2 jugadores (humanos o CPU) para jugar.", ButtonType.OK);
+                alert.showAndWait();
                 return;
             }
 
-            ArrayList<Jugador> allPlayers = new ArrayList<>(humanPlayers);
-            String[] colors = {"Rojo", "Azul", "Verde", "Amarillo"};
+            ArrayList<Jugador> allPlayers = new ArrayList<>(joinedPlayers);
+            String[] availableColors = {"Rojo", "Azul", "Verde", "Amarillo"};
             
-            // Rellenar con CPUs hasta llegar a 4
-            while (allPlayers.size() < 4) {
-                int cpuNum = allPlayers.size() + 1;
-                Foca cpu = new Foca("CPU " + cpuNum, colors[allPlayers.size() % colors.length]);
-                allPlayers.add(cpu);
+            // Asignar colores a los jugadores
+            for (int i = 0; i < allPlayers.size(); i++) {
+                allPlayers.get(i).setColor(availableColors[i % availableColors.length]);
             }
 
             GestorTaulell gt = new GestorTaulell();
@@ -134,6 +215,48 @@ public class PantallaMenu {
         }
     }
 
+
+    @FXML
+    private void handleDeleteGame() {
+        String selected = savedGamesList.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            Alert alert = new Alert(AlertType.WARNING, "Por favor, selecciona una partida para borrar.", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Borrar Partida");
+        alert.setHeaderText("¿Estás seguro de que quieres borrar esta partida?");
+        alert.setContentText("Esta acción no se puede deshacer.");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                int id = Integer.parseInt(selected.split(":")[1].trim().split(" ")[0]);
+                try (Connection con = GestorBBDD.conectarBaseDatos()) {
+                    if (con != null) {
+                        boolean exito = dbManager.esborrarPartida(id, con);
+                        if (exito) {
+                            System.out.println("Partida " + id + " borrada correctamente.");
+                            handleRefreshGames(); // Refrescar la lista
+                            
+                            deleteFeedbackLabel.setText("Partida borrada correctamente.");
+                            deleteFeedbackLabel.setVisible(true);
+                            PauseTransition pause = new PauseTransition(Duration.seconds(3));
+                            pause.setOnFinished(e -> deleteFeedbackLabel.setVisible(false));
+                            pause.play();
+                            
+                        } else {
+                            Alert error = new Alert(AlertType.ERROR, "Error al borrar la partida de la base de datos.", ButtonType.OK);
+                            error.showAndWait();
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error al borrar partida: " + e.getMessage());
+                }
+            }
+        });
+    }
 
     @FXML
     private void handleLoadGame() {

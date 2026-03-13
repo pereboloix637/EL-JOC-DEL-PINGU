@@ -3,6 +3,8 @@ package vista;
 import java.util.ArrayList;
 
 import javafx.animation.TranslateTransition;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.NumberBinding;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
@@ -87,6 +90,8 @@ public class PantallaJuego {
 
 	// Game board and player pieces
 	@FXML
+	private StackPane boardContainer;
+	@FXML
 	private GridPane tablero;
 	@FXML
 	private Circle P1;
@@ -117,11 +122,26 @@ public class PantallaJuego {
 
 	@FXML
 	private void initialize() {
-		// Forzar aspecto exacto de tablero.png (1472 / 2688 = 0.5476)
-		tablero.prefHeightProperty().bind(tablero.widthProperty().multiply(0.547619));
+		tablero.setPrefSize(2688, 1472);
 		tablero.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 		tablero.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
+		javafx.scene.transform.Scale scaleTransform = new javafx.scene.transform.Scale(1, 1, 0, 0);
+		tablero.getTransforms().add(scaleTransform);
+
+		NumberBinding scaleFactor = Bindings.min(
+		    // 20px de Insets de padding (10 left + 10 right = 20)
+		    boardContainer.widthProperty().subtract(20).divide(2688.0),
+		    boardContainer.heightProperty().subtract(20).divide(1472.0)
+		);
+
+		scaleTransform.xProperty().bind(scaleFactor);
+		scaleTransform.yProperty().bind(scaleFactor);
+
+		javafx.scene.Group scaleGroup = new javafx.scene.Group(tablero);
+		boardContainer.getChildren().clear();
+		boardContainer.getChildren().add(scaleGroup);
+		
 		registrarEvento("¡El juego ha comenzado!", "log-info");
 
 		gestorPartida = new GestorPartida();
@@ -165,9 +185,20 @@ public class PantallaJuego {
 			Circle pieza = getPiezaParaJugador(j);
 			if (pieza != null) {
 				int pos = j.getPosicio();
-				// Mapping to inner 10x5 area of 12x7 grid
-				GridPane.setRowIndex(pieza, ((ROWS - 1) - (pos / COLUMNS)) + 1);
-				GridPane.setColumnIndex(pieza, (pos % COLUMNS) + 1);
+				// Snake/Zigzag mapping (10x5 grid built bottom-up)
+				int logicalRow = pos / COLUMNS;
+				int logicalCol = pos % COLUMNS;
+				
+				// Si la fila es impar (1, 3, etc.), la dirección es derecha-a-izquierda
+				if (logicalRow % 2 != 0) {
+					logicalCol = (COLUMNS - 1) - logicalCol;
+				}
+
+				int row = ((ROWS - 1) - logicalRow) + 1;
+				int col = logicalCol + 1;
+
+				GridPane.setRowIndex(pieza, row);
+				GridPane.setColumnIndex(pieza, col);
 			}
 		}
 		
@@ -347,9 +378,17 @@ public class PantallaJuego {
 				iceBlock.getStyleClass().add("cell-" + casilla.getClass().getSimpleName());
 			}
 
-			// Mapping to inner 10x5 area of 12x7 grid
-			int row = ((ROWS - 1) - (i / COLUMNS)) + 1;
-			int col = (i % COLUMNS) + 1;
+			// Snake mapping to inner 10x5 area of 12x7 grid
+			int logicalRow = i / COLUMNS;
+			int logicalCol = i % COLUMNS;
+			
+			// Fila impar = derecha a izquierda
+			if (logicalRow % 2 != 0) {
+				logicalCol = (COLUMNS - 1) - logicalCol;
+			}
+
+			int row = ((ROWS - 1) - logicalRow) + 1;
+			int col = logicalCol + 1;
 
 			GridPane.setRowIndex(iceBlock, row);
 			GridPane.setColumnIndex(iceBlock, col);
@@ -504,13 +543,29 @@ public class PantallaJuego {
 	    int oldPos = j.getPosicio();
 	    int newPos = Math.min(oldPos + steps, gestorPartida.getPartida().getTaulell().getCaselles().size() - 1);
 
-	    int oldRow = oldPos / COLUMNS;
-	    int oldCol = oldPos % COLUMNS;
-	    int newRow = newPos / COLUMNS;
-	    int newCol = newPos % COLUMNS;
+	    int oldLogicalRow = oldPos / COLUMNS;
+	    int oldLogicalCol = oldPos % COLUMNS;
+	    if (oldLogicalRow % 2 != 0) {
+	    	oldLogicalCol = (COLUMNS - 1) - oldLogicalCol;
+	    }
+	    
+	    int newLogicalRow = newPos / COLUMNS;
+	    int newLogicalCol = newPos % COLUMNS;
+	    if (newLogicalRow % 2 != 0) {
+	    	newLogicalCol = (COLUMNS - 1) - newLogicalCol;
+	    }
 
-	    double cellWidth = tablero.getWidth() / COLUMNS;
-	    double cellHeight = tablero.getHeight() / 10;
+	    int oldRow = ((ROWS - 1) - oldLogicalRow) + 1;
+	    int oldCol = oldLogicalCol + 1;
+	    int newRow = ((ROWS - 1) - newLogicalRow) + 1;
+	    int newCol = newLogicalCol + 1;
+
+	    // the grid geometry gives us fixed constraints based on 10x5 physical structure 
+	    // in a scene where width is exactly mapped to % constraints
+	    // For translations, simply use bound constraints of the cells inside the Grid
+	    double cellWidth = tablero.getPrefWidth() * 0.0918;   // 9.18% de ancho x columna
+	    double cellHeight = tablero.getPrefHeight() * 0.1711; // 17.11% de alto x fila
+
 
 	    double dx = (newCol - oldCol) * cellWidth;
 	    double dy = (newRow - oldRow) * cellHeight;
@@ -544,10 +599,26 @@ public class PantallaJuego {
 	        gt.executarCasella(gestorPartida.getPartida(), j, gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio()));
 	        
 	        // Verificar victoria tras movimiento y efectos
+	        boolean wasFinished = gestorPartida.getPartida().isFinalitzada();
 	        gt.comprovarFiTorn(gestorPartida.getPartida());
+	        
 	        if (gestorPartida.getPartida().isFinalitzada()) {
 	            actualizarUI();
-	            mostrarAlertaGanador(gestorPartida.getPartida().getGuanyador());
+	            Jugador guanyador = gestorPartida.getPartida().getGuanyador();
+
+	            if (!wasFinished && guanyador != null && !(guanyador instanceof model.entitats.Foca)) {
+	                // La partida acaba de finalizar en este turno
+	                try (Connection con = getBDConnection()) {
+	                    if (con != null) {
+	                        gestorPartida.guardarPartida(con); // Asegura que el ID de jugador exista en BBDD
+	                        new GestorBBDD().registrarVictoria(guanyador.getId(), con);
+	                    }
+	                } catch (Exception e1) {
+	                    System.err.println("Error registrando victoria: " + e1.getMessage());
+	                }
+	            }
+
+	            mostrarAlertaGanador(guanyador);
 	            return;
 	        }
 

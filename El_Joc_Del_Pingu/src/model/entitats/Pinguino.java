@@ -7,17 +7,37 @@ import model.items.BolaNeu;
 public class Pinguino extends Jugador {
 /// ATRIBUTS
 	public Inventari inventari;
+	private String contrasenya; // Para el ranking/login
+	private int victories; // Para el ranking
 // Aixo es una expansio de Jugador
 
 /// CONSTRUCTOR
 	public Pinguino(String nickname, String color, Inventari inventari) {
 		super(nickname, color); // OBLIGATORIO
 		this.inventari = inventari;
+		this.contrasenya = "";
+		this.victories = 0;
 	}
 
 /// GETTERS
 	public Inventari getInventari() {
 		return inventari;
+	}
+
+	public String getContrasenya() {
+		return contrasenya;
+	}
+
+	public void setContrasenya(String contrasenya) {
+		this.contrasenya = contrasenya;
+	}
+
+	public int getVictories() {
+		return victories;
+	}
+
+	public void setVictories(int victories) {
+		this.victories = victories;
 	}
 
 /// METODES
