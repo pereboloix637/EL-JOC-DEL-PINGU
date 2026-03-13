@@ -9,6 +9,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TabPane;
@@ -19,6 +20,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
+import java.util.Optional;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -61,6 +63,7 @@ public class PantallaMenu {
     private void handleLogin(ActionEvent event) {
         if (joinedPlayers.size() >= 4) {
             Alert alert = new Alert(AlertType.WARNING, "Máximo 4 jugadores permitidos.", ButtonType.OK);
+            estilar(alert);
             alert.showAndWait();
             return;
         }
@@ -70,6 +73,7 @@ public class PantallaMenu {
 
         if (username.isEmpty() || password.isEmpty()) {
             Alert alert = new Alert(AlertType.WARNING, "Debes introducir un usuario y una contraseña.", ButtonType.OK);
+            estilar(alert);
             alert.showAndWait();
             return;
         }
@@ -79,6 +83,7 @@ public class PantallaMenu {
                 boolean valid = dbManager.validarLogin(username, password, con);
                 if (!valid) {
                     Alert alert = new Alert(AlertType.ERROR, "Contraseña incorrecta para el usuario: " + username, ButtonType.OK);
+                    estilar(alert);
                     alert.showAndWait();
                     return;
                 }
@@ -103,6 +108,7 @@ public class PantallaMenu {
     private void handleAddCPU(ActionEvent event) {
         if (joinedPlayers.size() >= 4) {
             Alert alert = new Alert(AlertType.WARNING, "Máximo 4 jugadores permitidos.", ButtonType.OK);
+            estilar(alert);
             alert.showAndWait();
             return;
         }
@@ -155,16 +161,67 @@ public class PantallaMenu {
         if (selectedTabIndex == 1) { // Tab "Cargar Partida"
             String selected = savedGamesList.getSelectionModel().getSelectedItem();
             if (selected == null) {
-                System.out.println("Por favor, selecciona una partida para cargar.");
+                Alert alert = new Alert(AlertType.WARNING, "Por favor, selecciona una partida para cargar.", ButtonType.OK);
+                estilar(alert);
+                alert.showAndWait();
                 return;
             }
             int id = Integer.parseInt(selected.split(":")[1].trim().split(" ")[0]);
-            
+
             try (Connection con = GestorBBDD.conectarBaseDatos()) {
                 partida = dbManager.carregarBBDD(id, con);
             } catch (Exception e) {
                 e.printStackTrace();
                 return;
+            }
+
+            // Verificar contraseña de cada jugador humano de la partida
+            if (partida != null) {
+                try (Connection con = GestorBBDD.conectarBaseDatos()) {
+                    for (Jugador j : partida.getJugadors()) {
+                        if (!(j instanceof Pinguino)) continue; // Las CPUs no tienen contraseña
+
+                        // Diálogo con PasswordField para ocultar la contraseña
+                        javafx.scene.control.Dialog<String> dialog = new javafx.scene.control.Dialog<>();
+                        estilar(dialog);
+                        dialog.setTitle("Verificación de identidad");
+                        dialog.setHeaderText("Jugador: " + j.getNickname());
+                        dialog.setContentText("Introduce tu contraseña:");
+
+                        ButtonType okBtn = new ButtonType("Aceptar", ButtonType.OK.getButtonData());
+                        dialog.getDialogPane().getButtonTypes().addAll(okBtn, ButtonType.CANCEL);
+
+                        PasswordField pwField = new PasswordField();
+                        pwField.setPromptText("Contraseña");
+                        dialog.getDialogPane().setContent(pwField);
+
+                        // Convertir resultado al texto del campo
+                        dialog.setResultConverter(btn -> btn == okBtn ? pwField.getText() : null);
+
+                        Optional<String> result = dialog.showAndWait();
+                        if (!result.isPresent() || result.get() == null) {
+                            // El usuario canceló
+                            Alert alert = new Alert(AlertType.WARNING, "Carga cancelada.", ButtonType.OK);
+                            estilar(alert);
+                            alert.showAndWait();
+                            return;
+                        }
+
+                        String enteredPass = result.get().trim();
+                        boolean valid = dbManager.validarLogin(j.getNickname(), enteredPass, con);
+                        if (!valid) {
+                            Alert alert = new Alert(AlertType.ERROR,
+                                    "Contraseña incorrecta para el jugador: " + j.getNickname() + "\nNo se puede cargar la partida.",
+                                    ButtonType.OK);
+                            estilar(alert);
+                            alert.showAndWait();
+                            return;
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error validando contraseñas al cargar: " + e.getMessage());
+                    return;
+                }
             }
         } else { // Tab "Nueva Partida"
             boolean hasHuman = false;
@@ -177,11 +234,13 @@ public class PantallaMenu {
 
             if (!hasHuman) {
                 Alert alert = new Alert(AlertType.WARNING, "Debe haber al menos 1 jugador humano.", ButtonType.OK);
+                estilar(alert);
                 alert.showAndWait();
                 return;
             }
             if (joinedPlayers.size() < 2) {
                 Alert alert = new Alert(AlertType.WARNING, "Se necesitan al menos 2 jugadores (humanos o CPU) para jugar.", ButtonType.OK);
+                estilar(alert);
                 alert.showAndWait();
                 return;
             }
@@ -221,11 +280,13 @@ public class PantallaMenu {
         String selected = savedGamesList.getSelectionModel().getSelectedItem();
         if (selected == null) {
             Alert alert = new Alert(AlertType.WARNING, "Por favor, selecciona una partida para borrar.", ButtonType.OK);
+            estilar(alert);
             alert.showAndWait();
             return;
         }
 
         Alert alert = new Alert(AlertType.CONFIRMATION);
+        estilar(alert);
         alert.setTitle("Borrar Partida");
         alert.setHeaderText("¿Estás seguro de que quieres borrar esta partida?");
         alert.setContentText("Esta acción no se puede deshacer.");
@@ -248,6 +309,7 @@ public class PantallaMenu {
                             
                         } else {
                             Alert error = new Alert(AlertType.ERROR, "Error al borrar la partida de la base de datos.", ButtonType.OK);
+                            estilar(error);
                             error.showAndWait();
                         }
                     }
@@ -272,6 +334,7 @@ public class PantallaMenu {
     @FXML
     private void handleSaveGame() {
         Alert alert = new Alert(AlertType.INFORMATION);
+        estilar(alert);
         alert.setTitle("Guardar Partida");
         alert.setHeaderText(null);
         alert.setContentText("No hay ninguna partida activa para guardar. Comienza una partida primero.");
@@ -281,6 +344,7 @@ public class PantallaMenu {
     @FXML
     private void handleQuitGame() {
         Alert alert = new Alert(AlertType.CONFIRMATION);
+        estilar(alert);
         alert.setTitle("Salir del Juego");
         alert.setHeaderText("¿Estás seguro de que quieres salir?");
         alert.setContentText("Se perderá cualquier progreso no guardado.");
@@ -295,5 +359,19 @@ public class PantallaMenu {
                 System.exit(0);
             }
         });
+    }
+
+    /**
+     * Aplica el stylesheet polar del menú a cualquier Alert o Dialog,
+     * de forma que todos los popups compartan la estética del juego.
+     */
+    private void estilar(javafx.scene.control.Dialog<?> d) {
+        try {
+            javafx.scene.control.DialogPane pane = d.getDialogPane();
+            String css = getClass().getResource("/resources/PantallaMenu.css").toExternalForm();
+            pane.getStylesheets().add(css);
+        } catch (Exception e) {
+            System.err.println("No se pudo aplicar el CSS al diálogo: " + e.getMessage());
+        }
     }
 }

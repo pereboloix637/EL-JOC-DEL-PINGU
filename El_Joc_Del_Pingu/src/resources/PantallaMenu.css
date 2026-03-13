@@ -251,3 +251,70 @@
     -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 1, 1);
     -fx-translate-y: 2;
 }
+
+/* ---- DIÁLOGOS Y ALERTAS ---- */
+
+/* Panel principal */
+.dialog-pane {
+    -fx-background-color: #0D1B2A;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 2;
+    -fx-padding: 0;
+}
+
+/* Cabecera (zona superior con icono + texto de headerText) */
+.dialog-pane .header-panel {
+    -fx-background-color: #1C3A52;
+    -fx-border-color: transparent transparent #2E6B8A transparent;
+    -fx-border-width: 0 0 2 0;
+    -fx-padding: 14 18;
+}
+
+/* Texto del headerText */
+.dialog-pane .header-panel .label {
+    -fx-text-fill: #7FD4F0;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Zona del icono (warning/error/info) – quitar fondo */
+.dialog-pane .graphic-container {
+    -fx-background-color: transparent;
+    -fx-padding: 0 10 0 0;
+}
+
+/* Texto del contentText */
+.dialog-pane .content.label,
+.dialog-pane:header .content .label,
+.dialog-pane:header .content {
+    -fx-text-fill: #C8D8E8;
+    -fx-font-size: 13px;
+    -fx-padding: 18 18 10 18;
+    -fx-background-color: transparent;
+}
+
+/* Zona de botones */
+.dialog-pane .button-bar {
+    -fx-background-color: #0D1B2A;
+    -fx-border-color: #2E6B8A transparent transparent transparent;
+    -fx-border-width: 2 0 0 0;
+    -fx-padding: 10 14;
+}
+
+/* Separador interno */
+.dialog-pane .separator {
+    -fx-background-color: #2E6B8A;
+}
+
+/* Campos dentro de diálogo: sin sombra exterior para evitar doble borde */
+.dialog-pane .text-field,
+.dialog-pane .password-field {
+    -fx-effect: none;
+}
+
+.dialog-pane .text-field:focused,
+.dialog-pane .password-field:focused {
+    -fx-border-color: #7FD4F0;
+    -fx-background-color: #1C3A52;
+    -fx-effect: none;
+}

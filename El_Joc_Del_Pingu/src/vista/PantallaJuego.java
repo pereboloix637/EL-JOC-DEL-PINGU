@@ -424,6 +424,7 @@ public class PantallaJuego {
 	@FXML
 	private void handleGoToMenu() {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
+		estilar(alert);
 		alert.setTitle("Volver al Menú");
 		alert.setHeaderText("¿Deseas guardar la partida antes de volver al menú?");
 		alert.setContentText("Elige una opción:");
@@ -466,6 +467,7 @@ public class PantallaJuego {
 	@FXML
 	private void handleQuitGame() {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
+		estilar(alert);
 		alert.setTitle("Salir del Juego");
 		alert.setHeaderText("¿Deseas guardar la partida antes de salir?");
 		alert.setContentText("Elige una opción:");
@@ -640,6 +642,7 @@ public class PantallaJuego {
 	private void mostrarAlertaGanador(Jugador g) {
 	    Platform.runLater(() -> {
 	        Alert alert = new Alert(AlertType.INFORMATION);
+	        estilar(alert);
 	        alert.setTitle("¡Fin de la partida!");
 	        alert.setHeaderText("¡Tenemos un ganador!");
 	        alert.setContentText("Enhorabuena " + g.getNickname() + ", ¡has llegado a la meta! \n\n ¿Qué quieres hacer ahora?");
@@ -765,5 +768,17 @@ public class PantallaJuego {
 		actualizarUI();
 	}
 
-	
+
+	/**
+	 * Aplica el stylesheet polar del menú a cualquier Alert o Dialog.
+	 */
+	private void estilar(javafx.scene.control.Dialog<?> d) {
+		try {
+			javafx.scene.control.DialogPane pane = d.getDialogPane();
+			String css = getClass().getResource("/resources/PantallaMenu.css").toExternalForm();
+			pane.getStylesheets().add(css);
+		} catch (Exception e) {
+			System.err.println("No se pudo aplicar el CSS al diálogo: " + e.getMessage());
+		}
+	}
 }
