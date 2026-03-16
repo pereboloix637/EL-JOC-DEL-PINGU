@@ -447,17 +447,8 @@ public class PantallaJuego {
 
 	private void goToMenu() {
 		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/PantallaMenu.fxml"));
-			javafx.scene.Parent root = loader.load();
-			
-			// Seleccionar la pestaña de carga en el menú (o la principal)
-			PantallaMenu controller = loader.getController();
-			// controller.selectLoadTab(); // Puedes decidir si quieres que vaya a la de carga o a la principal
-			
-			javafx.scene.Scene scene = new javafx.scene.Scene(root);
-			javafx.stage.Stage stage = (javafx.stage.Stage) tablero.getScene().getWindow();
-			stage.setScene(scene);
-			stage.setTitle("Menú Principal - El Juego del Pingüino");
+			// Usar el método centralizado para mantener resolución y estado
+			controlador.Main.cambiarEscena("/resources/PantallaMenu.fxml");
 		} catch (Exception e) {
 			e.printStackTrace();
 			registrarEvento("Error al volver al menú.", "log-warning");
@@ -645,23 +636,16 @@ public class PantallaJuego {
 	        estilar(alert);
 	        alert.setTitle("¡Fin de la partida!");
 	        alert.setHeaderText("¡Tenemos un ganador!");
-	        alert.setContentText("Enhorabuena " + g.getNickname() + ", ¡has llegado a la meta! \n\n ¿Qué quieres hacer ahora?");
+	        alert.setContentText("Enhorabuena " + g.getNickname() + ", ¡has llegado a la meta!");
 
-	        ButtonType btnGuardar = new ButtonType("Guardar Seed");
-	        ButtonType btnSalir = new ButtonType("Salir");
-	        
-	        alert.getButtonTypes().setAll(btnGuardar, btnSalir);
+	        ButtonType btnSalir = new ButtonType("Salir al Menú");
+	        alert.getButtonTypes().setAll(btnSalir);
 
-	        Optional<ButtonType> result = alert.showAndWait();
-	        
-	        if (result.isPresent()) {
-	            if (result.get() == btnGuardar) {
-	            	handleSaveGame();
-	                mostrarAlertaGanador(g); // Re-mostrar tras guardar
-	            } else if (result.get() == btnSalir) {
-	                handleQuitGame();
+	        alert.showAndWait().ifPresent(result -> {
+	            if (result == btnSalir) {
+	                goToMenu();
 	            }
-	        }
+	        });
 	    });
 	}
 
@@ -774,6 +758,11 @@ public class PantallaJuego {
 	 */
 	private void estilar(javafx.scene.control.Dialog<?> d) {
 		try {
+			// Establecer el owner para intentar que no se salga de pantalla completa
+			if (boardContainer != null && boardContainer.getScene() != null) {
+				d.initOwner(boardContainer.getScene().getWindow());
+			}
+
 			javafx.scene.control.DialogPane pane = d.getDialogPane();
 			String css = getClass().getResource("/resources/PantallaMenu.css").toExternalForm();
 			pane.getStylesheets().add(css);
