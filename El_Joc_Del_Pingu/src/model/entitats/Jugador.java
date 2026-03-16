@@ -1,7 +1,6 @@
 package model.entitats;
 
 public abstract class Jugador {
-	/// ATRIBUTS
 	private int id;
 	private String nickname;
 	private int posicio;

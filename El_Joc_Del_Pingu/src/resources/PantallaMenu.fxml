@@ -3,95 +3,128 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane
-    xmlns="http://javafx.com/javafx/21.0.10"
-    xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="vista.PantallaMenu"
-    stylesheets="@PantallaMenu.css"
-    styleClass="root">
-
-    <top>
-        <MenuBar>
-            <menus>
-                <Menu mnemonicParsing="false" text="Opciones">
-                    <items>
-                        <MenuItem fx:id="menuItem" mnemonicParsing="false" onAction="#handleGoToMenu" text="Menu" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem fx:id="saveGame" mnemonicParsing="false" onAction="#handleSaveGame" text="Guardar" />
-                        <MenuItem fx:id="quitGame" mnemonicParsing="false" onAction="#handleQuitGame" text="Salir" />
-                    </items>
-                </Menu>
-            </menus>
-        </MenuBar>
-    </top>
+<BorderPane maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080" prefWidth="1920" styleClass="root" stylesheets="@PantallaMenu.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaMenu">
 
     <center>
-        <StackPane>
-            <padding>
-                <Insets bottom="20" left="20" right="20" top="20" />
-            </padding>
+        <StackPane BorderPane.alignment="CENTER">
+            <!-- BACKGROUND IMAGE CONTAINER -->
+            <StackPane mouseTransparent="true">
+                <ImageView fx:id="backgroundImageView" fitHeight="1080.0" fitWidth="1920.0" pickOnBounds="true" preserveRatio="true" smooth="false">
+                    <image>
+                        <Image url="@../assets/fondo_menu.png" />
+                    </image>
+                </ImageView>
+            </StackPane>
+            
+            <!-- LANDING SCREEN -->
+            <VBox fx:id="landingContainer" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" spacing="20" StackPane.alignment="TOP_CENTER">
+                <StackPane.margin>
+                    <Insets top="100" />
+                </StackPane.margin>
+                <Label styleClass="title" text="EL JUEGO DEL PINGÜINO" textAlignment="CENTER" wrapText="true" />
+            </VBox>
 
-            <VBox maxWidth="500" spacing="16" styleClass="card">
-                <padding>
-                    <Insets bottom="20" left="20" right="20" top="20" />
-                </padding>
+            <!-- MENU BUTTONS - Integrated Options & Enlarged -->
+            <VBox alignment="BOTTOM_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" spacing="20" StackPane.alignment="BOTTOM_RIGHT">
+                <StackPane.margin>
+                    <Insets bottom="60" right="60" />
+                </StackPane.margin>
+                <Button minWidth="320" onAction="#handleOpenNewGame" styleClass="landing-nav-button" text="NUEVA PARTIDA" />
+                <Button minWidth="320" onAction="#handleOpenLoadGame" styleClass="landing-nav-button" text="CARGAR PARTIDA" />
+                <Button minWidth="320" onAction="#handleOpenRanking" styleClass="landing-nav-button" text="RANKING" />
+                <Button minWidth="320" onAction="#handleQuitGame" styleClass="landing-nav-button, quit-button" text="SALIR DEL JUEGO" />
+            </VBox>
 
-                <VBox alignment="CENTER" spacing="6">
-                    <Label styleClass="title" text="EL JUEGO DEL PINGÜINO" wrapText="true" />
-                    <Label styleClass="subtitle" text="Configura tu expedición ártica" />
-                </VBox>
+            <!-- CONTENT AREA (Drill-down) -->
+            <VBox fx:id="contentContainer" managed="false" maxWidth="800" spacing="20" visible="false">
+                <StackPane.margin>
+                    <Insets bottom="40" left="40" right="40" top="40" />
+                </StackPane.margin>
+                <HBox alignment="CENTER_LEFT">
+                    <Button onAction="#handleBackToLanding" styleClass="back-button" text="← VOLVER AL MENÚ" />
+                </HBox>
 
-                <javafx.scene.control.TabPane fx:id="mainTabPane" side="TOP" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-                    <tabs>
-                        <!-- NUEVA PARTIDA -->
-                        <javafx.scene.control.Tab text="Nueva Partida">
-                            <content>
-                                <VBox spacing="15" style="-fx-padding: 15;">
-                                    <VBox spacing="10" VBox.vgrow="ALWAYS">
-                                        <Label styleClass="hint" text="Todas las partidas tendrán 4 jugadores. Las plazas vacías se llenarán con CPUs." wrapText="true" />
+                <VBox spacing="16" styleClass="card" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="20" left="20" right="20" top="20" />
+                    </padding>
+                    
+                    <javafx.scene.control.TabPane fx:id="mainTabPane" side="TOP" styleClass="hidden-header" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                        <tabs>
+                            <!-- NUEVA PARTIDA -->
+                            <javafx.scene.control.Tab text="Nueva Partida">
+                                <content>
+                                    <VBox spacing="15">
+                                        <Label styleClass="section-title" text="NUEVA EXPEDICIÓN" />
+                                        <Label styleClass="hint" text="Añade jugadores (2-4, mín. 1 humano)." wrapText="true" />
                                         <Separator />
-                                        <Label styleClass="field-label" text="Jugadores Humanos (Mínimo 1):" />
-                                        <javafx.scene.control.ListView fx:id="playersList" prefHeight="100" styleClass="players-list" />
+                                        <javafx.scene.control.ListView fx:id="playersList" prefHeight="150" styleClass="players-list" />
                                         
-                                        <VBox spacing="5" styleClass="login-mini-card">
-                                            <TextField fx:id="userField" promptText="Nombre de usuario..." styleClass="field-small" />
-                                            <PasswordField fx:id="passField" promptText="Contraseña..." styleClass="field-small" />
-                                            <Button maxWidth="Infinity" onAction="#handleLogin" styleClass="secondary" text="Añadir Jugador" />
+                                        <VBox spacing="8" styleClass="login-mini-card">
+                                            <TextField fx:id="userField" promptText="Nombre de usuario..." />
+                                            <PasswordField fx:id="passField" promptText="Contraseña..." />
+                                            <HBox spacing="10">
+                                                <Button maxWidth="Infinity" onAction="#handleLogin" styleClass="secondary" text="+ Humano" HBox.hgrow="ALWAYS" />
+                                                <Button maxWidth="Infinity" onAction="#handleAddCPU" styleClass="secondary" text="+ CPU" HBox.hgrow="ALWAYS" />
+                                            </HBox>
+                                            <Button maxWidth="Infinity" onAction="#handleClearPlayers" styleClass="secondary" text="Limpiar" />
                                         </VBox>
+                                        <Region VBox.vgrow="ALWAYS" />
+                                        <Button fx:id="startGameButton" maxWidth="Infinity" onAction="#handleStartGame" styleClass="primary-large" text="COMENZAR" />
                                     </VBox>
-                                </VBox>
-                            </content>
-                        </javafx.scene.control.Tab>
+                                </content>
+                            </javafx.scene.control.Tab>
 
-                        <!-- CARGAR PARTIDA -->
-                        <javafx.scene.control.Tab text="Cargar Partida">
-                            <content>
-                                <VBox spacing="15" style="-fx-padding: 15;">
-                                    <Label styleClass="field-label" text="Selecciona una partida guardada:" />
-                                    <javafx.scene.control.ListView fx:id="savedGamesList" VBox.vgrow="ALWAYS" />
-                                    <Button maxWidth="Infinity" onAction="#handleRefreshGames" text="Actualizar Lista" />
-                                </VBox>
-                            </content>
-                        </javafx.scene.control.Tab>
-                    </tabs>
-                </javafx.scene.control.TabPane>
+                            <!-- CARGAR PARTIDA -->
+                            <javafx.scene.control.Tab text="Cargar Partida">
+                                <content>
+                                    <VBox spacing="15">
+                                        <Label styleClass="section-title" text="CONTINUAR AVENTURA" />
+                                        <Label styleClass="field-label" text="Partidas guardadas:" />
+                                        <javafx.scene.control.ListView fx:id="savedGamesList" VBox.vgrow="ALWAYS" />
+                                        <Label fx:id="deleteFeedbackLabel" text="" visible="false" />
+                                        <HBox spacing="10">
+                                            <Button maxWidth="Infinity" onAction="#handleRefreshGames" text="Actualizar" HBox.hgrow="ALWAYS" />
+                                            <Button maxWidth="Infinity" onAction="#handleDeleteGame" styleClass="delete-button" text="Borrar" HBox.hgrow="ALWAYS" />
+                                        </HBox>
+                                        <Button maxWidth="Infinity" onAction="#handleStartGame" styleClass="primary-large" text="CARGAR" />
+                                    </VBox>
+                                </content>
+                            </javafx.scene.control.Tab>
 
-                <Button fx:id="startGameButton" maxWidth="Infinity" onAction="#handleStartGame" styleClass="primary-large" text="COMENZAR PARTIDA" />
+                            <!-- RANKING -->
+                            <javafx.scene.control.Tab text="Ranking (Victorias)">
+                                <content>
+                                    <VBox spacing="15">
+                                        <Label styleClass="section-title" text="SALÓN DE LA FAMA" />
+                                        <javafx.scene.control.ListView fx:id="rankingList" VBox.vgrow="ALWAYS" />
+                                        <Button maxWidth="Infinity" onAction="#handleRefreshRanking" text="Actualizar Ranking" />
+                                    </VBox>
+                                </content>
+                            </javafx.scene.control.Tab>
+                        </tabs>
+                    </javafx.scene.control.TabPane>
+                </VBox>
             </VBox>
         </StackPane>
     </center>
-
 </BorderPane>

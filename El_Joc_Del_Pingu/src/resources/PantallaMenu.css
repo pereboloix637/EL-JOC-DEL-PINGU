@@ -7,7 +7,11 @@
 
 .root {
     -fx-font-family: "Press Start 2P", "Courier New", "Monospaced";
-    -fx-background-color: #0D1B2A;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0F4FF;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(one-pass-box, #3AB5E6, 0, 0, 3, 3);
 }
 
 /* ---- MENU BAR ---- */
@@ -51,40 +55,72 @@
     -fx-text-fill: #7FD4F0;
 }
 
-/* ---- CARD (panel cristal de hielo, sin blur) ---- */
+/* ---- CARD (panel cristal de hielo, semi-transparente) ---- */
 .card {
-    -fx-background-color: #1C3A52;
+    -fx-background-color: rgba(13, 27, 42, 0.85);
     -fx-background-radius: 0;
     -fx-border-color: #7FD4F0;
     -fx-border-radius: 0;
     -fx-border-width: 2;
-    /* Sombra offset pixel-exacta, sin blur */
     -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 4, 4);
     -fx-padding: 24;
 }
 
+.nav-sidebar {
+    -fx-background-color: rgba(28, 58, 82, 0.7);
+    -fx-border-color: #3AB5E6;
+}
+
 /* ---- TÍTULOS ---- */
 .title {
-    -fx-font-size: 36px;
+    -fx-font-size: 84px;
+    /* Significantly larger */
     -fx-font-weight: 900;
-    -fx-text-fill: #F0F4FF;
+    -fx-text-fill: #00026981;
+    /* User requested specific color */
     -fx-alignment: center;
-    /* Sombra offset fija, cian helado */
-    -fx-effect: dropshadow(one-pass-box, #3AB5E6, 0, 0, 3, 3);
+    -fx-effect: dropshadow(one-pass-box, #F0F4FF, 0, 0, 5, 5);
+    /* White shadow for contrast */
+}
+
+.title-small {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #7FD4F0;
+    -fx-text-alignment: center;
+}
+
+.section-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0F4FF;
+    -fx-border-color: transparent transparent #2E6B8A transparent;
+    -fx-border-width: 0 0 2 0;
+    -fx-padding: 0 0 10 0;
 }
 
 .subtitle {
-    -fx-font-size: 14px;
+    -fx-font-size: 22px;
     -fx-text-fill: #C8D8E8;
+    -fx-font-weight: bold;
 }
 
 /* ---- TABS ---- */
+/* Ocultar cabeceras de TabPane */
+.hidden-header .tab-header-area {
+    -fx-max-height: 0;
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
+    -fx-opacity: 0;
+    -fx-visibility: hidden;
+}
+
 .tab-pane .tab-header-area .tab-header-background {
-    -fx-background-color: #0D1B2A;
+    -fx-background-color: transparent;
 }
 
 .tab-pane .tab {
-    -fx-background-color: #1C3A52;
+    -fx-background-color: rgba(28, 58, 82, 0.6);
     -fx-background-radius: 0;
     -fx-padding: 8 20;
     -fx-border-color: #2E6B8A;
@@ -108,7 +144,7 @@
 
 /* ---- LISTAS ---- */
 .list-view {
-    -fx-background-color: #0D1B2A;
+    -fx-background-color: rgba(13, 27, 42, 0.5);
     -fx-background-radius: 0;
     -fx-border-color: #2E6B8A;
     -fx-border-radius: 0;
@@ -137,7 +173,7 @@
 /* ---- CAMPOS DE TEXTO ---- */
 .text-field,
 .password-field {
-    -fx-background-color: #0D1B2A;
+    -fx-background-color: rgba(13, 27, 42, 0.7);
     -fx-background-radius: 0;
     -fx-border-color: #2E6B8A;
     -fx-border-radius: 0;
@@ -157,7 +193,7 @@
 
 .login-mini-card {
     -fx-padding: 16;
-    -fx-background-color: #0D1B2A;
+    -fx-background-color: rgba(13, 27, 42, 0.4);
     -fx-background-radius: 0;
     -fx-border-color: #2E6B8A;
     -fx-border-radius: 0;
@@ -181,13 +217,64 @@
     -fx-font-weight: bold;
     -fx-font-size: 13px;
     -fx-cursor: hand;
-    -fx-background-color: #1C3A52;
-    -fx-text-fill: #C8D8E8;
+    -fx-background-color: rgba(28, 58, 82, 0.8);
+    -fx-text-fill: #F0F4FF;
     -fx-border-color: #2E6B8A;
     -fx-border-width: 2;
     -fx-padding: 10 20;
-    /* Sombra offset pixel art */
     -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
+}
+
+.nav-button,
+.landing-nav-button {
+    -fx-background-color: rgba(13, 27, 42, 0.7);
+    -fx-text-fill: #F0F4FF;
+    -fx-border-color: #2E6B8A;
+    -fx-alignment: center-left;
+    -fx-padding: 15 20;
+}
+
+.landing-nav-button {
+    -fx-alignment: center;
+    -fx-font-size: 20px;
+    -fx-padding: 20 40;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 5, 5);
+}
+
+.nav-button:hover,
+.landing-nav-button:hover {
+    -fx-background-color: #3AB5E6;
+    -fx-text-fill: #0D1B2A;
+    -fx-border-color: #F0F4FF;
+}
+
+.back-button {
+    -fx-background-color: rgba(13, 27, 42, 0.4);
+    -fx-text-fill: #7FD4F0;
+    -fx-border-color: #3AB5E6;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+}
+
+.back-button:hover {
+    -fx-background-color: #2E6B8A;
+    -fx-text-fill: white;
+}
+
+.quit-button {
+    -fx-text-fill: #FF6B6B;
+    -fx-border-color: rgba(255, 107, 107, 0.5);
+}
+
+.quit-button:hover {
+    -fx-background-color: #FF6B6B;
+    -fx-text-fill: white;
+}
+
+.delete-button {
+    -fx-text-fill: #FF6B6B;
+    -fx-border-color: #FF6B6B;
 }
 
 .button:hover {
@@ -250,4 +337,71 @@
     -fx-text-fill: #7FD4F0;
     -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 1, 1);
     -fx-translate-y: 2;
+}
+
+/* ---- DIÁLOGOS Y ALERTAS ---- */
+
+/* Panel principal */
+.dialog-pane {
+    -fx-background-color: #0D1B2A;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 2;
+    -fx-padding: 0;
+}
+
+/* Cabecera (zona superior con icono + texto de headerText) */
+.dialog-pane .header-panel {
+    -fx-background-color: #1C3A52;
+    -fx-border-color: transparent transparent #2E6B8A transparent;
+    -fx-border-width: 0 0 2 0;
+    -fx-padding: 14 18;
+}
+
+/* Texto del headerText */
+.dialog-pane .header-panel .label {
+    -fx-text-fill: #7FD4F0;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Zona del icono (warning/error/info) – quitar fondo */
+.dialog-pane .graphic-container {
+    -fx-background-color: transparent;
+    -fx-padding: 0 10 0 0;
+}
+
+/* Texto del contentText */
+.dialog-pane .content.label,
+.dialog-pane:header .content .label,
+.dialog-pane:header .content {
+    -fx-text-fill: #C8D8E8;
+    -fx-font-size: 13px;
+    -fx-padding: 18 18 10 18;
+    -fx-background-color: transparent;
+}
+
+/* Zona de botones */
+.dialog-pane .button-bar {
+    -fx-background-color: #0D1B2A;
+    -fx-border-color: #2E6B8A transparent transparent transparent;
+    -fx-border-width: 2 0 0 0;
+    -fx-padding: 10 14;
+}
+
+/* Separador interno */
+.dialog-pane .separator {
+    -fx-background-color: #2E6B8A;
+}
+
+/* Campos dentro de diálogo: sin sombra exterior para evitar doble borde */
+.dialog-pane .text-field,
+.dialog-pane .password-field {
+    -fx-effect: none;
+}
+
+.dialog-pane .text-field:focused,
+.dialog-pane .password-field:focused {
+    -fx-border-color: #7FD4F0;
+    -fx-background-color: #1C3A52;
+    -fx-effect: none;
 }

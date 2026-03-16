@@ -367,3 +367,50 @@
 }
 
 /* Amarillo luna */
+
+/* ---- DIÁLOGOS Y ALERTAS ---- */
+
+.dialog-pane {
+    -fx-background-color: #0D1B2A;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 2;
+    -fx-padding: 0;
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: #1C3A52;
+    -fx-border-color: transparent transparent #2E6B8A transparent;
+    -fx-border-width: 0 0 2 0;
+    -fx-padding: 14 18;
+}
+
+.dialog-pane .header-panel .label {
+    -fx-text-fill: #7FD4F0;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.dialog-pane .graphic-container {
+    -fx-background-color: transparent;
+    -fx-padding: 0 10 0 0;
+}
+
+.dialog-pane .content.label,
+.dialog-pane:header .content .label,
+.dialog-pane:header .content {
+    -fx-text-fill: #C8D8E8;
+    -fx-font-size: 13px;
+    -fx-padding: 18 18 10 18;
+    -fx-background-color: transparent;
+}
+
+.dialog-pane .button-bar {
+    -fx-background-color: #0D1B2A;
+    -fx-border-color: #2E6B8A transparent transparent transparent;
+    -fx-border-width: 2 0 0 0;
+    -fx-padding: 10 14;
+}
+
+.dialog-pane .separator {
+    -fx-background-color: #2E6B8A;
+}
