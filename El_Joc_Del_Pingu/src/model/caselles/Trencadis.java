@@ -2,8 +2,16 @@ package model.caselles;
 
 import model.core.Partida;
 import model.entitats.Jugador;
+import model.entitats.Pinguino;
+import model.items.Item;
 
-/** Casella Trencadís: el terra es trenca i el jugador torna a l'inici. */
+/**
+ * Casella Trencadís: el terra es trenca.
+ * L'efecte depèn del total d'objectes que porta el jugador:
+ *   - Més de 5 objectes → cau i torna a l'inici.
+ *   - 1 a 5 objectes   → perd un torn.
+ *   - Sense objectes   → passa sense penalització.
+ */
 public class Trencadis extends Casella {
 
 	// Constructor
@@ -11,10 +19,32 @@ public class Trencadis extends Casella {
 		super(posicio);
 	}
 
-	// El jugador torna directament a la posició 0
 	@Override
 	public void realitzarAccio(Partida partida, Jugador jugador) {
-		jugador.setPosicio(0);
-		System.out.println(jugador.getNickname() + " ha trepitjat un sòl trencat! Torna a l'inici.");
+		// Comptem el total d'unitats de tots els ítems de l'inventari
+		int totalObjectes = 0;
+		if (jugador instanceof Pinguino pingui) {
+			for (Item item : pingui.getInventari().getLlista()) {
+				totalObjectes += item.getQuantitat();
+			}
+		}
+
+		if (totalObjectes == 0) {
+			// Sense objectes: passa sense penalització
+			System.out.println(jugador.getNickname()
+					+ " ha trepitjat un sòl trencat, però no porta res → passa sense penalització.");
+		} else if (totalObjectes <= 5) {
+			// Fins a 5 objectes: perd un torn
+			jugador.setTornsBloquejat(jugador.getTornsBloquejat() + 1);
+			System.out.println(jugador.getNickname()
+					+ " ha trepitjat un sòl trencat i porta " + totalObjectes
+					+ " objectes → perd un torn!");
+		} else {
+			// Més de 5 objectes: cau i torna a l'inici
+			jugador.setPosicio(0);
+			System.out.println(jugador.getNickname()
+					+ " ha trepitjat un sòl trencat i porta " + totalObjectes
+					+ " objectes → cau i torna a l'inici!");
+		}
 	}
 }
