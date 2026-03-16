@@ -348,22 +348,18 @@
 
 /* Colores adaptados a paleta fría pixel art */
 #P1 {
-    -fx-fill: #C0392B;
 }
 
 /* Rojo hielo */
 #P2 {
-    -fx-fill: #3498DB;
 }
 
 /* Cian helado */
 #P3 {
-    -fx-fill: #27AE60;
 }
 
 /* Azul eléctrico frío */
 #P4 {
-    -fx-fill: #F1C40F;
 }
 
 /* Amarillo luna */

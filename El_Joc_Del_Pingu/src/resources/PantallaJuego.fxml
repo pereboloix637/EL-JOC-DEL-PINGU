@@ -17,6 +17,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.text.Text?>
 
 <BorderPane prefHeight="1080.0" prefWidth="1920.0" styleClass="root" stylesheets="@PantallaJuego.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaJuego">
@@ -141,16 +142,10 @@
 
                 <children>
                     <!-- Jugadores: fx:id para Controller + id para CSS -->
-                    <Circle id="P1" fx:id="P1" radius="16.0" styleClass="player" />
-                    <Circle id="P2" fx:id="P2" radius="16.0" styleClass="player">
-                        <GridPane.margin><Insets left="30.0" /></GridPane.margin>
-                    </Circle>
-                    <Circle id="P3" fx:id="P3" radius="16.0" styleClass="player">
-                        <GridPane.margin><Insets left="60.0" /></GridPane.margin>
-                    </Circle>
-                    <Circle id="P4" fx:id="P4" radius="16.0" styleClass="player">
-                        <GridPane.margin><Insets left="90.0" /></GridPane.margin>
-                    </Circle>
+                    <ImageView id="P1" fx:id="P1" fitHeight="115.0" fitWidth="115.0" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                    <ImageView id="P2" fx:id="P2" fitHeight="115.0" fitWidth="115.0" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                    <ImageView id="P3" fx:id="P3" fitHeight="115.0" fitWidth="115.0" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                    <ImageView id="P4" fx:id="P4" fitHeight="115.0" fitWidth="115.0" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
                 </children>
             </GridPane>
         </StackPane>

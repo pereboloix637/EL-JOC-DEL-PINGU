@@ -1,6 +1,8 @@
 package vista;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javafx.animation.TranslateTransition;
 import javafx.beans.binding.Bindings;
@@ -13,11 +15,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
-import javafx.scene.layout.Region;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -94,13 +99,13 @@ public class PantallaJuego {
 	@FXML
 	private GridPane tablero;
 	@FXML
-	private Circle P1;
+	private ImageView P1;
 	@FXML
-	private Circle P2;
+	private ImageView P2;
 	@FXML
-	private Circle P3;
+	private ImageView P3;
 	@FXML
-	private Circle P4;
+	private ImageView P4;
 
 	private GestorPartida gestorPartida;
 	private static Partida partidaInicial;
@@ -122,6 +127,26 @@ public class PantallaJuego {
 
 	@FXML
 	private void initialize() {
+		// Cargar imágenes de los pingüinos
+		try {
+			P1.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_ROJO.png")));
+			P2.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_AZUL.png")));
+			P3.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_VERDE.png")));
+			P4.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_AMARILLO.png")));
+
+			// Ensure centering in GridPane
+			GridPane.setHalignment(P1, HPos.CENTER);
+			GridPane.setValignment(P1, VPos.CENTER);
+			GridPane.setHalignment(P2, HPos.CENTER);
+			GridPane.setValignment(P2, VPos.CENTER);
+			GridPane.setHalignment(P3, HPos.CENTER);
+			GridPane.setValignment(P3, VPos.CENTER);
+			GridPane.setHalignment(P4, HPos.CENTER);
+			GridPane.setValignment(P4, VPos.CENTER);
+		} catch (Exception e) {
+			System.err.println("Error cargando imágenes de pingüinos: " + e.getMessage());
+		}
+
 		tablero.setPrefSize(2688, 1472);
 		tablero.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 		tablero.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
@@ -180,11 +205,20 @@ public class PantallaJuego {
 		P4.setVisible(js.size() > 3);
 		
 		// Actualitzar la posició física de cada peça al GridPane
+		Map<Integer, Integer> recuento = new HashMap<>();
+		for (Jugador j : js) {
+			recuento.put(j.getPosicio(), recuento.getOrDefault(j.getPosicio(), 0) + 1);
+		}
+
+		Map<Integer, Integer> indiceActual = new HashMap<>();
 		for (int i = 0; i < js.size(); i++) {
 			Jugador j = js.get(i);
-			Circle pieza = getPiezaParaJugador(j);
+			ImageView pieza = getPiezaParaJugador(j);
 			if (pieza != null) {
 				int pos = j.getPosicio();
+				int numEnCasilla = indiceActual.getOrDefault(pos, 0);
+				indiceActual.put(pos, numEnCasilla + 1);
+
 				// Snake/Zigzag mapping (10x5 grid built bottom-up)
 				int logicalRow = pos / COLUMNS;
 				int logicalCol = pos % COLUMNS;
@@ -199,6 +233,9 @@ public class PantallaJuego {
 
 				GridPane.setRowIndex(pieza, row);
 				GridPane.setColumnIndex(pieza, col);
+				
+				// Aplicar offset solo si hay más de uno
+				aplicarOffsetDeSeparacion(pieza, numEnCasilla, recuento.get(pos));
 			}
 		}
 		
@@ -329,9 +366,9 @@ public class PantallaJuego {
 	}
 
 	/**
-	 * Retorna l'element visual (Cercle) associat a un jugador segons el seu índex.
+	 * Retorna l'element visual (ImageView) associat a un jugador segons el seu índex.
 	 */
-	private Circle getPiezaParaJugador(Jugador j) {
+	private ImageView getPiezaParaJugador(Jugador j) {
 		int idx = gestorPartida.getPartida().getJugadors().indexOf(j);
 		switch (idx) {
 			case 0: return P1;
@@ -530,7 +567,7 @@ public class PantallaJuego {
 	 */
 	private void moverPieza(Jugador j, int steps) {
 	    bloquearControles(true);
-	    Circle pieza = getPiezaParaJugador(j);
+	    ImageView pieza = getPiezaParaJugador(j);
 	    if (pieza == null) return;
 
 	    int oldPos = j.getPosicio();
@@ -559,17 +596,53 @@ public class PantallaJuego {
 	    double cellWidth = tablero.getPrefWidth() * 0.0918;   // 9.18% de ancho x columna
 	    double cellHeight = tablero.getPrefHeight() * 0.1711; // 17.11% de alto x fila
 
+	    // Calcular offset actual y objetivo para que la animación sea fluida
+	    double currentTX = pieza.getTranslateX();
+	    double currentTY = pieza.getTranslateY();
+	    
+	    // Pre-calcular cuántos jugadores habrá en la nueva posición antes que yo (según orden en la lista)
+	    int numEnNuevaCasilla = 0;
+	    ArrayList<Jugador> js = gestorPartida.getPartida().getJugadors();
+	    for (int i = 0; i < js.indexOf(j); i++) {
+	    	if (js.get(i).getPosicio() == newPos) {
+	    		numEnNuevaCasilla++;
+	    	}
+	    }
+	    
+	    // Offset objetivo
+	    double calcTX = 0, calcTY = 0;
+	    double offsetSeparacion = 30.0;
+	    
+	    // Contar cuántos hay ya en el destino
+	    int totalEnDestino = 0;
+	    for (Jugador other : js) {
+	    	if (other.getPosicio() == newPos) totalEnDestino++;
+	    }
+	    // Yo seré el totalEnDestino + 1 (aunque aquí sumo 1 para simular mi llegada)
+	    totalEnDestino++; 
 
-	    double dx = (newCol - oldCol) * cellWidth;
-	    double dy = (newRow - oldRow) * cellHeight;
+	    if (totalEnDestino > 1) {
+		    switch (numEnNuevaCasilla) {
+		    	case 0: calcTX = -offsetSeparacion; calcTY = -offsetSeparacion; break;
+		    	case 1: calcTX =  offsetSeparacion; calcTY = -offsetSeparacion; break;
+		    	case 2: calcTX = -offsetSeparacion; calcTY =  offsetSeparacion; break;
+		    	case 3: calcTX =  offsetSeparacion; calcTY =  offsetSeparacion; break;
+		    }
+	    }
+
+	    final double targetTX = calcTX;
+	    final double targetTY = calcTY;
+
+	    double dx = (newCol - oldCol) * cellWidth + (targetTX - currentTX);
+	    double dy = (newRow - oldRow) * cellHeight + (targetTY - currentTY);
 
 	    TranslateTransition slide = new TranslateTransition(Duration.millis(500), pieza);
 	    slide.setByX(dx);
 	    slide.setByY(dy);
 
 	    slide.setOnFinished(e -> {
-	        pieza.setTranslateX(0);
-	        pieza.setTranslateY(0);
+	        pieza.setTranslateX(targetTX);
+	        pieza.setTranslateY(targetTY);
 	        
 	        // Actualitzar model
 	        j.setPosicio(newPos);
@@ -752,6 +825,42 @@ public class PantallaJuego {
 		actualizarUI();
 	}
 
+
+	/**
+	 * Aplica un offset visual para evitar que los pingüinos se solapen completamente
+	 * cuando están en la misma casilla.
+	 */
+	private void aplicarOffsetDeSeparacion(ImageView pieza, int index, int total) {
+		if (total <= 1) {
+			pieza.setTranslateX(0);
+			pieza.setTranslateY(0);
+			return;
+		}
+		
+		double offset = 30.0; // Píxeles de separación
+		switch (index) {
+			case 0: // Arriba-Izquierda
+				pieza.setTranslateX(-offset);
+				pieza.setTranslateY(-offset);
+				break;
+			case 1: // Arriba-Derecha
+				pieza.setTranslateX(offset);
+				pieza.setTranslateY(-offset);
+				break;
+			case 2: // Abajo-Izquierda
+				pieza.setTranslateX(-offset);
+				pieza.setTranslateY(offset);
+				break;
+			case 3: // Abajo-Derecha
+				pieza.setTranslateX(offset);
+				pieza.setTranslateY(offset);
+				break;
+			default:
+				pieza.setTranslateX(0);
+				pieza.setTranslateY(0);
+				break;
+		}
+	}
 
 	/**
 	 * Aplica el stylesheet polar del menú a cualquier Alert o Dialog.
