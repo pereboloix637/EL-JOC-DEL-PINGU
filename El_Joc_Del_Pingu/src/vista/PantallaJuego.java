@@ -109,6 +109,8 @@ public class PantallaJuego {
 
 	private GestorPartida gestorPartida;
 	private static Partida partidaInicial;
+	
+	private static PantallaJuego instanciaActual;
 
 	// Dado especial seleccionado para el próximo turno (null = dado estándar)
 	private Dau dauSeleccionat = null;
@@ -434,6 +436,60 @@ public class PantallaJuego {
 		}
 	}
 
+	public static void mostrarPopupItem(Jugador j, String imagenNombre) {
+		if (instanciaActual == null) return;
+		Platform.runLater(() -> instanciaActual.mostrarPopupUI(j, imagenNombre));
+	}
+
+	private void mostrarPopupUI(Jugador j, String imagenNombre) {
+		Circle pieza = getPiezaParaJugador(j);
+		if (pieza == null) return;
+
+		int pos = j.getPosicio();
+		int logicalRow = pos / COLUMNS;
+		int logicalCol = pos % COLUMNS;
+		if (logicalRow % 2 != 0) {
+			logicalCol = (COLUMNS - 1) - logicalCol;
+		}
+
+		int row = ((ROWS - 1) - logicalRow) + 1;
+		int col = logicalCol + 1;
+
+		try {
+			javafx.scene.image.Image img = new javafx.scene.image.Image(getClass().getResourceAsStream("/assets/" + imagenNombre));
+			javafx.scene.image.ImageView icon = new javafx.scene.image.ImageView(img);
+			// Mida de l'icono
+			icon.setFitWidth(80);
+			icon.setFitHeight(80);
+			icon.setPreserveRatio(true);
+
+			GridPane.setRowIndex(icon, row);
+			GridPane.setColumnIndex(icon, col);
+			GridPane.setHalignment(icon, javafx.geometry.HPos.CENTER);
+			GridPane.setValignment(icon, javafx.geometry.VPos.CENTER);
+
+			// Començar 30 píxels amunt per no tapar totalment el jugador
+			icon.setTranslateY(-30);
+
+			tablero.getChildren().add(icon);
+
+			// Animació de pujada i esvaïment
+			javafx.animation.TranslateTransition tt = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(1500), icon);
+			tt.setByY(-60);
+
+			javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(javafx.util.Duration.millis(1500), icon);
+			ft.setFromValue(1.0);
+			ft.setToValue(0.0);
+
+			javafx.animation.ParallelTransition pt = new javafx.animation.ParallelTransition(icon, tt, ft);
+			pt.setOnFinished(e -> tablero.getChildren().remove(icon));
+			pt.play();
+			
+		} catch (Exception e) {
+			System.err.println("Error carregant la imatge del popup: " + imagenNombre);
+		}
+	}
+
 	// Menu actions
 
 	private Connection getBDConnection() {
@@ -548,15 +604,25 @@ public class PantallaJuego {
 		if (dauSeleccionat != null) {
 			d = dauSeleccionat;
 			dauSeleccionat = null; // Consumir la selecció un cop usada
-		} else if (actual instanceof Pinguino ping) {
-			d = (Dau) ping.getInventari().obtenirPrimer(Dau.class);
-			if (d == null) d = new Dau();
 		} else {
+			// Els jugadors humans ARA SEMPRE usen un dau estàndard (1-6) per defecte
+			// encara que tinguin daus especials a l'inventari, a menys que hagin pitjat el botó.
 			d = new Dau();
 		}
 
 		int resultado = gestorPartida.tirarDau(actual, d);
 		dadoResultText.setText("Dau: " + resultado);
+		
+		// Color del text del dau: Taronja (Ràpid), Verd (Lent), Blanc (Estàndard)
+		if (d.esEspecial()) {
+		    if (d.getMax() > 6) {
+		        dadoResultText.setStyle("-fx-fill: #E67E22;"); // Naranja
+		    } else if (d.getMax() <= 3) {
+		        dadoResultText.setStyle("-fx-fill: #27AE60;"); // Verde
+		    }
+		} else {
+		    dadoResultText.setStyle("-fx-fill: white;");
+		}
 		
 		// Animació a la UI abans de canviar el torn al model
 		moverPieza(actual, resultado);
@@ -647,15 +713,15 @@ public class PantallaJuego {
 	        // Actualitzar model
 	        j.setPosicio(newPos);
 	        
-	        // --- LÓGICA DE BATALLA ---
-	        // Si el jugador acabado de mover es un pingüino, buscamos colisiones
+	        // --- LÒGICA DE BATALLA ---
+	        // Si el jugador acabat de moure és un pingüí, busquem col·lisions
 	        if (j instanceof Pinguino pActual) {
 	            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
-	                // Si hay otro pingüino en la misma casilla (y no soy yo mismo)
+	                // Si hi ha un altre pingüí a la mateixa casella (i no sóc jo mateix)
 	                if (rival != pActual && rival.getPosicio() == newPos && rival instanceof Pinguino pRival) {
-	                    registrarEvento("¡Colisión! Batalla entre " + pActual.getNickname() + " y " + pRival.getNickname(), "log-warning");
+	                    registrarEvento("Col·lisió! Batalla entre " + pActual.getNickname() + " i " + pRival.getNickname(), "log-warning");
 	                    pActual.gestionarBatalla(pRival);
-	                    break; // Un solo encuentro por turno
+	                    break; // Una única trobada per torn
 	                }
 	            }
 	        }
@@ -673,14 +739,13 @@ public class PantallaJuego {
 	            Jugador guanyador = gestorPartida.getPartida().getGuanyador();
 
 	            if (!wasFinished && guanyador != null && !(guanyador instanceof model.entitats.Foca)) {
-	                // La partida acaba de finalizar en este turno
+	                // Registrem la victoria al ranking de forma automática
 	                try (Connection con = getBDConnection()) {
 	                    if (con != null) {
-	                        gestorPartida.guardarPartida(con); // Asegura que el ID de jugador exista en BBDD
 	                        new GestorBBDD().registrarVictoria(guanyador.getId(), con);
 	                    }
 	                } catch (Exception e1) {
-	                    System.err.println("Error registrando victoria: " + e1.getMessage());
+	                    System.err.println("Error registrant victoria: " + e1.getMessage());
 	                }
 	            }
 
@@ -711,11 +776,15 @@ public class PantallaJuego {
 	        alert.setHeaderText("¡Tenemos un ganador!");
 	        alert.setContentText("Enhorabuena " + g.getNickname() + ", ¡has llegado a la meta!");
 
-	        ButtonType btnSalir = new ButtonType("Salir al Menú");
-	        alert.getButtonTypes().setAll(btnSalir);
+	        ButtonType btnGuardar = new ButtonType("Guardar i Sortir");
+	        ButtonType btnSalir = new ButtonType("Sortir sense Guardar");
+	        alert.getButtonTypes().setAll(btnGuardar, btnSalir);
 
 	        alert.showAndWait().ifPresent(result -> {
-	            if (result == btnSalir) {
+	            if (result == btnGuardar) {
+	                handleSaveGame();
+	                goToMenu();
+	            } else if (result == btnSalir) {
 	                goToMenu();
 	            }
 	        });
