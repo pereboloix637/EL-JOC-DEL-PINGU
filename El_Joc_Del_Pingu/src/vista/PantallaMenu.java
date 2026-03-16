@@ -10,6 +10,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.VBox;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TabPane;
@@ -47,6 +48,8 @@ public class PantallaMenu {
     @FXML private ListView<String> rankingList;
     @FXML private TabPane mainTabPane;
     @FXML private Label deleteFeedbackLabel;
+    @FXML private VBox landingContainer;
+    @FXML private VBox contentContainer;
 
     private ArrayList<Jugador> joinedPlayers = new ArrayList<>();
     private int cpuCount = 0;
@@ -55,6 +58,7 @@ public class PantallaMenu {
     @FXML
     private void initialize() {
         System.out.println("PantallaMenu inicializada");
+        showLanding();
         handleRefreshGames();
         handleRefreshRanking();
     }
@@ -327,8 +331,47 @@ public class PantallaMenu {
     }
 
     @FXML
-    private void handleGoToMenu() {
+    private void handleOpenNewGame() {
+        showContent();
         mainTabPane.getSelectionModel().select(0);
+    }
+
+    @FXML
+    private void handleOpenLoadGame() {
+        showContent();
+        mainTabPane.getSelectionModel().select(1);
+        handleRefreshGames();
+    }
+
+    @FXML
+    private void handleOpenRanking() {
+        showContent();
+        mainTabPane.getSelectionModel().select(2);
+        handleRefreshRanking();
+    }
+
+    @FXML
+    private void handleBackToLanding() {
+        showLanding();
+    }
+
+    private void showLanding() {
+        landingContainer.setVisible(true);
+        landingContainer.setManaged(true);
+        contentContainer.setVisible(false);
+        contentContainer.setManaged(false);
+    }
+
+    private void showContent() {
+        landingContainer.setVisible(false);
+        landingContainer.setManaged(false);
+        contentContainer.setVisible(true);
+        contentContainer.setManaged(true);
+    }
+
+    @FXML
+    private void handleGoToMenu() {
+        handleBackToLanding();
     }
 
     @FXML

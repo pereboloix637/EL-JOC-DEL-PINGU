@@ -16,8 +16,8 @@ public class Main extends Application {
         
         primaryStage.setTitle("El Joc del Pingüí - Menú");
         primaryStage.setScene(new Scene(root));
-        primaryStage.setWidth(1090);
-        primaryStage.setHeight(830);
+        primaryStage.setWidth(1280);
+        primaryStage.setHeight(720);
         primaryStage.centerOnScreen();
         primaryStage.show();
     }
