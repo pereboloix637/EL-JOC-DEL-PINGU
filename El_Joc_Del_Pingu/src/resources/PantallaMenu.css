@@ -7,10 +7,11 @@
 
 .root {
     -fx-font-family: "Press Start 2P", "Courier New", "Monospaced";
-    -fx-background-image: url("/assets/fondo_menu.png");
-    -fx-background-size: cover;
-    -fx-background-repeat: no-repeat;
-    -fx-background-position: center;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0F4FF;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(one-pass-box, #3AB5E6, 0, 0, 3, 3);
 }
 
 /* ---- MENU BAR ---- */
@@ -72,22 +73,25 @@
 
 /* ---- TÍTULOS ---- */
 .title {
-    -fx-font-size: 36px;
+    -fx-font-size: 84px;
+    /* Significantly larger */
     -fx-font-weight: 900;
-    -fx-text-fill: #F0F4FF;
+    -fx-text-fill: #00026981;
+    /* User requested specific color */
     -fx-alignment: center;
-    -fx-effect: dropshadow(one-pass-box, #3AB5E6, 0, 0, 3, 3);
+    -fx-effect: dropshadow(one-pass-box, #F0F4FF, 0, 0, 5, 5);
+    /* White shadow for contrast */
 }
 
 .title-small {
-    -fx-font-size: 20px;
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-text-fill: #7FD4F0;
     -fx-text-alignment: center;
 }
 
 .section-title {
-    -fx-font-size: 18px;
+    -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-text-fill: #F0F4FF;
     -fx-border-color: transparent transparent #2E6B8A transparent;
@@ -96,8 +100,9 @@
 }
 
 .subtitle {
-    -fx-font-size: 14px;
+    -fx-font-size: 22px;
     -fx-text-fill: #C8D8E8;
+    -fx-font-weight: bold;
 }
 
 /* ---- TABS ---- */
@@ -220,7 +225,8 @@
     -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
 }
 
-.nav-button, .landing-nav-button {
+.nav-button,
+.landing-nav-button {
     -fx-background-color: rgba(13, 27, 42, 0.7);
     -fx-text-fill: #F0F4FF;
     -fx-border-color: #2E6B8A;
@@ -230,13 +236,14 @@
 
 .landing-nav-button {
     -fx-alignment: center;
-    -fx-font-size: 16px;
-    -fx-padding: 18 30;
+    -fx-font-size: 20px;
+    -fx-padding: 20 40;
     -fx-border-width: 3;
     -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 5, 5);
 }
 
-.nav-button:hover, .landing-nav-button:hover {
+.nav-button:hover,
+.landing-nav-button:hover {
     -fx-background-color: #3AB5E6;
     -fx-text-fill: #0D1B2A;
     -fx-border-color: #F0F4FF;

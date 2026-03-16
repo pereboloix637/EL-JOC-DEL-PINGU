@@ -20,47 +20,45 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane styleClass="root" stylesheets="@PantallaMenu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaMenu">
-
-    <top>
-        <MenuBar>
-            <menus>
-                <Menu mnemonicParsing="false" text="Opciones">
-                    <items>
-                        <MenuItem fx:id="menuItem" mnemonicParsing="false" onAction="#handleGoToMenu" text="Menu" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem fx:id="saveGame" mnemonicParsing="false" onAction="#handleSaveGame" text="Guardar" />
-                        <MenuItem fx:id="quitGame" mnemonicParsing="false" onAction="#handleQuitGame" text="Salir" />
-                    </items>
-                </Menu>
-            </menus>
-        </MenuBar>
-    </top>
+<BorderPane maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080" prefWidth="1920" styleClass="root" stylesheets="@PantallaMenu.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaMenu">
 
     <center>
-        <StackPane>
-            <padding>
-                <Insets bottom="40" left="40" right="40" top="40" />
-            </padding>
-
+        <StackPane BorderPane.alignment="CENTER">
+            <!-- BACKGROUND IMAGE CONTAINER -->
+            <StackPane mouseTransparent="true">
+                <ImageView fx:id="backgroundImageView" fitHeight="1080.0" fitWidth="1920.0" pickOnBounds="true" preserveRatio="true" smooth="false">
+                    <image>
+                        <Image url="@../assets/fondo_menu.png" />
+                    </image>
+                </ImageView>
+            </StackPane>
+            
             <!-- LANDING SCREEN -->
-            <VBox fx:id="landingContainer" alignment="CENTER" maxWidth="500" spacing="40">
-                <VBox alignment="CENTER" spacing="10">
-                    <Label styleClass="title" text="EL JUEGO DEL PINGÜINO" textAlignment="CENTER" wrapText="true" />
-                    <Label styleClass="subtitle" text="Configura tu expedición ártica" />
-                </VBox>
-                
-                <VBox alignment="CENTER" maxWidth="350" spacing="15">
-                    <Button maxWidth="Infinity" onAction="#handleOpenNewGame" styleClass="landing-nav-button" text="NUEVA PARTIDA" />
-                    <Button maxWidth="Infinity" onAction="#handleOpenLoadGame" styleClass="landing-nav-button" text="CARGAR PARTIDA" />
-                    <Button maxWidth="Infinity" onAction="#handleOpenRanking" styleClass="landing-nav-button" text="RANKING" />
-                    <Button maxWidth="Infinity" onAction="#handleQuitGame" styleClass="landing-nav-button, quit-button" text="SALIR" />
-                </VBox>
+            <VBox fx:id="landingContainer" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" spacing="20" StackPane.alignment="TOP_CENTER">
+                <StackPane.margin>
+                    <Insets top="100" />
+                </StackPane.margin>
+                <Label styleClass="title" text="EL JUEGO DEL PINGÜINO" textAlignment="CENTER" wrapText="true" />
+            </VBox>
+
+            <!-- MENU BUTTONS - Integrated Options & Enlarged -->
+            <VBox alignment="BOTTOM_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" spacing="20" StackPane.alignment="BOTTOM_RIGHT">
+                <StackPane.margin>
+                    <Insets bottom="60" right="60" />
+                </StackPane.margin>
+                <Button minWidth="320" onAction="#handleOpenNewGame" styleClass="landing-nav-button" text="NUEVA PARTIDA" />
+                <Button minWidth="320" onAction="#handleOpenLoadGame" styleClass="landing-nav-button" text="CARGAR PARTIDA" />
+                <Button minWidth="320" onAction="#handleOpenRanking" styleClass="landing-nav-button" text="RANKING" />
+                <Button minWidth="320" onAction="#handleQuitGame" styleClass="landing-nav-button, quit-button" text="SALIR DEL JUEGO" />
             </VBox>
 
             <!-- CONTENT AREA (Drill-down) -->
             <VBox fx:id="contentContainer" managed="false" maxWidth="800" spacing="20" visible="false">
+                <StackPane.margin>
+                    <Insets bottom="40" left="40" right="40" top="40" />
+                </StackPane.margin>
                 <HBox alignment="CENTER_LEFT">
                     <Button onAction="#handleBackToLanding" styleClass="back-button" text="← VOLVER AL MENÚ" />
                 </HBox>

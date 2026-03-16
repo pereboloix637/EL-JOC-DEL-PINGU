@@ -265,13 +265,9 @@ public class PantallaMenu {
             try {
                 // Pasar la partida a la siguiente pantalla
                 PantallaJuego.setPartidaInicial(partida);
-
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/PantallaJuego.fxml"));
-                Parent root = loader.load();
-                Scene scene = new Scene(root);
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(scene);
-                stage.setTitle("El Juego del Pingüino");
+                
+                // Usar el método centralizado para mantener resolución y estado
+                controlador.Main.cambiarEscena("/resources/PantallaJuego.fxml");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -410,6 +406,13 @@ public class PantallaMenu {
      */
     private void estilar(javafx.scene.control.Dialog<?> d) {
         try {
+            // Establecer el owner para intentar que no se salga de pantalla completa
+            if (landingContainer != null && landingContainer.getScene() != null) {
+                d.initOwner(landingContainer.getScene().getWindow());
+            } else if (contentContainer != null && contentContainer.getScene() != null) {
+                d.initOwner(contentContainer.getScene().getWindow());
+            }
+
             javafx.scene.control.DialogPane pane = d.getDialogPane();
             String css = getClass().getResource("/resources/PantallaMenu.css").toExternalForm();
             pane.getStylesheets().add(css);
