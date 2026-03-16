@@ -8,20 +8,24 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-	@Override
-	public void start(Stage primaryStage) throws Exception {
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        // Carrega la pantalla de menú inicial
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/PantallaMenu.fxml"));
+        Parent root = loader.load();
+        
+        primaryStage.setTitle("El Joc del Pingüí - Menú");
+        primaryStage.setScene(new Scene(root));
+        primaryStage.setWidth(1280);
+        primaryStage.setHeight(720);
+        primaryStage.centerOnScreen();
+        primaryStage.show();
+    }
 
-		try {
-			// Carrega la pantalla de menú inicial
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/PantallaMenu.fxml"));
-			Parent root = loader.load();
-
-			primaryStage.setTitle("El Joc del Pingüí - Menú");
-			primaryStage.setScene(new Scene(root));
-			primaryStage.setWidth(1090);
-			primaryStage.setHeight(830);
-			primaryStage.centerOnScreen();
-			primaryStage.show();
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
 
 		} catch (Exception e) {
 			e.printStackTrace();
