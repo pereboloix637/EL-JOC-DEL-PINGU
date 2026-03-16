@@ -442,7 +442,7 @@ public class PantallaJuego {
 	}
 
 	private void mostrarPopupUI(Jugador j, String imagenNombre) {
-		Circle pieza = getPiezaParaJugador(j);
+		ImageView pieza = getPiezaParaJugador(j);
 		if (pieza == null) return;
 
 		int pos = j.getPosicio();
