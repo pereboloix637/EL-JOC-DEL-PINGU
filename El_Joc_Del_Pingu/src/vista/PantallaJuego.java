@@ -937,10 +937,9 @@ public class PantallaJuego {
 			return;
 		}
 
-		// usarItem decrementa quantitat i l'elimina si arriba a 0
-		pingu.getInventari().usarItem(dRapid);
+		// El consum real es farà a gestorPartida.tirarDau -> dau.tirarIUsar()
 		dauSeleccionat = dRapid;
-		registrarEvento(pingu.getNickname() + " usa dado rápido (1-" + dRapid.getMax() + ")", "log-info");
+		registrarEvento(pingu.getNickname() + " usa dado rápido (" + dRapid.getMin() + "-" + dRapid.getMax() + ")", "log-info");
 		executartorn();
 	}
 
@@ -960,9 +959,12 @@ public class PantallaJuego {
 			return;
 		}
 
-		pingu.getInventari().usarItem(dLent);
 		dauSeleccionat = dLent;
-		registrarEvento(pingu.getNickname() + " usa dado lento (1-" + dLent.getMax() + ")", "log-info");
+		String range = (dLent.getMin() == dLent.getMax()) ? String.valueOf(dLent.getMin()) : dLent.getMin() + "-" + dLent.getMax();
+		// Si és el dau lent amb valors 1 i 3, el log pot ser més precís
+		if (dLent.getNom().equals("Dau lent")) range = "1 o 3";
+		
+		registrarEvento(pingu.getNickname() + " usa dado lento (" + range + ")", "log-info");
 		executartorn();
 	}
 

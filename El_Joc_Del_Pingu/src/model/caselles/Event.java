@@ -83,8 +83,8 @@ public class Event extends Casella {
 		case 3:
 			// EVENT 3: dau lent 1-3 caselles (màxim 3 daus especials)
 			if (pingui.getInventari().getDausEspecials() < 3) {
-				pingui.getInventari().afegirItem(new Dau("Dau lent", 1, 1, 3));
-				System.out.println(pingui.getNickname() + " ha obtingut un dau lent! (1-3 caselles)");
+				pingui.getInventari().afegirItem(new Dau("Dau lent", 1, new int[] { 1, 3 }));
+				System.out.println(pingui.getNickname() + " ha obtingut un dau lent! (1 o 3 caselles)");
 				vista.PantallaJuego.mostrarPopupItem(pingui, "Dado_Lento.png");
 			} else {
 				System.out.println(pingui.getNickname() + " ja té el màxim de daus especials (3).");
