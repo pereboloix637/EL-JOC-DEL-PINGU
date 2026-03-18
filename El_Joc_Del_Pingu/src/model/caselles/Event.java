@@ -63,6 +63,7 @@ public class Event extends Casella {
 			if (bolesAfegir > 0) {
 				pingui.getInventari().afegirItem(new BolaNeu("Bola de Neu", bolesAfegir));
 				System.out.println(pingui.getNickname() + " ha obtingut " + bolesAfegir + " boles de neu!");
+				vista.PantallaJuego.mostrarPopupItem(pingui, "BolasNieve.png");
 			} else {
 				System.out.println(pingui.getNickname() + " ja té el màxim de boles de neu (6).");
 			}
