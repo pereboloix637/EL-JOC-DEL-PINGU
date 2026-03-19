@@ -454,14 +454,22 @@ public class GestorBBDD {
 
 	public ArrayList<String> llistarPartides(Connection con) {
 		ArrayList<String> llista = new ArrayList<>();
-		String sql = "SELECT id, torn_actual, finalitzada FROM partida ORDER BY id DESC";
+		// Query que obté la partida i concatena els noms dels jugadors humans associats
+		// Oracle LISTAGG concatena els strings de les files
+		String sql = "SELECT p.id, p.torn_actual, p.finalitzada, " +
+		             "(SELECT LISTAGG(j.nom, ', ') WITHIN GROUP (ORDER BY j.nom) " +
+		             " FROM jugador_partida jp " +
+		             " JOIN jugador j ON jp.jugador_id = j.id " +
+		             " WHERE jp.partida_id = p.id AND j.es_cpu = 0) AS JUGADORS " +
+		             "FROM partida p ORDER BY p.id DESC";
+		
 		ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
-
 		for (LinkedHashMap<String, String> row : res) {
 			String id = row.get("ID");
 			String torn = row.get("TORN_ACTUAL");
+			String jugadors = row.get("JUGADORS") != null ? row.get("JUGADORS") : "SENSE JUGADORS";
 			String fin = "1".equals(row.get("FINALITZADA")) ? "Finalitzada" : "En curs";
-			llista.add("ID: " + id + " | Torn: " + torn + " | " + fin);
+			llista.add("ID: " + id + " | " + jugadors + " | Torn: " + torn + " | " + fin);
 		}
 		return llista;
 	}

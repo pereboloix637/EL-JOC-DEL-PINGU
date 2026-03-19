@@ -129,6 +129,7 @@ public class PantallaJuego {
 
 	@FXML
 	private void initialize() {
+		instanciaActual = this;
 		// Cargar imágenes de los pingüinos
 		try {
 			P1.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_ROJO.png")));
@@ -713,15 +714,60 @@ public class PantallaJuego {
 	        // Actualitzar model
 	        j.setPosicio(newPos);
 	        
-	        // --- LÒGICA DE BATALLA ---
-	        // Si el jugador acabat de moure és un pingüí, busquem col·lisions
+	        // --- LÒGICA DE COL·LISIONS I BATALLA ---
 	        if (j instanceof Pinguino pActual) {
 	            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
-	                // Si hi ha un altre pingüí a la mateixa casella (i no sóc jo mateix)
-	                if (rival != pActual && rival.getPosicio() == newPos && rival instanceof Pinguino pRival) {
-	                    registrarEvento("Col·lisió! Batalla entre " + pActual.getNickname() + " i " + pRival.getNickname(), "log-warning");
-	                    pActual.gestionarBatalla(pRival);
-	                    break; // Una única trobada per torn
+	                if (rival != pActual && rival.getPosicio() == newPos) {
+	                    if (rival instanceof Pinguino pRival) {
+	                        // Batalla entre pingüins
+	                        registrarEvento("Col·lisió! Batalla entre " + pActual.getNickname() + " i " + pRival.getNickname(), "log-warning");
+	                        
+	                        // Guardem estat pre-batalla per saber qui perd boles o retrocedeix
+	                        int bolesJ1Abans = pActual.getInventari().getBoles();
+	                        int bolesJ2Abans = pRival.getInventari().getBoles();
+	                        int posJ1Abans = pActual.getPosicio();
+	                        int posJ2Abans = pRival.getPosicio();
+
+	                        mostrarOverlayBatalla();
+	                        pActual.gestionarBatalla(pRival);
+
+	                        // Mostrar resultat en un Alert
+	                        Alert batallaAlert = new Alert(AlertType.INFORMATION);
+	                        estilar(batallaAlert);
+	                        batallaAlert.setTitle("Resultat de la Batalla");
+	                        batallaAlert.setHeaderText("¡Combat de boles de neu!");
+	                        
+	                        String resultMsg = "";
+	                        if (pActual.getPosicio() < posJ1Abans) {
+	                            resultMsg = pRival.getNickname() + " guanya! " + pActual.getNickname() + " retrocedeix.";
+	                        } else if (pRival.getPosicio() < posJ2Abans) {
+	                            resultMsg = pActual.getNickname() + " guanya! " + pRival.getNickname() + " retrocedeix.";
+	                        } else {
+	                            resultMsg = "Empat! Ambdós perden totes les boles de neu.";
+	                        }
+	                        batallaAlert.setContentText(resultMsg);
+	                        batallaAlert.showAndWait();
+
+	                        // Animació de retrocés si algú ha mogut
+	                        if (pActual.getPosicio() != posJ1Abans) {
+	                            animarRetroceso(pActual, posJ1Abans, pActual.getPosicio());
+	                        }
+	                        if (pRival.getPosicio() != posJ2Abans) {
+	                            animarRetroceso(pRival, posJ2Abans, pRival.getPosicio());
+	                        }
+	                        
+	                        break; // Una única trobada per torn
+	                    } else if (rival instanceof model.entitats.Foca fRival) {
+	                        // Trobada amb la Foca
+	                        registrarEvento(pActual.getNickname() + " ha topat amb la foca " + fRival.getNickname(), "log-warning");
+	                        int posAbans = pActual.getPosicio();
+	                        fRival.pegarPingu(pActual, gestorPartida.getPartida());
+	                        
+	                        if (pActual.getPosicio() != posAbans) {
+	                            animarRetroceso(pActual, posAbans, pActual.getPosicio());
+	                        }
+	                        break;
+	                    }
 	                }
 	            }
 	        }
@@ -763,6 +809,71 @@ public class PantallaJuego {
 	    });
 
 	    slide.play();
+	}
+
+	/**
+	 * Muestra un overlay de batalla en el centro de la pantalla.
+	 */
+	private void mostrarOverlayBatalla() {
+		try {
+			Image img = new Image(getClass().getResourceAsStream("/assets/GestionarBatallaTEXTO.png"));
+			ImageView overlay = new ImageView(img);
+			overlay.setPreserveRatio(true);
+			overlay.setFitWidth(800);
+			overlay.setMouseTransparent(true); // No interferir con clics
+
+			Platform.runLater(() -> {
+				boardContainer.getChildren().add(overlay);
+				javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(Duration.millis(1500), overlay);
+				ft.setFromValue(0.0);
+				ft.setToValue(1.0);
+				ft.setAutoReverse(true);
+				ft.setCycleCount(2);
+				ft.setOnFinished(e -> boardContainer.getChildren().remove(overlay));
+				ft.play();
+			});
+		} catch (Exception e) {
+			System.err.println("Error cargando GestionarBatallaTEXTO: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Anima el retroceso de un jugador a una nueva posición.
+	 */
+	private void animarRetroceso(Jugador j, int oldPos, int newPos) {
+	    ImageView pieza = getPiezaParaJugador(j);
+	    if (pieza == null) return;
+
+	    // Calculamos desplazamientos físicos en el GridPane
+	    int oldLogicalRow = oldPos / COLUMNS;
+	    int oldLogicalCol = oldPos % COLUMNS;
+	    if (oldLogicalRow % 2 != 0) oldLogicalCol = (COLUMNS - 1) - oldLogicalCol;
+	    
+	    int newLogicalRow = newPos / COLUMNS;
+	    int newLogicalCol = newPos % COLUMNS;
+	    if (newLogicalRow % 2 != 0) newLogicalCol = (COLUMNS - 1) - newLogicalCol;
+
+	    int oldRow = ((ROWS - 1) - oldLogicalRow) + 1;
+	    int oldCol = oldLogicalCol + 1;
+	    int newRow = ((ROWS - 1) - newLogicalRow) + 1;
+	    int newCol = newLogicalCol + 1;
+
+	    double cellWidth = tablero.getPrefWidth() * 0.0918;
+	    double cellHeight = tablero.getPrefHeight() * 0.1711;
+
+	    double dx = (newCol - oldCol) * cellWidth;
+	    double dy = (newRow - oldRow) * cellHeight;
+
+	    TranslateTransition retreat = new TranslateTransition(Duration.millis(800), pieza);
+	    retreat.setByX(dx);
+	    retreat.setByY(dy);
+	    retreat.setOnFinished(e -> {
+	        // Reset translations and let actualizarUI position them correctly with offsets
+	        pieza.setTranslateX(0);
+	        pieza.setTranslateY(0);
+	        actualizarUI();
+	    });
+	    retreat.play();
 	}
 
 	/**
@@ -826,10 +937,9 @@ public class PantallaJuego {
 			return;
 		}
 
-		// usarItem decrementa quantitat i l'elimina si arriba a 0
-		pingu.getInventari().usarItem(dRapid);
+		// El consum real es farà a gestorPartida.tirarDau -> dau.tirarIUsar()
 		dauSeleccionat = dRapid;
-		registrarEvento(pingu.getNickname() + " usa dado rápido (1-" + dRapid.getMax() + ")", "log-info");
+		registrarEvento(pingu.getNickname() + " usa dado rápido (" + dRapid.getMin() + "-" + dRapid.getMax() + ")", "log-info");
 		executartorn();
 	}
 
@@ -849,9 +959,12 @@ public class PantallaJuego {
 			return;
 		}
 
-		pingu.getInventari().usarItem(dLent);
 		dauSeleccionat = dLent;
-		registrarEvento(pingu.getNickname() + " usa dado lento (1-" + dLent.getMax() + ")", "log-info");
+		String range = (dLent.getMin() == dLent.getMax()) ? String.valueOf(dLent.getMin()) : dLent.getMin() + "-" + dLent.getMax();
+		// Si és el dau lent amb valors 1 i 3, el log pot ser més precís
+		if (dLent.getNom().equals("Dau lent")) range = "1 o 3";
+		
+		registrarEvento(pingu.getNickname() + " usa dado lento (" + range + ")", "log-info");
 		executartorn();
 	}
 

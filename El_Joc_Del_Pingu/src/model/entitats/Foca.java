@@ -125,8 +125,7 @@ public class Foca extends Jugador {
 	        }
 
 	        if (casellaDestino != null) {
-	            int desplazamiento = casellaDestino.getPosicio() - posActual; // Calculem la diferencia
-	            jugador.setPosicio(desplazamiento); // Llavors movem al jugador on tingui que estar
+	            jugador.setPosicio(casellaDestino.getPosicio()); // Llavors movem al jugador on tingui que estar (posició absoluta)
 	            System.out.println("El jugador no tenia peixos, ha estat enviat al forat anterior.");
 	        } else {
 	            System.out.println("El jugador no tenia peixos, però no hi ha cap forat anterior.");
