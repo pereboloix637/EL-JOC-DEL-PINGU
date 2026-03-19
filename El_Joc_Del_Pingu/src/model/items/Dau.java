@@ -8,6 +8,7 @@ public class Dau extends Item {
 	private int min;
 	private int max;
 	private boolean especial;
+	private int[] valorsFixes;
 
 	// Constructor dau especial (s'emmagatzema a l'inventari)
 	public Dau(String nom, int quantitat, int min, int max) {
@@ -15,6 +16,25 @@ public class Dau extends Item {
 		this.min = min;
 		this.max = max;
 		this.especial = true;
+		this.valorsFixes = null;
+	}
+
+	// Constructor dau especial amb valors fixos
+	public Dau(String nom, int quantitat, int[] valorsFixes) {
+		super(nom, quantitat);
+		this.valorsFixes = valorsFixes;
+		this.especial = true;
+		// Determinar min i max pels valors fixos per compatibilitat
+		if (valorsFixes != null && valorsFixes.length > 0) {
+			this.min = valorsFixes[0];
+			this.max = valorsFixes[0];
+			for (int v : valorsFixes) {
+				if (v < min)
+				min = v;
+				if (v > max)
+				max = v;
+			}
+		}
 	}
 
 	// Constructor dau normal (no ocupa inventari)
@@ -22,6 +42,7 @@ public class Dau extends Item {
 		super("Dau normal", 1);
 		this.min = 1;
 		this.max = 6;
+		this.valorsFixes = null;
 
 	}
 
@@ -45,6 +66,9 @@ public class Dau extends Item {
 	// Tira el dau i retorna un valor aleatori entre min i max
 	public int tirar() {
 		Random r = new Random();
+		if (valorsFixes != null && valorsFixes.length > 0) {
+			return valorsFixes[r.nextInt(valorsFixes.length)];
+		}
 		int num = r.nextInt((max - min) + 1) + min;
 		return num;
 	}
