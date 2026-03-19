@@ -234,8 +234,8 @@ public class PantallaJuego {
 					logicalCol = (COLUMNS - 1) - logicalCol;
 				}
 
-				int row = ((ROWS - 1) - logicalRow) + 1;
-				int col = logicalCol + 1;
+				int row = (ROWS - 1) - logicalRow;
+				int col = logicalCol;
 
 				GridPane.setRowIndex(pieza, row);
 				GridPane.setColumnIndex(pieza, col);
@@ -460,15 +460,15 @@ public class PantallaJuego {
 			logicalCol = (COLUMNS - 1) - logicalCol;
 		}
 
-		int row = ((ROWS - 1) - logicalRow) + 1;
-		int col = logicalCol + 1;
+		int row = (ROWS - 1) - logicalRow;
+		int col = logicalCol;
 
 		try {
 			javafx.scene.image.Image img = new javafx.scene.image.Image(getClass().getResourceAsStream("/assets/" + imagenNombre));
 			javafx.scene.image.ImageView icon = new javafx.scene.image.ImageView(img);
 			// Mida de l'icono
-			icon.setFitWidth(80);
-			icon.setFitHeight(80);
+			icon.setFitWidth(40);
+			icon.setFitHeight(40);
 			icon.setPreserveRatio(true);
 
 			GridPane.setRowIndex(icon, row);
@@ -477,13 +477,13 @@ public class PantallaJuego {
 			GridPane.setValignment(icon, javafx.geometry.VPos.CENTER);
 
 			// Començar 30 píxels amunt per no tapar totalment el jugador
-			icon.setTranslateY(-30);
+			icon.setTranslateY(-15);
 
 			tablero.getChildren().add(icon);
 
 			// Animació de pujada i esvaïment
 			javafx.animation.TranslateTransition tt = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(1500), icon);
-			tt.setByY(-60);
+			tt.setByY(-30);
 
 			javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(javafx.util.Duration.millis(1500), icon);
 			ft.setFromValue(1.0);
@@ -686,7 +686,7 @@ public class PantallaJuego {
 	    
 	    // Offset objetivo
 	    double calcTX = 0, calcTY = 0;
-	    double offsetSeparacion = 30.0;
+	    double offsetSeparacion = 15.0;
 	    
 	    // Contar cuántos hay ya en el destino
 	    int totalEnDestino = 0;
@@ -861,10 +861,10 @@ public class PantallaJuego {
 	    int newLogicalCol = newPos % COLUMNS;
 	    if (newLogicalRow % 2 != 0) newLogicalCol = (COLUMNS - 1) - newLogicalCol;
 
-	    int oldRow = ((ROWS - 1) - oldLogicalRow) + 1;
-	    int oldCol = oldLogicalCol + 1;
-	    int newRow = ((ROWS - 1) - newLogicalRow) + 1;
-	    int newCol = newLogicalCol + 1;
+	    int oldRow = (ROWS - 1) - oldLogicalRow;
+	    int oldCol = oldLogicalCol;
+	    int newRow = (ROWS - 1) - newLogicalRow;
+	    int newCol = newLogicalCol;
 
 	    double cellWidth = tablero.getPrefWidth() * 0.0918;
 	    double cellHeight = tablero.getPrefHeight() * 0.1711;
@@ -1027,7 +1027,7 @@ public class PantallaJuego {
 			return;
 		}
 		
-		double offset = 30.0; // Píxeles de separación
+		double offset = 15.0; // Píxeles de separación
 		switch (index) {
 			case 0: // Arriba-Izquierda
 				pieza.setTranslateX(-offset);
