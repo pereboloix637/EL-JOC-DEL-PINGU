@@ -30,12 +30,12 @@ public class Forat extends Casella {
 
 		if (foratAnterior != -1) {
 			jugador.setPosicio(foratAnterior);
-			System.out
-					.println(jugador.getNickname() + " ha caigut en un forat! Va a la posició " + foratAnterior + ".");
+			System.out.println(jugador.getNickname() + " ha caigut en un forat! Va a la posició " + foratAnterior + ".");
+			vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ha caigut en un forat i retrocedeix a la casella " + foratAnterior + "!", "log-warning");
 		} else {
 			jugador.setPosicio(0);
-			System.out.println(
-					jugador.getNickname() + " ha caigut en un forat! No hi ha forat anterior, torna a l'inici.");
+			System.out.println(jugador.getNickname() + " ha caigut en un forat! No hi ha forat anterior, torna a l'inici.");
+			vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ha caigut en un forat i torna a l'inici!", "log-warning");
 		}
 	}
 }

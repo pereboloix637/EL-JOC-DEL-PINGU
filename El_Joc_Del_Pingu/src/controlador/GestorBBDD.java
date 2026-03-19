@@ -287,6 +287,8 @@ public class GestorBBDD {
 
 					if (!resCheck.isEmpty()) {
 						j.setId(Integer.parseInt(resCheck.get(0).get("ID")));
+						// Arreglo del bug de persistencia de color: actualizamos el color global al color de la partida actual
+						update(con, "UPDATE jugador SET color = '" + j.getColor() + "' WHERE id = " + j.getId());
 					} else {
 						ArrayList<LinkedHashMap<String, String>> resMax = select(con,
 								"SELECT MAX(id) AS MAX_ID FROM jugador");
@@ -428,12 +430,23 @@ public class GestorBBDD {
 				j.setId(jId);
 				j.setPosicio(pos);
 				j.setTornsBloquejat(tBloq);
+
 				llistaJugadors.add(j);
 
 				if (dJ.get("ES_GUANYADOR") != null && dJ.get("ES_GUANYADOR").equals("1")) {
 					guanyador = j;
 				}
 			}
+
+			// 2.5 Ordenar els jugadors per color per garantir que coincideixin amb els slots visual (P1=Rojo, P2=Azul, P3=Verde, P4=Amarillo)
+			String[] colorPool = { "Rojo", "Azul", "Verde", "Amarillo" };
+			java.util.List<String> colorOrder = java.util.Arrays.asList(colorPool);
+			llistaJugadors.sort((j1, j2) -> {
+				int idx1 = colorOrder.indexOf(j1.getColor());
+				int idx2 = colorOrder.indexOf(j2.getColor());
+				// Si un color no está en el pool (inesperado), lo mandamos al final
+				return Integer.compare(idx1 != -1 ? idx1 : 99, idx2 != -1 ? idx2 : 99);
+			});
 
 			// 3. Reconstruir l'objecte Partida
 			GestorTaulell gt = new GestorTaulell();
