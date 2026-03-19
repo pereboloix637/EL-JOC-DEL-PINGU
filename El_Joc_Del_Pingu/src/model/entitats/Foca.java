@@ -51,7 +51,7 @@ public class Foca extends Jugador {
 		int itemB = p.getInventari().getBoles();
 		int itemP = p.getInventari().getPeixos();
 		int itemD = p.getInventari().getDausEspecials();
-		System.out.println(p.getNickname() + " sera aplastat/aplastada i perdra els seguents items:");
+		System.out.println(p.getNickname() + " serà aixafat/aixafada i perdrà els següents ítems:");
 		
 		// Eliminem totes les boles del aplastat (pingu)
 		for (int i = 0; i < itemB; i++) {
@@ -74,19 +74,42 @@ public class Foca extends Jugador {
 
 	public void pegarPingu(Pinguino jugador, Partida partida) { // La Foca atacara al Pingui elegit
 	    if (this.soborno == false) {
-	        System.out.println("Accion denegada, la foca no ha siguit soboronada");
+	        System.out.println("Acció denegada, la foca no ha estat subornada");
 	    } else if (jugador.getInventari().getPeixos() >= 1) {
 	    	
-	        // Si el jugador te un peix, la pot alimentar per que quedi bloquejada (2 torns)
-	        this.bloqueix = 2;
-	        
-	        System.out.println("La foca ha sigut alimentada y queda bloqueajada per " + this.bloqueix + " torns.");
-	        System.out.println("L'usuari " + jugador.getNickname() + " alimenta la foca i perd 1 peix.");
+	    	// Ask the user if they want to use the Fish using a JavaFX Alert
+			javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+			alert.setTitle("Trobada amb la Foca!");
+			alert.setHeaderText("La foca vol atacar-te...");
+			alert.setContentText("Tens un peix a l'inventari. Vols usar-lo per alimentar la foca i bloquejar-la?");
 
-	        // I se li treu un "Peix" al Jugador/Pingui
-	        jugador.getInventari().eliminarItemsPerTipus(Peix.class);
+			javafx.scene.control.ButtonType btnYes = new javafx.scene.control.ButtonType("Sí, alimentar Foca");
+			javafx.scene.control.ButtonType btnNo = new javafx.scene.control.ButtonType("No, fugir");
+			alert.getButtonTypes().setAll(btnYes, btnNo);
+
+			java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
+			
+			if (result.isPresent() && result.get() == btnYes) {
+		        // Si el jugador decide usar el pez, la puede alimentar per que quedi bloquejada (2 torns)
+		        this.bloqueix = 2;
+		        
+		        System.out.println("La foca ha estat alimentada i queda bloquejada per " + this.bloqueix + " torns.");
+		        System.out.println("L'usuari " + jugador.getNickname() + " alimenta la foca i perd 1 peix.");
+
+		        // I se li treu un "Peix" al Jugador/Pingui
+		        jugador.getInventari().eliminarItemsPerTipus(Peix.class);
+			} else {
+				// Si no vol usar el peix, la foca ataca
+				aplicarPegarPingu(jugador, partida);
+			}
 	        
 	    } else {
+	        // Si no te peixos, la Foca el pega, portant-lo a un forat anterior.
+	    	aplicarPegarPingu(jugador, partida);
+	    }
+	}
+	
+	private void aplicarPegarPingu(Pinguino jugador, Partida partida) {
 	        // Si no te peixos, la Foca el pega, portant-lo a un forat anterior.
 	        int posActual = jugador.getPosicio();
 	        int foratAnterior = -1;
@@ -102,13 +125,11 @@ public class Foca extends Jugador {
 	        }
 
 	        if (casellaDestino != null) {
-	            int desplazamiento = casellaDestino.getPosicio() - posActual; // Calculem la diferencia
-	            jugador.setPosicio(desplazamiento); // Llavors movem al jugador on tingui que estar
-	            System.out.println("El jugador no tenía peixos, ha sido enviado al agujero anterior.");
+	            jugador.setPosicio(casellaDestino.getPosicio()); // Llavors movem al jugador on tingui que estar (posició absoluta)
+	            System.out.println("El jugador no tenia peixos, ha estat enviat al forat anterior.");
 	        } else {
-	            System.out.println("El jugador no tenía peixos, pero no hay agujero anterior.");
+	            System.out.println("El jugador no tenia peixos, però no hi ha cap forat anterior.");
 	        }
-	    }
 	}
 	
 	public void sobornarFoca(Pinguino p) { // Permet sobornar a la Foca

@@ -112,6 +112,8 @@ public class PantallaJuego {
 
 	private GestorPartida gestorPartida;
 	private static Partida partidaInicial;
+	
+	private static PantallaJuego instanciaActual;
 
 	// Dado especial seleccionado para el próximo turno (null = dado estándar)
 	private Dau dauSeleccionat = null;
@@ -130,6 +132,7 @@ public class PantallaJuego {
 
 	@FXML
 	private void initialize() {
+		instanciaActual = this;
 		// Cargar imágenes de los pingüinos
 		try {
 			P1.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_ROJO.png")));
@@ -440,8 +443,7 @@ public class PantallaJuego {
 		}
 	}
 
-<<<<<<< Updated upstream
-=======
+
 	public static void mostrarPopupItem(Jugador j, String imagenNombre) {
 		if (instanciaActual == null) return;
 		Platform.runLater(() -> instanciaActual.mostrarPopupUI(j, imagenNombre));
@@ -496,7 +498,7 @@ public class PantallaJuego {
 		}
 	}
 
->>>>>>> Stashed changes
+
 	// Menu actions
 
 	private Connection getBDConnection() {
@@ -611,15 +613,25 @@ public class PantallaJuego {
 		if (dauSeleccionat != null) {
 			d = dauSeleccionat;
 			dauSeleccionat = null; // Consumir la selecció un cop usada
-		} else if (actual instanceof Pinguino ping) {
-			d = (Dau) ping.getInventari().obtenirPrimer(Dau.class);
-			if (d == null) d = new Dau();
 		} else {
+			// Els jugadors humans ARA SEMPRE usen un dau estàndard (1-6) per defecte
+			// encara que tinguin daus especials a l'inventari, a menys que hagin pitjat el botó.
 			d = new Dau();
 		}
 
 		int resultado = gestorPartida.tirarDau(actual, d);
 		dadoResultText.setText("Dau: " + resultado);
+		
+		// Color del text del dau: Taronja (Ràpid), Verd (Lent), Blanc (Estàndard)
+		if (d.esEspecial()) {
+		    if (d.getMax() > 6) {
+		        dadoResultText.setStyle("-fx-fill: #E67E22;"); // Naranja
+		    } else if (d.getMax() <= 3) {
+		        dadoResultText.setStyle("-fx-fill: #27AE60;"); // Verde
+		    }
+		} else {
+		    dadoResultText.setStyle("-fx-fill: white;");
+		}
 		
 		// Animació a la UI abans de canviar el torn al model
 		moverPieza(actual, resultado);
@@ -710,15 +722,60 @@ public class PantallaJuego {
 	        // Actualitzar model
 	        j.setPosicio(newPos);
 	        
-	        // --- LÓGICA DE BATALLA ---
-	        // Si el jugador acabado de mover es un pingüino, buscamos colisiones
+	        // --- LÒGICA DE COL·LISIONS I BATALLA ---
 	        if (j instanceof Pinguino pActual) {
 	            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
-	                // Si hay otro pingüino en la misma casilla (y no soy yo mismo)
-	                if (rival != pActual && rival.getPosicio() == newPos && rival instanceof Pinguino pRival) {
-	                    registrarEvento("¡Colisión! Batalla entre " + pActual.getNickname() + " y " + pRival.getNickname(), "log-warning");
-	                    pActual.gestionarBatalla(pRival);
-	                    break; // Un solo encuentro por turno
+	                if (rival != pActual && rival.getPosicio() == newPos) {
+	                    if (rival instanceof Pinguino pRival) {
+	                        // Batalla entre pingüins
+	                        registrarEvento("Col·lisió! Batalla entre " + pActual.getNickname() + " i " + pRival.getNickname(), "log-warning");
+	                        
+	                        // Guardem estat pre-batalla per saber qui perd boles o retrocedeix
+	                        int bolesJ1Abans = pActual.getInventari().getBoles();
+	                        int bolesJ2Abans = pRival.getInventari().getBoles();
+	                        int posJ1Abans = pActual.getPosicio();
+	                        int posJ2Abans = pRival.getPosicio();
+
+	                        mostrarOverlayBatalla();
+	                        pActual.gestionarBatalla(pRival);
+
+	                        // Mostrar resultat en un Alert
+	                        Alert batallaAlert = new Alert(AlertType.INFORMATION);
+	                        estilar(batallaAlert);
+	                        batallaAlert.setTitle("Resultat de la Batalla");
+	                        batallaAlert.setHeaderText("¡Combat de boles de neu!");
+	                        
+	                        String resultMsg = "";
+	                        if (pActual.getPosicio() < posJ1Abans) {
+	                            resultMsg = pRival.getNickname() + " guanya! " + pActual.getNickname() + " retrocedeix.";
+	                        } else if (pRival.getPosicio() < posJ2Abans) {
+	                            resultMsg = pActual.getNickname() + " guanya! " + pRival.getNickname() + " retrocedeix.";
+	                        } else {
+	                            resultMsg = "Empat! Ambdós perden totes les boles de neu.";
+	                        }
+	                        batallaAlert.setContentText(resultMsg);
+	                        batallaAlert.showAndWait();
+
+	                        // Animació de retrocés si algú ha mogut
+	                        if (pActual.getPosicio() != posJ1Abans) {
+	                            animarRetroceso(pActual, posJ1Abans, pActual.getPosicio());
+	                        }
+	                        if (pRival.getPosicio() != posJ2Abans) {
+	                            animarRetroceso(pRival, posJ2Abans, pRival.getPosicio());
+	                        }
+	                        
+	                        break; // Una única trobada per torn
+	                    } else if (rival instanceof model.entitats.Foca fRival) {
+	                        // Trobada amb la Foca
+	                        registrarEvento(pActual.getNickname() + " ha topat amb la foca " + fRival.getNickname(), "log-warning");
+	                        int posAbans = pActual.getPosicio();
+	                        fRival.pegarPingu(pActual, gestorPartida.getPartida());
+	                        
+	                        if (pActual.getPosicio() != posAbans) {
+	                            animarRetroceso(pActual, posAbans, pActual.getPosicio());
+	                        }
+	                        break;
+	                    }
 	                }
 	            }
 	        }
@@ -736,14 +793,13 @@ public class PantallaJuego {
 	            Jugador guanyador = gestorPartida.getPartida().getGuanyador();
 
 	            if (!wasFinished && guanyador != null && !(guanyador instanceof model.entitats.Foca)) {
-	                // La partida acaba de finalizar en este turno
+	                // Registrem la victoria al ranking de forma automática
 	                try (Connection con = getBDConnection()) {
 	                    if (con != null) {
-	                        gestorPartida.guardarPartida(con); // Asegura que el ID de jugador exista en BBDD
 	                        new GestorBBDD().registrarVictoria(guanyador.getId(), con);
 	                    }
 	                } catch (Exception e1) {
-	                    System.err.println("Error registrando victoria: " + e1.getMessage());
+	                    System.err.println("Error registrant victoria: " + e1.getMessage());
 	                }
 	            }
 
@@ -764,6 +820,71 @@ public class PantallaJuego {
 	}
 
 	/**
+	 * Muestra un overlay de batalla en el centro de la pantalla.
+	 */
+	private void mostrarOverlayBatalla() {
+		try {
+			Image img = new Image(getClass().getResourceAsStream("/assets/GestionarBatallaTEXTO.png"));
+			ImageView overlay = new ImageView(img);
+			overlay.setPreserveRatio(true);
+			overlay.setFitWidth(800);
+			overlay.setMouseTransparent(true); // No interferir con clics
+
+			Platform.runLater(() -> {
+				boardContainer.getChildren().add(overlay);
+				javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(Duration.millis(1500), overlay);
+				ft.setFromValue(0.0);
+				ft.setToValue(1.0);
+				ft.setAutoReverse(true);
+				ft.setCycleCount(2);
+				ft.setOnFinished(e -> boardContainer.getChildren().remove(overlay));
+				ft.play();
+			});
+		} catch (Exception e) {
+			System.err.println("Error cargando GestionarBatallaTEXTO: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Anima el retroceso de un jugador a una nueva posición.
+	 */
+	private void animarRetroceso(Jugador j, int oldPos, int newPos) {
+	    ImageView pieza = getPiezaParaJugador(j);
+	    if (pieza == null) return;
+
+	    // Calculamos desplazamientos físicos en el GridPane
+	    int oldLogicalRow = oldPos / COLUMNS;
+	    int oldLogicalCol = oldPos % COLUMNS;
+	    if (oldLogicalRow % 2 != 0) oldLogicalCol = (COLUMNS - 1) - oldLogicalCol;
+	    
+	    int newLogicalRow = newPos / COLUMNS;
+	    int newLogicalCol = newPos % COLUMNS;
+	    if (newLogicalRow % 2 != 0) newLogicalCol = (COLUMNS - 1) - newLogicalCol;
+
+	    int oldRow = ((ROWS - 1) - oldLogicalRow) + 1;
+	    int oldCol = oldLogicalCol + 1;
+	    int newRow = ((ROWS - 1) - newLogicalRow) + 1;
+	    int newCol = newLogicalCol + 1;
+
+	    double cellWidth = tablero.getPrefWidth() * 0.0918;
+	    double cellHeight = tablero.getPrefHeight() * 0.1711;
+
+	    double dx = (newCol - oldCol) * cellWidth;
+	    double dy = (newRow - oldRow) * cellHeight;
+
+	    TranslateTransition retreat = new TranslateTransition(Duration.millis(800), pieza);
+	    retreat.setByX(dx);
+	    retreat.setByY(dy);
+	    retreat.setOnFinished(e -> {
+	        // Reset translations and let actualizarUI position them correctly with offsets
+	        pieza.setTranslateX(0);
+	        pieza.setTranslateY(0);
+	        actualizarUI();
+	    });
+	    retreat.play();
+	}
+
+	/**
 	 * Muestra un diálogo de victoria y ofrece opciones al usuario.
 	 */
 	private void mostrarAlertaGanador(Jugador g) {
@@ -774,11 +895,15 @@ public class PantallaJuego {
 	        alert.setHeaderText("¡Tenemos un ganador!");
 	        alert.setContentText("Enhorabuena " + g.getNickname() + ", ¡has llegado a la meta!");
 
-	        ButtonType btnSalir = new ButtonType("Salir al Menú");
-	        alert.getButtonTypes().setAll(btnSalir);
+	        ButtonType btnGuardar = new ButtonType("Guardar i Sortir");
+	        ButtonType btnSalir = new ButtonType("Sortir sense Guardar");
+	        alert.getButtonTypes().setAll(btnGuardar, btnSalir);
 
 	        alert.showAndWait().ifPresent(result -> {
-	            if (result == btnSalir) {
+	            if (result == btnGuardar) {
+	                handleSaveGame();
+	                goToMenu();
+	            } else if (result == btnSalir) {
 	                goToMenu();
 	            }
 	        });
@@ -820,10 +945,9 @@ public class PantallaJuego {
 			return;
 		}
 
-		// usarItem decrementa quantitat i l'elimina si arriba a 0
-		pingu.getInventari().usarItem(dRapid);
+		// El consum real es farà a gestorPartida.tirarDau -> dau.tirarIUsar()
 		dauSeleccionat = dRapid;
-		registrarEvento(pingu.getNickname() + " usa dado rápido (1-" + dRapid.getMax() + ")", "log-info");
+		registrarEvento(pingu.getNickname() + " usa dado rápido (" + dRapid.getMin() + "-" + dRapid.getMax() + ")", "log-info");
 		executartorn();
 	}
 
@@ -843,9 +967,12 @@ public class PantallaJuego {
 			return;
 		}
 
-		pingu.getInventari().usarItem(dLent);
 		dauSeleccionat = dLent;
-		registrarEvento(pingu.getNickname() + " usa dado lento (1-" + dLent.getMax() + ")", "log-info");
+		String range = (dLent.getMin() == dLent.getMax()) ? String.valueOf(dLent.getMin()) : dLent.getMin() + "-" + dLent.getMax();
+		// Si és el dau lent amb valors 1 i 3, el log pot ser més precís
+		if (dLent.getNom().equals("Dau lent")) range = "1 o 3";
+		
+		registrarEvento(pingu.getNickname() + " usa dado lento (" + range + ")", "log-info");
 		executartorn();
 	}
 

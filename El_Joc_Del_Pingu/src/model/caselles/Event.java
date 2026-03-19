@@ -50,6 +50,7 @@ public class Event extends Casella {
 			if (pingui.getInventari().getPeixos() < 2) {
 				pingui.getInventari().afegirItem(new Peix("Peix", 1));
 				System.out.println(pingui.getNickname() + " ha obtingut 1 peix!");
+				vista.PantallaJuego.mostrarPopupItem(pingui, "Pez.png");
 			} else {
 				System.out.println(pingui.getNickname() + " ja té el màxim de peixos (2).");
 			}
@@ -62,6 +63,7 @@ public class Event extends Casella {
 			if (bolesAfegir > 0) {
 				pingui.getInventari().afegirItem(new BolaNeu("Bola de Neu", bolesAfegir));
 				System.out.println(pingui.getNickname() + " ha obtingut " + bolesAfegir + " boles de neu!");
+				vista.PantallaJuego.mostrarPopupItem(pingui, "BolasNieve.png");
 			} else {
 				System.out.println(pingui.getNickname() + " ja té el màxim de boles de neu (6).");
 			}
@@ -72,6 +74,7 @@ public class Event extends Casella {
 			if (pingui.getInventari().getDausEspecials() < 3) {
 				pingui.getInventari().afegirItem(new Dau("Dau ràpid", 1, 5, 10));
 				System.out.println(pingui.getNickname() + " ha obtingut un dau ràpid! (5-10 caselles)");
+				vista.PantallaJuego.mostrarPopupItem(pingui, "Dado_Rapido.png");
 			} else {
 				System.out.println(pingui.getNickname() + " ja té el màxim de daus especials (3).");
 			}
@@ -80,8 +83,9 @@ public class Event extends Casella {
 		case 3:
 			// EVENT 3: dau lent 1-3 caselles (màxim 3 daus especials)
 			if (pingui.getInventari().getDausEspecials() < 3) {
-				pingui.getInventari().afegirItem(new Dau("Dau lent", 1, 1, 3));
-				System.out.println(pingui.getNickname() + " ha obtingut un dau lent! (1-3 caselles)");
+				pingui.getInventari().afegirItem(new Dau("Dau lent", 1, new int[] { 1, 3 }));
+				System.out.println(pingui.getNickname() + " ha obtingut un dau lent! (1 o 3 caselles)");
+				vista.PantallaJuego.mostrarPopupItem(pingui, "Dado_Lento.png");
 			} else {
 				System.out.println(pingui.getNickname() + " ja té el màxim de daus especials (3).");
 			}

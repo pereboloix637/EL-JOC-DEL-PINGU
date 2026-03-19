@@ -24,8 +24,25 @@ public class Os extends Casella {
 				.filter(i -> i instanceof Peix && i.getQuantitat() > 0).findFirst().orElse(null);
 
 		if (peix != null) {
-			pingui.getInventari().usarItem(peix);
-			System.out.println(pingui.getNickname() + " ha estat atacat per un ós! Però tenia un peix i s'ha salvat.");
+			// Ask the user if they want to use the Fish using a JavaFX Alert
+			javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+			alert.setTitle("Atac de l'Os!");
+			alert.setHeaderText(pingui.getNickname() + " ha estat atacat per un ós.");
+			alert.setContentText("Tens un peix a l'inventari. Vols usar-lo per distraure l'ós i salvar-te?");
+
+			javafx.scene.control.ButtonType btnYes = new javafx.scene.control.ButtonType("Sí, usar Peix");
+			javafx.scene.control.ButtonType btnNo = new javafx.scene.control.ButtonType("No, guardar Peix");
+			alert.getButtonTypes().setAll(btnYes, btnNo);
+
+			java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
+			
+			if (result.isPresent() && result.get() == btnYes) {
+				pingui.getInventari().usarItem(peix);
+				System.out.println(pingui.getNickname() + " ha estat atacat per un ós! Però tenia un peix i s'ha salvat.");
+			} else {
+				pingui.setPosicio(0);
+				System.out.println(pingui.getNickname() + " ha estat atacat per un ós! Torna a l'inici.");
+			}
 		} else {
 			pingui.setPosicio(0);
 			System.out.println(pingui.getNickname() + " ha estat atacat per un ós! Torna a l'inici.");
