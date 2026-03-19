@@ -76,17 +76,19 @@ public class PantallaJuego {
 	@FXML
 	private Button nieve;
 
+	// Item count labels
+	@FXML
+	private Label lblNieve;
+	@FXML
+	private Label lblRapido;
+	@FXML
+	private Label lblLento;
+	@FXML
+	private Label lblPeces;
+
 	// Texts
 	@FXML
 	private Text dadoResultText;
-	@FXML
-	private Text rapido_t;
-	@FXML
-	private Text lento_t;
-	@FXML
-	private Text peces_t;
-	@FXML
-	private Text nieve_t;
 	@FXML
 	private Text eventos;
 	@FXML
@@ -277,11 +279,11 @@ public class PantallaJuego {
 	 * Habilita o deshabilita todos los controles de interacción del jugador.
 	 */
 	private void bloquearControles(boolean bloquear) {
-	    dado.setDisable(bloquear);
-	    rapido.setDisable(bloquear);
-	    lento.setDisable(bloquear);
-	    peces.setDisable(bloquear);
-	    nieve.setDisable(bloquear);
+	    if (dado != null) dado.setDisable(bloquear);
+	    if (rapido != null) rapido.setDisable(bloquear);
+	    if (lento != null) lento.setDisable(bloquear);
+	    if (peces != null) peces.setDisable(bloquear);
+	    if (nieve != null) nieve.setDisable(bloquear);
 	}
 
 	/**
@@ -310,17 +312,18 @@ public class PantallaJuego {
 			}
 		}
 
-		// Actualitzar textos amb quantitats reals de l'inventari
-		rapido_t.setText("Dado rápido: " + (dRapid != null ? dRapid.getQuantitat() : 0));
-		lento_t.setText( "Dado lento: "  + (dLent  != null ? dLent.getQuantitat()  : 0));
-		peces_t.setText( "Peces: "        + inv.getPeixos());
-		nieve_t.setText( "Bolas de nieve: " + inv.getBoles());
 
-		// Habilitar/deshabilitar botons
-		rapido.setDisable(dRapid == null || dRapid.getQuantitat() <= 0);
-		lento.setDisable( dLent  == null || dLent.getQuantitat()  <= 0);
-		peces.setDisable( inv.getPeixos() <= 0);
-		nieve.setDisable( inv.getBoles()  <= 0);
+		// Habilitar/deshabilitar botons (null-safe)
+		if (rapido != null) rapido.setDisable(dRapid == null || dRapid.getQuantitat() <= 0);
+		if (lento != null) lento.setDisable( dLent  == null || dLent.getQuantitat()  <= 0);
+		if (peces != null) peces.setDisable( inv.getPeixos() <= 0);
+		if (nieve != null) nieve.setDisable( inv.getBoles()  <= 0);
+
+		// Actualitzar comptadors sobre els botons
+		if (lblRapido != null) lblRapido.setText(String.valueOf(dRapid != null ? dRapid.getQuantitat() : 0));
+		if (lblLento != null) lblLento.setText(String.valueOf(dLent != null ? dLent.getQuantitat() : 0));
+		if (lblPeces != null) lblPeces.setText(String.valueOf(inv.getPeixos()));
+		if (lblNieve != null) lblNieve.setText(String.valueOf(inv.getBoles()));
 	}
 
 	private void actualizarSidebarJugadores() {
@@ -585,10 +588,13 @@ public class PantallaJuego {
 	// Button actions
 	@FXML
 	private void handleDado(ActionEvent event) {
+		System.out.println("DEBUG: Clic en BOTÓN DADO");
 	    // Solo permitimos el clic manual si es el turno del jugador humano
 	    if (gestorPartida.getPartida().getJugadorActual() instanceof Pinguino) {
 	        executartorn();
-	    }
+	    } else {
+			System.out.println("DEBUG: Clic ignorado (no es turno humano)");
+		}
 	}
 
 	/**
@@ -931,6 +937,7 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleRapido() {
+		System.out.println("DEBUG: Clic en BOTÓN DADO RÁPIDO");
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 		if (!(actual instanceof Pinguino pingu)) return;
 
@@ -953,6 +960,7 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleLento() {
+		System.out.println("DEBUG: Clic en BOTÓN DADO LENTO");
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 		if (!(actual instanceof Pinguino pingu)) return;
 
@@ -978,6 +986,7 @@ public class PantallaJuego {
 
 	@FXML
 	private void handlePeces() {
+		System.out.println("DEBUG: Clic en BOTÓN USAR PEZ");
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 		if (!(actual instanceof Pinguino pingu)) return;
 
@@ -996,6 +1005,7 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleNieve() {
+		System.out.println("DEBUG: Clic en BOTÓN BOLA NIEVE");
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 		if (!(actual instanceof Pinguino pingu)) return;
 

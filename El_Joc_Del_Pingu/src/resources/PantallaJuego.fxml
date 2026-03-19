@@ -14,13 +14,13 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane styleClass="root" stylesheets="@PantallaJuego.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaJuego">
+<BorderPane styleClass="root" stylesheets="@PantallaJuego.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaJuego">
 
     <top>
         <MenuBar>
@@ -71,55 +71,87 @@
 
                       <!-- HUD Capa de Interfaz Integrada (Resolución base 1920x1080) -->
                 <AnchorPane pickOnBounds="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <VBox alignment="TOP_CENTER" layoutX="902.0" layoutY="810.0" prefHeight="194.0" prefWidth="326.0" spacing="5" styleClass="card-integrated" AnchorPane.bottomAnchor="57.0" AnchorPane.leftAnchor="902.0">
-                        <Label styleClass="card-title-mini" />
-                        <Text fx:id="dadoResultText" styleClass="big-text-mini" text="-" textAlignment="CENTER" />
-                        <Button fx:id="dado" onAction="#handleDado" styleClass="dice-button">
-                            <graphic>
-                                <ImageView fitHeight="196.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@../assets/Boton_Dado.png" />
-                                    </image>
-                                </ImageView>
-                            </graphic>
-                        </Button>
-                    </VBox>
-
-                          <!-- Objetos (Esquina inferior derecha) -->
-                    <VBox alignment="BOTTOM_CENTER" layoutX="50.0" layoutY="824.0" prefWidth="310.0" spacing="10" styleClass="card-integrated" AnchorPane.bottomAnchor="84.0" AnchorPane.rightAnchor="1560.0">
-                        <Label styleClass="card-title-mini" text="Objetos" />
-                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="objects-scroll-mini" vbarPolicy="AS_NEEDED">
-                            <content>
-                                <VBox spacing="8">
-                                    <HBox alignment="CENTER_LEFT" spacing="5">
-                                        <Text fx:id="rapido_t" styleClass="stat-mini" text="Rápido: 0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Button fx:id="rapido" onAction="#handleRapido" styleClass="mini-btn" text="Usar" />
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="5">
-                                        <Text fx:id="lento_t" styleClass="stat-mini" text="Lento: 0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Button fx:id="lento" onAction="#handleLento" styleClass="mini-btn" text="Usar" />
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="5">
-                                        <Text fx:id="peces_t" styleClass="stat-mini" text="Peces: 0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Button fx:id="peces" onAction="#handlePeces" styleClass="mini-btn" text="Usar" />
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="5">
-                                        <Text fx:id="nieve_t" styleClass="stat-mini" text="Nieve: 0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Button fx:id="nieve" onAction="#handleNieve" styleClass="mini-btn" text="Usar" />
-                                    </HBox>
-                                </VBox>
-                            </content>
-                        </ScrollPane>
-                    </VBox>
+                   <!-- Title Image (Top Center) -->
+                   <VBox alignment="TOP_CENTER" mouseTransparent="true" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
+                       <children>
+                           <ImageView fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
+                               <image>
+                                   <Image url="@../assets/TITULO_MENU.png" />
+                               </image>
+                           </ImageView>
+                       </children>
+                   </VBox>
+               <HBox layoutX="182.0" layoutY="778.0" pickOnBounds="false" prefHeight="277.0" prefWidth="1195.0" styleClass="buttons-hbox" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="182.0">
+                  <children>
+                           <VBox alignment="CENTER" pickOnBounds="false" spacing="2">
+                               <Label fx:id="lblNieve" mouseTransparent="true" styleClass="item-count" text="0" />
+                               <Button fx:id="nieve" onAction="#handleNieve" styleClass="item-button">
+                                   <graphic>
+                                       <ImageView fitHeight="119.0" fitWidth="133.0" pickOnBounds="true" preserveRatio="true">
+                                           <image>
+                                               <Image url="@../assets/BOTON USAR BOLA DE NIEVE.png" />
+                                           </image>
+                                       </ImageView>
+                                   </graphic>
+                               </Button>
+                           </VBox>
+                           <VBox alignment="CENTER" pickOnBounds="false" spacing="2">
+                               <Label fx:id="lblRapido" mouseTransparent="true" styleClass="item-count" text="0" />
+                               <Button fx:id="rapido" onAction="#handleRapido" styleClass="item-button">
+                                   <graphic>
+                                       <ImageView fitHeight="153.0" fitWidth="267.0" pickOnBounds="true" preserveRatio="true">
+                                           <image>
+                                               <Image url="@../assets/DADO RAPIDO BOTON.png" />
+                                           </image>
+                                       </ImageView>
+                                   </graphic>
+                               </Button>
+                           </VBox>
+                     <VBox alignment="CENTER" pickOnBounds="false" prefHeight="275.0" prefWidth="336.0">
+                        <children>
+                                 <Text fx:id="dadoResultText" styleClass="big-text-mini" text="-" textAlignment="CENTER" />
+                                 <Button fx:id="dado" onAction="#handleDado" styleClass="dice-button">
+                                     <graphic>
+                                         <ImageView fitHeight="183.0" fitWidth="354.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                 <Image url="@../assets/Boton_Dado.png" />
+                                             </image>
+                                         </ImageView>
+                                     </graphic>
+                                 </Button>
+                        </children>
+                     </VBox>
+                           <VBox alignment="CENTER" pickOnBounds="false" spacing="2">
+                               <Label fx:id="lblLento" mouseTransparent="true" styleClass="item-count" text="0" />
+                               <Button fx:id="lento" onAction="#handleLento" styleClass="item-button">
+                                   <graphic>
+                                       <ImageView fitHeight="179.0" fitWidth="257.0" pickOnBounds="true" preserveRatio="true">
+                                           <image>
+                                               <Image url="@../assets/DADO LENTO BOTON.png" />
+                                           </image>
+                                       </ImageView>
+                                   </graphic>
+                               </Button>
+                           </VBox>
+                           <VBox alignment="CENTER" pickOnBounds="false" spacing="2">
+                               <Label fx:id="lblPeces" mouseTransparent="true" styleClass="item-count" text="0" />
+                               <Button fx:id="peces" onAction="#handlePeces" styleClass="item-button">
+                                   <graphic>
+                                       <ImageView fitHeight="118.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
+                                           <image>
+                                               <Image url="@../assets/BOTON USAR PEZ.png" />
+                                           </image>
+                                       </ImageView>
+                                   </graphic>
+                               </Button>
+                           </VBox>
+                  </children>
+               </HBox>
 
                           <!-- Eventos (Superior derecha) -->
-                    <VBox layoutX="1572.0" layoutY="810.0" prefHeight="213.0" prefWidth="284.0" spacing="5" styleClass="card-integrated" AnchorPane.rightAnchor="64.0" AnchorPane.topAnchor="810.0">
-                        <Label styleClass="card-title-mini" text="Eventos" />
-                        <ScrollPane fx:id="scrollEventos" fitToWidth="true" hbarPolicy="NEVER" prefHeight="100.0" styleClass="log-scroll-mini">
+                    <VBox alignment="TOP_CENTER" layoutX="1571.0" layoutY="734.0" prefHeight="297.0" prefWidth="308.0" spacing="5" styleClass="logs-pane" AnchorPane.rightAnchor="41.0" AnchorPane.topAnchor="734.0">
+                        <Label prefHeight="39.0" prefWidth="150.0" styleClass="card-title-mini" text="Eventos" />
+                        <ScrollPane fx:id="scrollEventos" fitToWidth="true" hbarPolicy="NEVER" prefHeight="187.0" prefWidth="278.0" styleClass="log-scroll-mini">
                             <content>
                                 <VBox fx:id="logEventos" spacing="3" />
                             </content>

@@ -3,6 +3,8 @@
    Paleta: azul noche, glaciar, cian helado, blanco nieve
    ============================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 .root {
     -fx-font-family: "Press Start 2P", "Courier New", "Monospaced";
     -fx-background-color: #0D1B2A;
@@ -101,6 +103,14 @@
     -fx-padding: 0 0 5 0;
 }
 
+.logs-pane {
+    -fx-background-image: url("../assets/RECUADRO_LOGS.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-padding: 15;
+}
+
 .big-text-mini {
     -fx-fill: #F0F4FF;
     -fx-font-size: 16px;
@@ -136,6 +146,26 @@
     -fx-background-color: transparent;
 }
 
+.log-info,
+.log-warning,
+.log-turn {
+    -fx-font-size: 10px;
+    -fx-padding: 3 0 3 0;
+}
+
+.log-info {
+    -fx-text-fill: #F0F4FF;
+}
+
+.log-warning {
+    -fx-text-fill: #FFBD69;
+}
+
+.log-turn {
+    -fx-text-fill: #7FD4F0;
+    -fx-font-weight: bold;
+}
+
 /* ---- BOTÓN DADO INTEGRADO ---- */
 .dice-button {
     -fx-background-color: transparent;
@@ -147,6 +177,42 @@
 .dice-button:hover {
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
+}
+
+/* ---- CONTENEDOR BOTONES (Fondo) ---- */
+.buttons-hbox {
+    -fx-background-image: url("../assets/FONDO_BOTONES.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-alignment: center;
+    -fx-padding: 10;
+}
+
+/* ---- CONTADOR DE OBJETOS ---- */
+.item-count {
+    -fx-text-fill: #F0F4FF;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 2, 0, 1, 1);
+}
+
+/* ---- BOTONES DE OBJETOS ---- */
+.item-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(127, 212, 240, 0.3), 8, 0, 0, 0);
+}
+
+.item-button:hover {
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
+}
+
+.item-button:disabled {
+    -fx-opacity: 0.35;
+    -fx-cursor: default;
 }
 
 /* ---- FICHAS JUGADOR ---- */

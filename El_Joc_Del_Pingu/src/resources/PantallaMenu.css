@@ -3,6 +3,8 @@
    Paleta: azul noche, glaciar, cian helado, blanco nieve
    ============================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 /* FUENTE: cargar "Press Start 2P" o "Silkscreen" desde Java con Font.loadFont() */
 
 .root {
