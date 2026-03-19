@@ -13,6 +13,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.geometry.HPos;
@@ -95,7 +96,9 @@ public class PantallaJuego {
 
 	// Game board and player pieces
 	@FXML
-	private StackPane boardContainer;
+	private StackPane boardRoot;
+	@FXML
+	private AnchorPane boardContainer;
 	@FXML
 	private GridPane tablero;
 	@FXML
@@ -149,26 +152,26 @@ public class PantallaJuego {
 		} catch (Exception e) {
 			System.err.println("Error cargando imágenes de pingüinos: " + e.getMessage());
 		}
-
-		tablero.setPrefSize(2688, 1472);
-		tablero.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-		tablero.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-
+		// Usamos el tamaño que venga definido del FXML (ajustado en Scene Builder)
 		javafx.scene.transform.Scale scaleTransform = new javafx.scene.transform.Scale(1, 1, 0, 0);
-		tablero.getTransforms().add(scaleTransform);
 
+		// El factor de escala ahora depende del contenedor RAÍZ (el que se estira con la ventana)
+		// Ajustamos a la nueva resolución base 1920x1080
 		NumberBinding scaleFactor = Bindings.min(
-		    // 20px de Insets de padding (10 left + 10 right = 20)
-		    boardContainer.widthProperty().subtract(20).divide(2688.0),
-		    boardContainer.heightProperty().subtract(20).divide(1472.0)
+		    boardRoot.widthProperty().divide(1920.0), 
+		    boardRoot.heightProperty().divide(1080.0)
 		);
-
+		
 		scaleTransform.xProperty().bind(scaleFactor);
 		scaleTransform.yProperty().bind(scaleFactor);
 
-		javafx.scene.Group scaleGroup = new javafx.scene.Group(tablero);
-		boardContainer.getChildren().clear();
-		boardContainer.getChildren().add(scaleGroup);
+		// Metemos el boardContainer (Fondo + Grid + UI) en un Group para escalarlo todo junto
+		javafx.scene.Group scaleGroup = new javafx.scene.Group(boardContainer);
+		scaleGroup.getTransforms().add(scaleTransform);
+		
+		// El boardRoot (StackPane) centrará el Group automáticamente
+		boardRoot.getChildren().clear();
+		boardRoot.getChildren().add(scaleGroup);
 		
 		registrarEvento("¡El juego ha comenzado!", "log-info");
 
@@ -408,6 +411,9 @@ public class PantallaJuego {
 			StackPane iceBlock = new StackPane();
 			iceBlock.setUserData(TAG_CASILLA_TEXT);
 			iceBlock.getStyleClass().add("board-cell");
+			iceBlock.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+			GridPane.setFillWidth(iceBlock, true);
+			GridPane.setFillHeight(iceBlock, true);
 
 			// Add specific type class for coloring/assets
 			if (i == 0) {
@@ -427,8 +433,8 @@ public class PantallaJuego {
 				logicalCol = (COLUMNS - 1) - logicalCol;
 			}
 
-			int row = ((ROWS - 1) - logicalRow) + 1;
-			int col = logicalCol + 1;
+			int row = (ROWS - 1) - logicalRow;
+			int col = logicalCol;
 
 			GridPane.setRowIndex(iceBlock, row);
 			GridPane.setColumnIndex(iceBlock, col);
@@ -436,6 +442,7 @@ public class PantallaJuego {
 			tablero.getChildren().add(0, iceBlock); // Add to back so players stay on top
 		}
 	}
+
 
 	public static void mostrarPopupItem(Jugador j, String imagenNombre) {
 		if (instanciaActual == null) return;
@@ -490,6 +497,7 @@ public class PantallaJuego {
 			System.err.println("Error carregant la imatge del popup: " + imagenNombre);
 		}
 	}
+
 
 	// Menu actions
 
@@ -652,16 +660,16 @@ public class PantallaJuego {
 	    	newLogicalCol = (COLUMNS - 1) - newLogicalCol;
 	    }
 
-	    int oldRow = ((ROWS - 1) - oldLogicalRow) + 1;
-	    int oldCol = oldLogicalCol + 1;
-	    int newRow = ((ROWS - 1) - newLogicalRow) + 1;
-	    int newCol = newLogicalCol + 1;
+	    int oldRow = (ROWS - 1) - oldLogicalRow;
+	    int oldCol = oldLogicalCol;
+	    int newRow = (ROWS - 1) - newLogicalRow;
+	    int newCol = newLogicalCol;
 
 	    // the grid geometry gives us fixed constraints based on 10x5 physical structure 
 	    // in a scene where width is exactly mapped to % constraints
 	    // For translations, simply use bound constraints of the cells inside the Grid
-	    double cellWidth = tablero.getPrefWidth() * 0.0918;   // 9.18% de ancho x columna
-	    double cellHeight = tablero.getPrefHeight() * 0.1711; // 17.11% de alto x fila
+	    double cellWidth = tablero.getPrefWidth() * 0.10;   // 10% de ancho x columna
+	    double cellHeight = tablero.getPrefHeight() * 0.20; // 20% de alto x fila
 
 	    // Calcular offset actual y objetivo para que la animación sea fluida
 	    double currentTX = pieza.getTranslateX();

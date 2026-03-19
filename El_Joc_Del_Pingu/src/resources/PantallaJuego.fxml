@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
@@ -8,6 +7,9 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -16,11 +18,9 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane prefHeight="1080.0" prefWidth="1920.0" styleClass="root" stylesheets="@PantallaJuego.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaJuego">
+<BorderPane styleClass="root" stylesheets="@PantallaJuego.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaJuego">
 
     <top>
         <MenuBar>
@@ -37,126 +37,101 @@
         </MenuBar>
     </top>
 
-    <bottom>
-        <HBox spacing="16" styleClass="bottom-bar">
-            <padding>
-                <Insets bottom="16" left="16" right="16" top="16" />
-            </padding>
-
-            <!-- Tarjeta Dado -->
-            <VBox prefWidth="280" spacing="10" styleClass="card">
-                <Label styleClass="card-title" text="Dado" />
-                <Text fx:id="dadoResultText" styleClass="big-text" text="Ha salido: -" wrappingWidth="240" />
-                <Button fx:id="dado" maxWidth="Infinity" onAction="#handleDado" styleClass="primary" text="Tirar dado" />
-            </VBox>
-
-            <!-- Tarjeta Objetos -->
-            <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
-                <Label styleClass="card-title" text="Objetos" />
-
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="objects-scroll" vbarPolicy="AS_NEEDED">
-                    <content>
-                        <VBox spacing="10">
-                            <padding>
-                                <Insets bottom="6" left="6" right="6" top="6" />
-                            </padding>
-
-                            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="row">
-                                <Text fx:id="rapido_t" styleClass="stat" text="Dado rápido: 0" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <Button fx:id="rapido" onAction="#handleRapido" text="Usar" />
-                            </HBox>
-
-                            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="row">
-                                <Text fx:id="lento_t" styleClass="stat" text="Dado lento: 0" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <Button fx:id="lento" onAction="#handleLento" text="Usar" />
-                            </HBox>
-
-                            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="row">
-                                <Text fx:id="peces_t" styleClass="stat" text="Peces: 0" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <Button fx:id="peces" onAction="#handlePeces" text="Usar" />
-                            </HBox>
-
-                            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="row">
-                                <Text fx:id="nieve_t" styleClass="stat" text="Bolas de nieve: 0" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <Button fx:id="nieve" onAction="#handleNieve" text="Usar" />
-                            </HBox>
-
-                        </VBox>
-                    </content>
-                </ScrollPane>
-            </VBox>
-
-            <!-- Tarjeta Eventos -->
-            <VBox prefWidth="320" spacing="10" styleClass="card">
-                <Label styleClass="card-title" text="Eventos" />
-                <ScrollPane fx:id="scrollEventos" fitToWidth="true" hbarPolicy="NEVER" prefHeight="100" styleClass="log-scroll" VBox.vgrow="ALWAYS">
-                    <content>
-                        <VBox fx:id="logEventos" spacing="5" styleClass="log-container" />
-                    </content>
-                </ScrollPane>
-            </VBox>
-
-        </HBox>
-    </bottom>
     <center>
-        <StackPane fx:id="boardContainer" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="10" left="10" right="10" top="10" />
-            </padding>
+        <StackPane fx:id="boardRoot" BorderPane.alignment="CENTER">
+            <AnchorPane fx:id="boardContainer" prefHeight="1080.0" prefWidth="1920.0" styleClass="board-container">
+                <!-- Capa del Tablero sincronizada con el mapa del fondo (Ajustada proporcionalmente a 1920x1080) -->
+                <GridPane fx:id="tablero" alignment="CENTER" gridLinesVisible="false" layoutX="55.0" layoutY="246.0" prefHeight="541.0" prefWidth="1144.0" styleClass="board" AnchorPane.bottomAnchor="293.0" AnchorPane.leftAnchor="55.0" AnchorPane.rightAnchor="721.0" AnchorPane.topAnchor="246.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
+                        <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
+                        <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
+                        <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
+                        <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+                        <ImageView id="P1" fx:id="P1" fitHeight="85.0" fitWidth="85.0" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+                        <ImageView id="P2" fx:id="P2" fitHeight="85.0" fitWidth="85.0" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+                        <ImageView id="P3" fx:id="P3" fitHeight="85.0" fitWidth="85.0" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+                        <ImageView id="P4" fx:id="P4" fitHeight="85.0" fitWidth="85.0" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+                    </children>
+                </GridPane>
 
-            <GridPane fx:id="tablero" alignment="CENTER" gridLinesVisible="false" maxHeight="Infinity" maxWidth="Infinity" styleClass="board">
-                <columnConstraints>
-                    <!-- Padding Left (110/2688) -->
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="4.09" />
-                    <!-- Play Area (10 cols, each ~9.185%) -->
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="9.18" />
-                    <!-- Padding Right (109/2688) -->
-                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="4.05" />
-                </columnConstraints>
+                      <!-- HUD Capa de Interfaz Integrada (Resolución base 1920x1080) -->
+                <AnchorPane pickOnBounds="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <VBox alignment="TOP_CENTER" layoutX="897.0" layoutY="782.0" prefHeight="194.0" prefWidth="326.0" spacing="5" styleClass="card-integrated" AnchorPane.bottomAnchor="85.0" AnchorPane.leftAnchor="897.0">
+                        <Label styleClass="card-title-mini" />
+                        <Text fx:id="dadoResultText" styleClass="big-text-mini" text="-" textAlignment="CENTER" />
+                        <Button fx:id="dado" onAction="#handleDado" styleClass="dice-button">
+                            <graphic>
+                                <ImageView fitHeight="196.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../assets/Boton_Dado.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                    </VBox>
 
-                <rowConstraints>
-                    <!-- Padding Top (124/1472) -->
-                    <RowConstraints percentHeight="8.42" vgrow="SOMETIMES" />
-                    <!-- Play Area (5 rows, each ~17.116%) -->
-                    <RowConstraints percentHeight="17.11" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="17.11" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="17.11" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="17.11" vgrow="SOMETIMES" />
-                    <RowConstraints percentHeight="17.11" vgrow="SOMETIMES" />
-                    <!-- Padding Bottom (Increased for labels) -->
-                    <RowConstraints percentHeight="6.0" vgrow="SOMETIMES" />
-                </rowConstraints>
+                          <!-- Objetos (Esquina inferior derecha) -->
+                    <VBox alignment="BOTTOM_CENTER" layoutX="52.0" layoutY="803.0" prefWidth="310.0" spacing="10" styleClass="card-integrated" AnchorPane.bottomAnchor="105.0" AnchorPane.rightAnchor="1558.0">
+                        <Label styleClass="card-title-mini" text="Objetos" />
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="objects-scroll-mini" vbarPolicy="AS_NEEDED">
+                            <content>
+                                <VBox spacing="8">
+                                    <HBox alignment="CENTER_LEFT" spacing="5">
+                                        <Text fx:id="rapido_t" styleClass="stat-mini" text="Rápido: 0" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button fx:id="rapido" onAction="#handleRapido" styleClass="mini-btn" text="Usar" />
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="5">
+                                        <Text fx:id="lento_t" styleClass="stat-mini" text="Lento: 0" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button fx:id="lento" onAction="#handleLento" styleClass="mini-btn" text="Usar" />
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="5">
+                                        <Text fx:id="peces_t" styleClass="stat-mini" text="Peces: 0" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button fx:id="peces" onAction="#handlePeces" styleClass="mini-btn" text="Usar" />
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="5">
+                                        <Text fx:id="nieve_t" styleClass="stat-mini" text="Nieve: 0" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button fx:id="nieve" onAction="#handleNieve" styleClass="mini-btn" text="Usar" />
+                                    </HBox>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                    </VBox>
 
-                <children>
-                    <!-- Jugadores: fx:id para Controller + id para CSS -->
-                    <ImageView id="P1" fx:id="P1" fitHeight="115.0" fitWidth="115.0" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                    <ImageView id="P2" fx:id="P2" fitHeight="115.0" fitWidth="115.0" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                    <ImageView id="P3" fx:id="P3" fitHeight="115.0" fitWidth="115.0" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                    <ImageView id="P4" fx:id="P4" fitHeight="115.0" fitWidth="115.0" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                </children>
-            </GridPane>
+                          <!-- Eventos (Superior derecha) -->
+                    <VBox layoutX="1591.0" layoutY="783.0" prefHeight="213.0" prefWidth="284.0" spacing="5" styleClass="card-integrated" AnchorPane.rightAnchor="45.0" AnchorPane.topAnchor="783.0">
+                        <Label styleClass="card-title-mini" text="Eventos" />
+                        <ScrollPane fx:id="scrollEventos" fitToWidth="true" hbarPolicy="NEVER" prefHeight="100.0" styleClass="log-scroll-mini">
+                            <content>
+                                <VBox fx:id="logEventos" spacing="3" />
+                            </content>
+                        </ScrollPane>
+                    </VBox>
+
+                          <!-- Jugadores (Superior izquierda) -->
+                    <VBox fx:id="sidebarPlayers" layoutX="1648.0" layoutY="95.0" prefWidth="220.0" spacing="8" styleClass="card-integrated" AnchorPane.leftAnchor="1648.0" AnchorPane.topAnchor="95.0">
+                        <Label styleClass="card-title-mini" text="Jugadores" />
+                    </VBox>
+                </AnchorPane>
+            </AnchorPane>
         </StackPane>
     </center>
-    <right>
-        <VBox fx:id="sidebarPlayers" prefWidth="220" spacing="12" styleClass="sidebar">
-            <padding>
-                <Insets bottom="10" left="10" right="10" top="10" />
-            </padding>
-            <Label styleClass="sidebar-title" text="Jugadores" />
-            <!-- Player cards will be added here dynamically -->
-        </VBox>
-    </right>
 </BorderPane>

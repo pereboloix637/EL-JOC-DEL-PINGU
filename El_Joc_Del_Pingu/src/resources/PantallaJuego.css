@@ -1,5 +1,5 @@
 /* ============================================================
-   PANTALLA JUEGO — Estilo Pixel Art Invernal
+   PANTALLA JUEGO — Estilo Pixel Art Integrado
    Paleta: azul noche, glaciar, cian helado, blanco nieve
    ============================================================ */
 
@@ -10,403 +10,153 @@
 
 /* ---- MENU BAR ---- */
 .menu-bar {
-    -fx-background-color: #1C3A52;
+    -fx-background-color: rgba(28, 58, 82, 0.8);
     -fx-border-color: #2E6B8A;
     -fx-border-width: 0 0 2 0;
 }
 
 .menu-bar .label {
     -fx-text-fill: #F0F4FF;
-    -fx-font-size: 13px;
+    -fx-font-size: 11px;
     -fx-font-weight: bold;
 }
 
-.menu-bar .menu:hover,
-.menu-bar .menu:showing {
-    -fx-background-color: #2E6B8A;
-}
-
-.menu-bar .menu:hover .label,
-.menu-bar .menu:showing .label {
-    -fx-text-fill: #7FD4F0;
-}
-
-.context-menu {
-    -fx-background-color: #1C3A52;
-    -fx-border-color: #2E6B8A;
-    -fx-border-width: 2;
-}
-
-.menu-item .label {
-    -fx-text-fill: #C8D8E8;
-}
-
-.menu-item:focused {
-    -fx-background-color: #2E6B8A;
-}
-
-.menu-item:focused .label {
-    -fx-text-fill: #7FD4F0;
-}
-
-/* ---- TABLERO ---- */
-.board {
-    -fx-background-image: url("../assets/tablero.png");
-    -fx-background-size: contain;
+/* ---- TABLERO CONTAINER (Full Background) ---- */
+.board-container {
+    -fx-background-image: url("../assets/tablero_grande.png");
+    -fx-background-size: 100% 100%;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
-    -fx-padding: 0; 
+}
+
+/* ---- GRID DEL TABLERO (Solo celdas) ---- */
+.board {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
     -fx-hgap: 0;
     -fx-vgap: 0;
     -fx-alignment: center;
 }
 
-/* ---- CELDAS BASE (Bloque transparente para assets) ---- */
+/* ---- CELDAS BASE ---- */
 .board-cell {
     -fx-background-color: transparent;
-    -fx-padding: 0;
-    -fx-effect: null;
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
-    -fx-border-radius: 0;
 }
 
-
-/* ---- TIPOS DE CELDA ---- */
-
-/* Normal: nieve compacta / Imagen dedicada */
+/* ---- TIPOS DE CELDA (Assets) ---- */
 .cell-Normal {
     -fx-background-image: url("../assets/casilla_normal.png");
     -fx-background-size: 100% 100%;
-    -fx-background-position: center;
-    -fx-border-color: transparent;
-    -fx-background-color: transparent;
 }
 
-/* Oso: peligro rojo frío / Imagen */
 .cell-Os {
     -fx-background-image: url("../assets/casilla_oso.png");
     -fx-background-size: 100% 100%;
-    -fx-background-position: center;
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
 }
 
-/* Agujero: agua oscura profunda / Imagen */
 .cell-Forat {
     -fx-background-image: url("../assets/casilla_agujero.png");
     -fx-background-size: 100% 100%;
-    -fx-background-position: center;
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
 }
 
-.cell-Forat .cell-type {
-    -fx-fill: #2E6B8A;
-}
-
-/* Trineo: aurora, acento dorado / Imagen */
 .cell-Trineu {
     -fx-background-image: url("../assets/casilla_trineo.png");
     -fx-background-size: 100% 100%;
-    -fx-background-position: center;
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
 }
 
-/* Hielo resquebrajado: borde más claro / Imagen */
 .cell-Trencadis {
     -fx-background-image: url("../assets/casilla_fragmentado.png");
     -fx-background-size: 100% 100%;
-    -fx-background-position: center;
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
     -fx-opacity: 0.85;
 }
 
-/* Evento: acento púrpura frío / Imagen Interrogante */
 .cell-Event {
     -fx-background-image: url("../assets/casilla_interrogante.png");
     -fx-background-size: 100% 100%;
-    -fx-background-position: center;
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
 }
 
-/* Inicio: Transparente (Asset fondo tiene "START") */
 .start-cell {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
     -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 4, 4);
 }
 
-/* Final: Transparente (Asset fondo tiene "GOAL") */
 .finish-cell {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
     -fx-effect: dropshadow(one-pass-box, #E8D87F, 0, 0, 4, 4);
 }
 
-/* ---- TEXTOS DEL TABLERO ---- */
-.cell-type {
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-fill: #C8D8E8;
-}
-
-.text-start {
-    -fx-fill: #7FD4F0;
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-}
-
-.text-finish {
-    -fx-fill: #E8D87F;
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-}
-
-/* ---- PANEL DE EVENTOS / LOGS ---- */
-.log-scroll {
-    -fx-background-color: #0D1B2A;
-    -fx-background: #0D1B2A;
-    -fx-border-color: #2E6B8A;
-    -fx-border-width: 2;
-}
-
-.log-scroll .viewport {
-    -fx-background-color: #0D1B2A;
-}
-
-.log-container {
-    -fx-background-color: #0D1B2A;
-    -fx-padding: 8;
-}
-
-.log-info {
-    -fx-text-fill: #7FD4F0;
-}
-
-.log-turn {
-    -fx-text-fill: #F0F4FF;
-    -fx-font-weight: bold;
-}
-
-.log-warning {
-    -fx-text-fill: #E8D87F;
-}
-.bottom-bar {
-    -fx-background-color: #0D1B2A;
-    -fx-border-color: #2E6B8A;
-    -fx-border-width: 2 0 0 0;
-    -fx-padding: 12;
-}
-
-/* ---- TARJETAS GENERALES ---- */
-.card {
-    -fx-background-color: #1C3A52;
-    -fx-background-radius: 0;
-    -fx-padding: 12;
-    -fx-border-color: #2E6B8A;
-    -fx-border-radius: 0;
-    -fx-border-width: 2;
-    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
-}
-
-.objects-scroll,
-.objects-scroll .viewport,
-.objects-scroll .content {
-    -fx-background-color: transparent !important;
-    -fx-background: transparent !important;
-}
-
-.card .label,
-.card Label {
-    -fx-text-fill: #C8D8E8;
-    -fx-font-size: 13px;
-}
-
-.card .text,
-.card Text {
-    -fx-fill: #C8D8E8;
-    -fx-font-size: 13px;
-}
-
-.big-text,
-.stat,
-.events {
-    -fx-fill: #F0F4FF !important;
-}
-
-.big-text {
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
-}
-
-/* ---- BOTONES ---- */
-.button {
-    -fx-background-radius: 0;
-    -fx-padding: 10 16;
-    -fx-background-color: #1C3A52;
-    -fx-text-fill: #C8D8E8;
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-border-color: #2E6B8A;
-    -fx-border-width: 2;
-    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
-}
-
-.button:hover {
-    -fx-background-color: #2E6B8A;
-    -fx-text-fill: #7FD4F0;
+/* ---- INTERFAZ INTEGRADA ---- */
+.card-integrated {
+    -fx-background-color: rgba(28, 58, 82, 0.85);
+    /* Slightly lighter and more opaque */
     -fx-border-color: #7FD4F0;
-    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 3, 3);
-}
-
-.button:pressed {
-    -fx-background-color: #0D1B2A;
-    -fx-text-fill: #3AB5E6;
-    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 1, 1);
-    -fx-translate-y: 2;
-}
-
-.button.primary {
-    -fx-background-color: #2E6B8A;
-    -fx-text-fill: #F0F4FF;
-    -fx-border-color: #7FD4F0;
-    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 3, 3);
-}
-
-.button.primary:hover {
-    -fx-background-color: #3AB5E6;
-    -fx-text-fill: #0D1B2A;
-}
-
-/* ---- BARRA LATERAL ---- */
-.sidebar {
-    -fx-background-color: #0D1B2A;
-    -fx-border-color: #2E6B8A;
-    -fx-border-width: 0 0 0 2;
-}
-
-.sidebar-title {
-    -fx-font-size: 15px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #7FD4F0;
-    -fx-padding: 0 0 10 0;
-}
-
-/* ---- TARJETA DE ESTADO DE JUGADOR ---- */
-.player-status-card {
-    -fx-background-color: #1C3A52;
-    -fx-background-radius: 0;
+    /* Brighter cian border */
+    -fx-border-width: 2;
     -fx-padding: 10;
-    -fx-border-color: #2E6B8A;
-    -fx-border-radius: 0;
-    -fx-border-width: 2;
-    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 15, 0, 0, 0);
 }
 
-/* Jugador activo: borde cian brillante con sombra */
-.player-status-card.is-current-turn {
-    -fx-background-color: #213F5C;
-    -fx-border-color: #7FD4F0;
-    -fx-border-width: 2;
-    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 4, 4);
-}
-
-.player-name {
-    -fx-font-size: 13px;
+.card-title-mini {
+    -fx-text-fill: #7FD4F0;
+    -fx-font-size: 10px;
     -fx-font-weight: bold;
+    -fx-padding: 0 0 5 0;
+}
+
+.big-text-mini {
+    -fx-fill: #F0F4FF;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.stat-mini {
+    -fx-fill: #C8D8E8;
+    -fx-font-size: 10px;
+}
+
+.mini-btn {
+    -fx-background-color: #1C3A52;
     -fx-text-fill: #F0F4FF;
+    -fx-font-size: 9px;
+    -fx-padding: 4 8;
+    -fx-border-color: #2E6B8A;
 }
 
-.player-inv-mini {
-    -fx-padding: 4 0 0 16;
+.mini-btn:hover {
+    -fx-background-color: #2E6B8A;
 }
 
-.player-inv-mini .label {
-    -fx-font-size: 12px;
-    -fx-text-fill: #C8D8E8;
+/* ---- SCROLLS MINI ---- */
+.objects-scroll-mini,
+.log-scroll-mini {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
 }
 
-.cpu-label {
-    -fx-font-size: 11px;
-    -fx-font-style: italic;
-    -fx-text-fill: #2E6B8A;
-    -fx-padding: 0 0 0 16;
+.objects-scroll-mini .viewport,
+.log-scroll-mini .viewport {
+    -fx-background-color: transparent;
 }
 
-/* ---- FICHAS DE JUGADOR ---- */
+/* ---- BOTÓN DADO INTEGRADO ---- */
+.dice-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(127, 212, 240, 0.4), 10, 0, 0, 0);
+}
+
+.dice-button:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ---- FICHAS JUGADOR ---- */
 .player {
-    -fx-stroke: #F0F4FF;
-    -fx-stroke-width: 2;
     -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
 }
 
-/* Colores adaptados a paleta fría pixel art */
-#P1 {
-}
-
-/* Rojo hielo */
-#P2 {
-}
-
-/* Cian helado */
-#P3 {
-}
-
-/* Azul eléctrico frío */
-#P4 {
-}
-
-/* Amarillo luna */
-
-/* ---- DIÁLOGOS Y ALERTAS ---- */
-
+/* ---- DIÁLOGOS ---- */
 .dialog-pane {
     -fx-background-color: #0D1B2A;
     -fx-border-color: #2E6B8A;
     -fx-border-width: 2;
-    -fx-padding: 0;
-}
-
-.dialog-pane .header-panel {
-    -fx-background-color: #1C3A52;
-    -fx-border-color: transparent transparent #2E6B8A transparent;
-    -fx-border-width: 0 0 2 0;
-    -fx-padding: 14 18;
-}
-
-.dialog-pane .header-panel .label {
-    -fx-text-fill: #7FD4F0;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-}
-
-.dialog-pane .graphic-container {
-    -fx-background-color: transparent;
-    -fx-padding: 0 10 0 0;
-}
-
-.dialog-pane .content.label,
-.dialog-pane:header .content .label,
-.dialog-pane:header .content {
-    -fx-text-fill: #C8D8E8;
-    -fx-font-size: 13px;
-    -fx-padding: 18 18 10 18;
-    -fx-background-color: transparent;
-}
-
-.dialog-pane .button-bar {
-    -fx-background-color: #0D1B2A;
-    -fx-border-color: #2E6B8A transparent transparent transparent;
-    -fx-border-width: 2 0 0 0;
-    -fx-padding: 10 14;
-}
-
-.dialog-pane .separator {
-    -fx-background-color: #2E6B8A;
 }
