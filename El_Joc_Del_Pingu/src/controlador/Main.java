@@ -26,11 +26,10 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/PantallaMenu.fxml"));
         Parent root = loader.load();
 
-        Scene scene = new Scene(root, 1920, 1080);
+        Scene scene = new Scene(root);
 
         primaryStage.setTitle("El Joc del Pingüí");
         primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
         primaryStage.setFullScreen(true);
         primaryStage.setFullScreenExitHint("");
         primaryStage.show();
