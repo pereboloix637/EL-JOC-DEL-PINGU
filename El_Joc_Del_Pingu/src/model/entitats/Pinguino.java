@@ -19,7 +19,7 @@ public class Pinguino extends Jugador {
 		this.victories = 0;
 	}
 
-/// GETTERS
+/// GETTERS I SETTERS
 	public Inventari getInventari() {
 		return inventari;
 	}
