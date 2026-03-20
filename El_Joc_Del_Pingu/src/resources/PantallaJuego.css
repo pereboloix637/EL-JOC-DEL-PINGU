@@ -3,6 +3,8 @@
    Paleta: azul noche, glaciar, cian helado, blanco nieve
    ============================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 .root {
     -fx-font-family: "Press Start 2P", "Courier New", "Monospaced";
     -fx-background-color: #0D1B2A;
@@ -94,11 +96,74 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 15, 0, 0, 0);
 }
 
+/* ---- NUEVA BARRA LATERAL INVENTARIO ---- */
+.inventory-sidebar {
+    -fx-background-image: url("../assets/INVENTARIOS_JUGADORES.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-padding: 50 15 15 15; /* Más padding superior para el título de la imagen */
+    -fx-spacing: 12;
+}
+
+.sidebar-title {
+    -fx-text-fill: #F0F4FF; /* Blanco nieve para máxima claridad */
+    -fx-font-size: 16px; /* Aumentado de 11px */
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 5 0;
+    -fx-alignment: center;
+}
+
+.player-status-card {
+    -fx-background-color: rgba(13, 27, 42, 0.4); /* Fondo muy sutil para dejar ver la imagen trasera */
+    -fx-padding: 8;
+    -fx-border-color: rgba(127, 212, 240, 0.3);
+    -fx-border-width: 1;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
+
+.player-status-card.is-current-turn {
+    -fx-background-color: rgba(127, 212, 240, 0.2);
+    -fx-border-color: #7FD4F0;
+    -fx-border-width: 2;
+}
+
+.player-name {
+    -fx-text-fill: #F0F4FF;
+    -fx-font-size: 14px; /* Aumentado de 10px */
+    -fx-font-weight: bold;
+}
+
+.player-inv-mini {
+    -fx-padding: 5 0 0 15;
+}
+
+.player-inv-mini .label {
+    -fx-text-fill: #C8D8E8; /* Gris azulado claro */
+    -fx-font-size: 12px; /* Aumentado de 8px */
+}
+
+.cpu-label {
+    -fx-text-fill: #C8D8E8;
+    -fx-font-size: 12px; /* Aumentado de 8px */
+    -fx-font-style: italic;
+    -fx-padding: 5 0 0 15;
+}
+
 .card-title-mini {
     -fx-text-fill: #7FD4F0;
     -fx-font-size: 10px;
     -fx-font-weight: bold;
     -fx-padding: 0 0 5 0;
+}
+
+.logs-pane {
+    -fx-background-image: url("../assets/RECUADRO_LOGS.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-padding: 15;
 }
 
 .big-text-mini {
@@ -136,6 +201,26 @@
     -fx-background-color: transparent;
 }
 
+.log-info,
+.log-warning,
+.log-turn {
+    -fx-font-size: 10px;
+    -fx-padding: 3 0 3 0;
+}
+
+.log-info {
+    -fx-text-fill: #F0F4FF;
+}
+
+.log-warning {
+    -fx-text-fill: #FFBD69;
+}
+
+.log-turn {
+    -fx-text-fill: #7FD4F0;
+    -fx-font-weight: bold;
+}
+
 /* ---- BOTÓN DADO INTEGRADO ---- */
 .dice-button {
     -fx-background-color: transparent;
@@ -147,6 +232,42 @@
 .dice-button:hover {
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
+}
+
+/* ---- CONTENEDOR BOTONES (Fondo) ---- */
+.buttons-hbox {
+    -fx-background-image: url("../assets/FONDO_BOTONES.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-alignment: center;
+    -fx-padding: 10;
+}
+
+/* ---- CONTADOR DE OBJETOS ---- */
+.item-count {
+    -fx-text-fill: #F0F4FF;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 2, 0, 1, 1);
+}
+
+/* ---- BOTONES DE OBJETOS ---- */
+.item-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(127, 212, 240, 0.3), 8, 0, 0, 0);
+}
+
+.item-button:hover {
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
+}
+
+.item-button:disabled {
+    -fx-opacity: 0.35;
+    -fx-cursor: default;
 }
 
 /* ---- FICHAS JUGADOR ---- */

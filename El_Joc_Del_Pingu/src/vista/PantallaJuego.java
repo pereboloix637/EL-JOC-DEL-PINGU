@@ -77,17 +77,19 @@ public class PantallaJuego {
 	@FXML
 	private Button nieve;
 
+	// Item count labels
+	@FXML
+	private Label lblNieve;
+	@FXML
+	private Label lblRapido;
+	@FXML
+	private Label lblLento;
+	@FXML
+	private Label lblPeces;
+
 	// Texts
 	@FXML
 	private Text dadoResultText;
-	@FXML
-	private Text rapido_t;
-	@FXML
-	private Text lento_t;
-	@FXML
-	private Text peces_t;
-	@FXML
-	private Text nieve_t;
 	@FXML
 	private Text eventos;
 	@FXML
@@ -126,7 +128,7 @@ public class PantallaJuego {
 	private static final int ROWS = 5;
 
 	@FXML
-	private VBox sidebarPlayers;
+	private GridPane gridInventarios;
 
 	private static final String TAG_CASILLA_TEXT = "CASILLA_TEXT";
 
@@ -293,11 +295,11 @@ public class PantallaJuego {
 	 * Habilita o deshabilita todos los controles de interacción del jugador.
 	 */
 	private void bloquearControles(boolean bloquear) {
-	    dado.setDisable(bloquear);
-	    rapido.setDisable(bloquear);
-	    lento.setDisable(bloquear);
-	    peces.setDisable(bloquear);
-	    nieve.setDisable(bloquear);
+	    if (dado != null) dado.setDisable(bloquear);
+	    if (rapido != null) rapido.setDisable(bloquear);
+	    if (lento != null) lento.setDisable(bloquear);
+	    if (peces != null) peces.setDisable(bloquear);
+	    if (nieve != null) nieve.setDisable(bloquear);
 	}
 
 	/**
@@ -326,28 +328,28 @@ public class PantallaJuego {
 			}
 		}
 
-		// Actualitzar textos amb quantitats reals de l'inventari
-		rapido_t.setText("Dado rápido: " + (dRapid != null ? dRapid.getQuantitat() : 0));
-		lento_t.setText( "Dado lento: "  + (dLent  != null ? dLent.getQuantitat()  : 0));
-		peces_t.setText( "Peces: "        + inv.getPeixos());
-		nieve_t.setText( "Bolas de nieve: " + inv.getBoles());
 
-		// Habilitar/deshabilitar botons
-		rapido.setDisable(dRapid == null || dRapid.getQuantitat() <= 0);
-		lento.setDisable( dLent  == null || dLent.getQuantitat()  <= 0);
-		peces.setDisable( inv.getPeixos() <= 0);
-		nieve.setDisable( inv.getBoles()  <= 0);
+		// Habilitar/deshabilitar botons (null-safe)
+		if (rapido != null) rapido.setDisable(dRapid == null || dRapid.getQuantitat() <= 0);
+		if (lento != null) lento.setDisable( dLent  == null || dLent.getQuantitat()  <= 0);
+		if (peces != null) peces.setDisable( inv.getPeixos() <= 0);
+		if (nieve != null) nieve.setDisable( inv.getBoles()  <= 0);
+
+		// Actualitzar comptadors sobre els botons
+		if (lblRapido != null) lblRapido.setText(String.valueOf(dRapid != null ? dRapid.getQuantitat() : 0));
+		if (lblLento != null) lblLento.setText(String.valueOf(dLent != null ? dLent.getQuantitat() : 0));
+		if (lblPeces != null) lblPeces.setText(String.valueOf(inv.getPeixos()));
+		if (lblNieve != null) lblNieve.setText(String.valueOf(inv.getBoles()));
 	}
 
 	private void actualizarSidebarJugadores() {
-		sidebarPlayers.getChildren().clear();
+		gridInventarios.getChildren().clear();
 		
-		Label title = new Label("Estado Jugadores");
-		title.getStyleClass().add("sidebar-title");
-		sidebarPlayers.getChildren().add(title);
-
 		Partida pActual = gestorPartida.getPartida();
-		for (Jugador j : pActual.getJugadors()) {
+		ArrayList<Jugador> js = pActual.getJugadors();
+		
+		for (int i = 0; i < js.size(); i++) {
+			Jugador j = js.get(i);
 			VBox card = new VBox(5);
 			card.getStyleClass().add("player-status-card");
 			
@@ -358,7 +360,7 @@ public class PantallaJuego {
 
 			HBox header = new HBox(10);
 			Circle colorIndicator = new Circle(8);
-			String colorHex = getColorForPlayer(j);
+			String colorHex = getColorForPlayerIndex(i);
 			colorIndicator.setStyle("-fx-fill: " + colorHex + ";");
 			
 			Label name = new Label(j.getNickname());
@@ -383,7 +385,10 @@ public class PantallaJuego {
 				card.getChildren().add(cpuLabel);
 			}
 
-			sidebarPlayers.getChildren().add(card);
+			// Posicionar en la cuadrícula 2x2: (0,0), (1,0), (0,1), (1,1)
+			int col = i % 2;
+			int row = i / 2;
+			gridInventarios.add(card, col, row);
 		}
 	}
 
@@ -686,10 +691,13 @@ public class PantallaJuego {
 	// Button actions
 	@FXML
 	private void handleDado(ActionEvent event) {
+		System.out.println("DEBUG: Clic en BOTÓN DADO");
 	    // Solo permitimos el clic manual si es el turno del jugador humano
 	    if (gestorPartida.getPartida().getJugadorActual() instanceof Pinguino) {
 	        executartorn();
-	    }
+	    } else {
+			System.out.println("DEBUG: Clic ignorado (no es turno humano)");
+		}
 	}
 
 	/**
@@ -816,7 +824,7 @@ public class PantallaJuego {
 	    slide.setByX(dx);
 	    slide.setByY(dy);
 
-	    slide.setOnFinished(e -> {
+	    slide.setOnFinished(e -> Platform.runLater(() -> {
 	        pieza.setTranslateX(targetTX);
 	        pieza.setTranslateY(targetTY);
 	        
@@ -824,10 +832,67 @@ public class PantallaJuego {
 	        j.setPosicio(newPos);
 	        
 	        // --- LÒGICA DE COL·LISIONS I BATALLA ---
-	        for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
-	            if (rival != j && rival.getPosicio() == newPos) {
-	                manejarEncuentro(j, rival);
-	                break;
+	        if (j instanceof Pinguino pActual) {
+	            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
+	                if (rival != pActual && rival.getPosicio() == newPos) {
+	                    if (rival instanceof Pinguino pRival) {
+	                    	 // Si cap dels dos té boles, no mostrem batalla ni fem res especial
+	                        if (pActual.getInventari().getBoles() == 0 && pRival.getInventari().getBoles() == 0) {
+	                        	break; 
+	                        }
+	                    	
+	                        // Batalla entre pingüins
+	                        registrarEvento("Col·lisió! Batalla entre " + pActual.getNickname() + " i " + pRival.getNickname(), "log-warning");
+	                        
+	                        // Guardem estat pre-batalla per saber qui perd boles o retrocedeix
+	                        int bolesJ1Abans = pActual.getInventari().getBoles();
+	                        int bolesJ2Abans = pRival.getInventari().getBoles();
+	                        int posJ1Abans = pActual.getPosicio();
+	                        int posJ2Abans = pRival.getPosicio();
+	                        
+	                   
+	                        mostrarOverlayBatalla(() -> {
+	                            pActual.gestionarBatalla(pRival);
+
+	                            // Mostrar resultat en un Alert
+	                            Alert batallaAlert = new Alert(AlertType.INFORMATION);
+	                            estilar(batallaAlert);
+	                            batallaAlert.setTitle("Resultat de la Batalla");
+	                            batallaAlert.setHeaderText("¡Combat de boles de neu!");
+	                            
+	                            String resultMsg = "";
+	                            if (pActual.getPosicio() < posJ1Abans) {
+	                                resultMsg = pRival.getNickname() + " guanya! " + pActual.getNickname() + " retrocedeix.";
+	                            } else if (pRival.getPosicio() < posJ2Abans) {
+	                                resultMsg = pActual.getNickname() + " guanya! " + pRival.getNickname() + " retrocedeix.";
+	                            } else {
+	                                resultMsg = "Empat! Ambdós perden totes les boles de neu.";
+	                            }
+	                            batallaAlert.setContentText(resultMsg);
+	                            batallaAlert.showAndWait();
+
+	                            // Animació de retrocés si algú ha mogut
+	                            if (pActual.getPosicio() != posJ1Abans) {
+	                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio());
+	                            }
+	                            if (pRival.getPosicio() != posJ2Abans) {
+	                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio());
+	                            }
+	                        });
+	                        
+	                        break; // Una única trobada per torn
+	                    } else if (rival instanceof model.entitats.Foca fRival) {
+	                        // Trobada amb la Foca
+	                        registrarEvento(pActual.getNickname() + " ha topat amb la foca " + fRival.getNickname(), "log-warning");
+	                        int posAbans = pActual.getPosicio();
+	                        fRival.pegarPingu(pActual, gestorPartida.getPartida());
+	                        
+	                        if (pActual.getPosicio() != posAbans) {
+	                            animarRetroceso(pActual, posAbans, pActual.getPosicio());
+	                        }
+	                        break;
+	                    }
+	                }
 	            }
 	        }
 	        
@@ -865,70 +930,44 @@ public class PantallaJuego {
 	        
 	        // Comprovar si el següent és CPU
 	        checkTurnoCPU();
-	    });
+	    }));
 
 	    slide.play();
 	}
 
 	/**
-	 * Gestiona la col·lisió i possible batalla quan un jugador cau en una casella ocupada.
+	 * Muestra un overlay de batalla en el centro de la pantalla y ejecuta una acción al terminar.
 	 */
-	private void manejarEncuentro(Jugador j, Jugador rival) {
-		if (j instanceof Pinguino pAtacante && rival instanceof Pinguino pRival) {
-			registrarEvento("Col·lisió! Batalla entre " + pAtacante.getNickname() + " i " + pRival.getNickname(), "log-warning");
-			pAtacante.gestionarBatalla(pRival);
-		} else if (j instanceof Pinguino pJugador && rival instanceof Foca fRival) {
-			// Intentar sobornar/alimentar a la foca primero (ella preguntará si tiene peces)
-			fRival.sobornarFoca(pJugador);
-
-			// Només interactua si la foca NO està sobornada ni bloquejada (vuelve a ser hostil)
-			if (!fRival.isSoborno() && fRival.getBloqueix() == 0) {
-				registrarEvento(pJugador.getNickname() + " ha topat amb " + fRival.getNickname(), "log-warning");
-				int posAbans = pJugador.getPosicio();
-				fRival.pegarPingu(pJugador, gestorPartida.getPartida());
-				
-				if (pJugador.getPosicio() != posAbans) {
-					animarRetroceso(pJugador, posAbans, pJugador.getPosicio());
-				}
-			}
-		} else if (j instanceof Foca fAtacante && rival instanceof Pinguino pRival) {
-			// Foca CPU topa amb un jugador humà
-			// Només interactua si la foca NO està sobornada ni bloquejada
-			if (!fAtacante.isSoborno() && fAtacante.getBloqueix() == 0) {
-				registrarEvento(fAtacante.getNickname() + " (CPU) ha topat amb " + pRival.getNickname(), "log-warning");
-				int posAbans = pRival.getPosicio();
-				fAtacante.pegarPingu(pRival, gestorPartida.getPartida());
-				
-				if (pRival.getPosicio() != posAbans) {
-					animarRetroceso(pRival, posAbans, pRival.getPosicio());
-				}
-			}
-		}
-	}
-
-	/**
-	 * Muestra un overlay de batalla en el centro de la pantalla.
-	 */
-	public void mostrarOverlayBatalla() {
+	private void mostrarOverlayBatalla(Runnable onComplete) {
 		try {
 			Image img = new Image(getClass().getResourceAsStream("/assets/GestionarBatallaTEXTO.png"));
 			ImageView overlay = new ImageView(img);
 			overlay.setPreserveRatio(true);
 			overlay.setFitWidth(800);
-			overlay.setMouseTransparent(true); // No interferir con clics
+			overlay.setMouseTransparent(true);
 
 			Platform.runLater(() -> {
-				boardContainer.getChildren().add(overlay);
-				javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(Duration.millis(1500), overlay);
+				// Usamos un StackPane para centrar automáticamente el ImageView
+				StackPane wrapper = new StackPane(overlay);
+				wrapper.setMouseTransparent(true);
+				wrapper.setPrefSize(1920, 1080); // Resolucion base
+				
+				boardContainer.getChildren().add(wrapper);
+				
+				javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(Duration.millis(1500), wrapper);
 				ft.setFromValue(0.0);
 				ft.setToValue(1.0);
 				ft.setAutoReverse(true);
 				ft.setCycleCount(2);
-				ft.setOnFinished(e -> boardContainer.getChildren().remove(overlay));
+				ft.setOnFinished(e -> {
+					boardContainer.getChildren().remove(wrapper);
+					if (onComplete != null) onComplete.run();
+				});
 				ft.play();
 			});
 		} catch (Exception e) {
 			System.err.println("Error cargando GestionarBatallaTEXTO: " + e.getMessage());
+			if (onComplete != null) onComplete.run();
 		}
 	}
 
@@ -1026,6 +1065,7 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleRapido() {
+		System.out.println("DEBUG: Clic en BOTÓN DADO RÁPIDO");
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 		if (!(actual instanceof Pinguino pingu)) return;
 
@@ -1048,6 +1088,7 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleLento() {
+		System.out.println("DEBUG: Clic en BOTÓN DADO LENTO");
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 		if (!(actual instanceof Pinguino pingu)) return;
 
@@ -1073,6 +1114,7 @@ public class PantallaJuego {
 
 	@FXML
 	private void handlePeces() {
+		System.out.println("DEBUG: Clic en BOTÓN USAR PEZ");
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 		if (!(actual instanceof Pinguino pingu)) return;
 
@@ -1091,6 +1133,7 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleNieve() {
+		System.out.println("DEBUG: Clic en BOTÓN BOLA NIEVE");
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 		if (!(actual instanceof Pinguino pingu)) return;
 

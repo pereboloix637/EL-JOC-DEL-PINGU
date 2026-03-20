@@ -40,7 +40,11 @@
                 <StackPane.margin>
                     <Insets top="100" />
                 </StackPane.margin>
-                <Label styleClass="title" text="EL JUEGO DEL PINGÜINO" textAlignment="CENTER" wrapText="true" />
+                <ImageView fitWidth="800.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../assets/TITULO_MENU.png" />
+                    </image>
+                </ImageView>
             </VBox>
 
             <!-- MENU BUTTONS - Integrated Options & Enlarged -->
