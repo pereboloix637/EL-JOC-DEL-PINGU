@@ -80,7 +80,7 @@
                            </ImageView>
                        </children>
                    </VBox>
-               <HBox layoutX="113.0" layoutY="758.0" pickOnBounds="false" prefHeight="314.0" prefWidth="1264.0" styleClass="buttons-hbox" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="113.0">
+               <HBox layoutX="107.0" layoutY="752.0" pickOnBounds="false" prefHeight="314.0" prefWidth="1264.0" styleClass="buttons-hbox" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="107.0">
                   <children>
                            <VBox alignment="CENTER" pickOnBounds="false" spacing="2">
                                <Label fx:id="lblNieve" mouseTransparent="true" styleClass="item-count" text="0" />
@@ -148,18 +148,18 @@
                </HBox>
 
                           <!-- Eventos (Superior derecha) -->
-                    <VBox alignment="TOP_CENTER" layoutX="1531.0" layoutY="739.0" prefHeight="313.0" prefWidth="308.0" spacing="5" styleClass="logs-pane" AnchorPane.rightAnchor="81.0" AnchorPane.topAnchor="739.0">
+                    <VBox alignment="TOP_CENTER" layoutX="1471.0" layoutY="729.0" prefHeight="316.0" prefWidth="407.0" spacing="5" styleClass="logs-pane" AnchorPane.rightAnchor="68.0" AnchorPane.topAnchor="729.0">
                         <Label alignment="BOTTOM_CENTER" prefHeight="39.0" prefWidth="150.0" styleClass="card-title-mini" text="Eventos" />
-                        <ScrollPane fx:id="scrollEventos" fitToWidth="true" hbarPolicy="NEVER" prefHeight="187.0" prefWidth="278.0" styleClass="log-scroll-mini">
+                        <ScrollPane fx:id="scrollEventos" fitToWidth="true" hbarPolicy="NEVER" prefHeight="212.0" prefWidth="370.0" styleClass="log-scroll-mini">
                             <content>
                                 <VBox fx:id="logEventos" spacing="3" />
                             </content>
                         </ScrollPane>
                     </VBox>
-               <VBox alignment="TOP_CENTER" layoutX="1325.0" layoutY="192.0" prefHeight="440.0" prefWidth="514.0" spacing="5" styleClass="inventory-sidebar">
+               <VBox alignment="TOP_CENTER" layoutX="1338.0" layoutY="165.0" prefHeight="488.0" prefWidth="514.0" spacing="5" styleClass="inventory-sidebar">
                   <children>
                            <Label prefHeight="40.0" prefWidth="250.0" styleClass="sidebar-title" text="JUGADORES" />
-                     <GridPane fx:id="gridInventarios" alignment="CENTER" prefHeight="288.0" prefWidth="484.0">
+                     <GridPane fx:id="gridInventarios" alignment="CENTER" prefHeight="299.0" prefWidth="484.0">
                        <columnConstraints>
                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
