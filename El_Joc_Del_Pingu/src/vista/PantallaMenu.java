@@ -58,6 +58,29 @@ public class PantallaMenu {
     @FXML
     private void initialize() {
         System.out.println("PantallaMenu inicializada");
+
+        // Personalización de colores del ranking por posición (Se configura ANTES de cargar datos)
+        rankingList.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    getStyleClass().removeAll("rank-1", "rank-2", "rank-3", "rank-4-5", "rank-default");
+                } else {
+                    setText(item);
+                    getStyleClass().removeAll("rank-1", "rank-2", "rank-3", "rank-4-5", "rank-default");
+                    int index = getIndex();
+                    if (index == 0) getStyleClass().add("rank-1");
+                    else if (index == 1) getStyleClass().add("rank-2");
+                    else if (index == 2) getStyleClass().add("rank-3");
+                    else if (index == 3 || index == 4) getStyleClass().add("rank-4-5");
+                    else getStyleClass().add("rank-default");
+                }
+            }
+        });
+
         showLanding();
         handleRefreshGames();
         handleRefreshRanking();

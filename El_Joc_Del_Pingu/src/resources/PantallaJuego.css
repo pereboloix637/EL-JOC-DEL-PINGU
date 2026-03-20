@@ -23,6 +23,32 @@
     -fx-font-weight: bold;
 }
 
+/* ---- DROPDOWN / CONTEXT MENU (Azul Hielo) ---- */
+.context-menu {
+    -fx-background-color: #1C3A52;
+    -fx-border-color: #7FD4F0;
+    -fx-border-width: 2;
+    -fx-padding: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 10, 0, 0, 0);
+}
+
+.menu-item {
+    -fx-padding: 8 15;
+}
+
+.menu-item .label {
+    -fx-text-fill: #F0F4FF;
+    -fx-font-size: 11px;
+}
+
+.menu-item:focused {
+    -fx-background-color: #2E6B8A;
+}
+
+.menu-item:focused .label {
+    -fx-text-fill: #7FD4F0;
+}
+
 /* ---- TABLERO CONTAINER (Full Background) ---- */
 .board-container {
     -fx-background-image: url("../assets/tablero_grande.png");

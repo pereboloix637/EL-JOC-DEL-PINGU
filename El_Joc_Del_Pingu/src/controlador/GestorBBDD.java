@@ -287,8 +287,12 @@ public class GestorBBDD {
 
 					if (!resCheck.isEmpty()) {
 						j.setId(Integer.parseInt(resCheck.get(0).get("ID")));
-						// Arreglo del bug de persistencia de color: actualizamos el color global al color de la partida actual
-						update(con, "UPDATE jugador SET color = '" + j.getColor() + "' WHERE id = " + j.getId());
+						// Arreglo del bug de persistencia de color y victorias:
+						if (j instanceof Pinguino pingu) {
+							update(con, "UPDATE jugador SET color = '" + j.getColor() + "', victories = " + pingu.getVictories() + " WHERE id = " + j.getId());
+						} else {
+							update(con, "UPDATE jugador SET color = '" + j.getColor() + "' WHERE id = " + j.getId());
+						}
 					} else {
 						ArrayList<LinkedHashMap<String, String>> resMax = select(con,
 								"SELECT MAX(id) AS MAX_ID FROM jugador");
@@ -430,6 +434,10 @@ public class GestorBBDD {
 				j.setId(jId);
 				j.setPosicio(pos);
 				j.setTornsBloquejat(tBloq);
+				if (j instanceof Pinguino pingu) {
+					int vic = (dJ.get("VICTORIES") != null) ? Integer.parseInt(dJ.get("VICTORIES")) : 0;
+					pingu.setVictories(vic);
+				}
 
 				llistaJugadors.add(j);
 
@@ -523,10 +531,30 @@ public class GestorBBDD {
 		}
 	}
 
-	public void registrarVictoria(int jugadorId, Connection con) {
-		String sql = "UPDATE jugador SET victories = victories + 1 WHERE id = " + jugadorId;
-		update(con, sql);
+	public void registrarVictoria(int jugadorId, String nickname, Connection con) {
+		// Intentamos sumar +1 al registro actual
+		String sqlId = "UPDATE jugador SET victories = victories + 1 WHERE id = " + jugadorId;
+		int rows = update(con, sqlId);
+		
+		if (rows == 0 && nickname != null && !nickname.isEmpty()) {
+			String sqlNom = "UPDATE jugador SET victories = victories + 1 WHERE nom = '" + nickname + "'";
+			rows = update(con, sqlNom);
+		}
+
+		// Si sigue siendo 0, es que el jugador no existe en la tabla global, lo insertamos
+		if (rows == 0 && nickname != null && !nickname.isEmpty()) {
+			// Nota: generamos una ID nueva si es necesario, pero lo ideal es que ya existiera
+			ArrayList<LinkedHashMap<String, String>> resMax = select(con, "SELECT MAX(id) AS MAX_ID FROM jugador");
+			int nouId = (resMax.isEmpty() || resMax.get(0).get("MAX_ID") == null) ? 1 
+						: Integer.parseInt(resMax.get(0).get("MAX_ID")) + 1;
+			
+			String sqlIns = "INSERT INTO jugador (id, nom, color, es_cpu, contrasenya, victories) VALUES (" 
+							+ nouId + ", '" + nickname + "', 'Azul', 0, '', 1)";
+			insert(con, sqlIns);
+		}
 	}
+
+
 
 	public ArrayList<String> obtenerRanking(Connection con) {
 		ArrayList<String> ranking = new ArrayList<>();
