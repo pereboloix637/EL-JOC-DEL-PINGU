@@ -42,6 +42,7 @@ import model.core.Partida;
 import model.core.Taulell;
 import model.entitats.Jugador;
 import model.entitats.Pinguino;
+import model.entitats.Foca;
 import model.items.Inventari;
 import model.items.Dau;
 import model.items.Peix;
@@ -117,6 +118,9 @@ public class PantallaJuego {
 	
 	private static PantallaJuego instanciaActual;
 
+	// Caché de imágenes para evitar recargas constantes
+	private static final Map<String, Image> imageCache = new HashMap<>();
+
 	// Dado especial seleccionado para el próximo turno (null = dado estándar)
 	private Dau dauSeleccionat = null;
 
@@ -137,10 +141,9 @@ public class PantallaJuego {
 		instanciaActual = this;
 		// Cargar imágenes de los pingüinos
 		try {
-			P1.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_ROJO.png")));
-			P2.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_AZUL.png")));
-			P3.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_VERDE.png")));
-			P4.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_AMARILLO.png")));
+			// Cargar imágenes de forma dinámica según el tipo de jugador si ya hay partida
+			// o por defecto si es el inicio absoluto.
+			actualizarImagenesIniciales();
 
 			// Ensure centering in GridPane
 			GridPane.setHalignment(P1, HPos.CENTER);
@@ -223,6 +226,10 @@ public class PantallaJuego {
 			Jugador j = js.get(i);
 			ImageView pieza = getPiezaParaJugador(j);
 			if (pieza != null) {
+				// Actualizar imagen y tamaño según si es CPU (Foca) o Humano (Pinguino)
+				pieza.setImage(obtenerImagenJugador(j));
+				actualizarTamanyPeca(pieza, j);
+
 				int pos = j.getPosicio();
 				int numEnCasilla = indiceActual.getOrDefault(pos, 0);
 				indiceActual.put(pos, numEnCasilla + 1);
@@ -253,26 +260,35 @@ public class PantallaJuego {
 		// Actualitzar comptadors d'objectes i estat dels botons
 		actualizarContadoresObjetos();
 	}
+	
+	/**
+	 * Wrapper estático para registrar eventos desde fuera de la vista.
+	 */
+	public static void registrarEventoEstatico(String mensaje, String styleClass) {
+		if (instanciaActual != null) {
+			instanciaActual.registrarEvento(mensaje, styleClass);
+		}
+	}
+
+	public static void estilarAlerta(javafx.scene.control.Dialog<?> d) {
+		if (instanciaActual != null) instanciaActual.estilar(d);
+	}
 
 	/**
-	 * Registra un nou esdeveniment al log persistent.
+	 * Registra un esdeveniment al log visual.
 	 */
-	private void registrarEvento(String mensaje, String styleClass) {
-		if (logEventos == null) return;
+	public void registrarEvento(String mensaje, String styleClass) {
+		Platform.runLater(() -> {
+			Label lbl = new Label("[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] " + mensaje);
+			lbl.getStyleClass().add(styleClass);
+			logEventos.getChildren().add(lbl);
+			// Scroll automàtic al final
+			scrollEventos.setVvalue(1.0);
+		});
+	}
 
-		String timestamp = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-		Label entry = new Label("[" + timestamp + "] " + mensaje);
-		entry.getStyleClass().add(styleClass);
-		entry.setWrapText(true);
-		entry.setMaxWidth(280);
-
-		logEventos.getChildren().add(entry);
-
-		// Auto-scroll al final
-		Platform.runLater(() -> scrollEventos.setVvalue(1.0));
-		
-		// Compatibility fallback if anyone else uses the old label
-		if (eventos != null) eventos.setText(mensaje);
+	public static void mostrarOverlayBatallaEstatico() {
+		if (instanciaActual != null) instanciaActual.mostrarOverlayBatalla();
 	}
 
 	/**
@@ -391,16 +407,101 @@ public class PantallaJuego {
 	}
 
 	/**
-	 * Retorna el color HEX que correspon a la fitxa del jugador segons el seu índex.
-	 * Sincronitzat amb els colors definits a PantallaJuego.css
+	 * Retorna la imatge correcta per al jugador (Pinguino o Foca) segons el seu color.
 	 */
-	private String getColorForPlayerIndex(int index) {
+	private Image obtenerImagenJugador(Jugador j) {
+		String tipo = (j instanceof Foca) ? "FOCA" : "PINGUINO";
+		String colorStr = (j.getColor() != null) ? j.getColor() : "Rojo";
+		String key = tipo + "_" + colorStr;
+
+		if (imageCache.containsKey(key)) {
+			return imageCache.get(key);
+		}
+
+		String filename = "";
+		if (j instanceof Foca) {
+			// Ajustamos el nombre del color para el género femenino de las focas
+			String fColor = colorStr;
+			if (colorStr.equalsIgnoreCase("Rojo")) fColor = "Roja";
+			if (colorStr.equalsIgnoreCase("Amarillo")) fColor = "Amarilla";
+			
+			filename = "Foca" + fColor + ".png";
+		} else {
+			// Para el pinguino usamos el formato PINGUINO_COLOR.png en mayúsculas
+			filename = "PINGUINO_" + colorStr.toUpperCase() + ".png";
+		}
+
+		try {
+			Image img = new Image(getClass().getResourceAsStream("/assets/" + filename));
+			imageCache.put(key, img);
+			return img;
+		} catch (Exception e) {
+			System.err.println("Error cargando imagen: " + filename);
+			return null;
+		}
+	}
+
+	/**
+	 * Configura les imatges inicials de les peces.
+	 */
+	private void actualizarImagenesIniciales() {
+		Partida p = (partidaInicial != null) ? partidaInicial : (gestorPartida != null ? gestorPartida.getPartida() : null);
+		
+		if (p != null) {
+			ArrayList<Jugador> js = p.getJugadors();
+			for (int i = 0; i < js.size(); i++) {
+				ImageView pieza = getPiezaPorIndice(i);
+				if (pieza != null) {
+					Jugador j = js.get(i);
+					pieza.setImage(obtenerImagenJugador(j));
+					actualizarTamanyPeca(pieza, j);
+				}
+			}
+		} else {
+			// Fallback por defecto (Pingüinos)
+			P1.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_ROJO.png")));
+			P2.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_AZUL.png")));
+			P3.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_VERDE.png")));
+			P4.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_AMARILLO.png")));
+		}
+	}
+
+	/**
+	 * Ajusta el tamaño de la pieza (ImageView) según el tipo de jugador.
+	 * Las focas se ven un poco más grandes que los pingüinos.
+	 */
+	private void actualizarTamanyPeca(ImageView pieza, Jugador j) {
+		if (j instanceof Foca) {
+			pieza.setFitWidth(55.0);
+			pieza.setFitHeight(55.0);
+		} else {
+			// Tamaño original definido en FXML
+			pieza.setFitWidth(42.5);
+			pieza.setFitHeight(42.5);
+		}
+	}
+
+	private ImageView getPiezaPorIndice(int index) {
 		switch (index) {
-			case 0: return "#C0392B"; // P1 - Rojo
-			case 1: return "#3498DB"; // P2 - Azul
-			case 2: return "#27AE60"; // P3 - Verde
-			case 3: return "#F1C40F"; // P4 - Amarillo
-			default: return "#FFFFFF";
+			case 0: return P1;
+			case 1: return P2;
+			case 2: return P3;
+			case 3: return P4;
+			default: return null;
+		}
+	}
+
+	/**
+	 * Retorna el color HEX que correspon a la fitxa del jugador segons el seu valor 'color'.
+	 */
+	private String getColorForPlayer(Jugador j) {
+		String color = (j.getColor() != null) ? j.getColor().toLowerCase() : "rojo";
+		switch (color) {
+			case "rojo":     return "#C0392B";
+			case "azul":     return "#3498DB";
+			case "verde":    return "#27AE60";
+			case "amarillo": return "#F1C40F";
+			default:         return "#FFFFFF";
 		}
 	}
 
@@ -873,7 +974,7 @@ public class PantallaJuego {
 	/**
 	 * Anima el retroceso de un jugador a una nueva posición.
 	 */
-	private void animarRetroceso(Jugador j, int oldPos, int newPos) {
+	public void animarRetroceso(Jugador j, int oldPos, int newPos) {
 	    ImageView pieza = getPiezaParaJugador(j);
 	    if (pieza == null) return;
 
@@ -907,6 +1008,14 @@ public class PantallaJuego {
 	        actualizarUI();
 	    });
 	    retreat.play();
+	}
+
+	public static void animarRetrocesoEstatico(Jugador j, int oldPos, int newPos) {
+		if (instanciaActual != null) {
+			// Usamos Platform.runLater por si se llama desde un hilo no-UI, 
+			// aunque en este proyecto suele llamarse desde el hilo de aplicaciones
+			Platform.runLater(() -> instanciaActual.animarRetroceso(j, oldPos, newPos));
+		}
 	}
 
 	/**
@@ -1084,7 +1193,7 @@ public class PantallaJuego {
 	/**
 	 * Aplica el stylesheet polar del menú a cualquier Alert o Dialog.
 	 */
-	private void estilar(javafx.scene.control.Dialog<?> d) {
+	public void estilar(javafx.scene.control.Dialog<?> d) {
 		try {
 			// Establecer el owner para intentar que no se salga de pantalla completa
 			if (boardContainer != null && boardContainer.getScene() != null) {
