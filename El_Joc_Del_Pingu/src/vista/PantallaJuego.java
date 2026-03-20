@@ -831,8 +831,13 @@ public class PantallaJuego {
 	        // Actualitzar model
 	        j.setPosicio(newPos);
 	        
+	        boolean saltaAccioCasella = false;
+	        
 	        // --- LÒGICA DE COL·LISIONS I BATALLA ---
 	        if (j instanceof Pinguino pActual) {
+	            Casella casellaDestino = gestorPartida.getPartida().getTaulell().getCaselles().get(newPos);
+	            boolean esCasellaNormal = casellaDestino instanceof model.caselles.Normal;
+
 	            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
 	                if (rival != pActual && rival.getPosicio() == newPos) {
 	                    if (rival instanceof Pinguino pRival) {
@@ -881,14 +886,17 @@ public class PantallaJuego {
 	                        });
 	                        
 	                        break; // Una única trobada per torn
-	                    } else if (rival instanceof model.entitats.Foca fRival) {
-	                        // Trobada amb la Foca
+	                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaNormal) {
+	                        // Trobada amb la Foca (NOMÉS SI LA CASELLA ÉS NORMAL)
 	                        registrarEvento(pActual.getNickname() + " ha topat amb la foca " + fRival.getNickname(), "log-warning");
 	                        int posAbans = pActual.getPosicio();
-	                        fRival.pegarPingu(pActual, gestorPartida.getPartida());
+	                        
+	                        // Acció aleatòria (pegar o aplastar)
+	                        fRival.decidirAccion(pActual, gestorPartida.getPartida());
 	                        
 	                        if (pActual.getPosicio() != posAbans) {
 	                            animarRetroceso(pActual, posAbans, pActual.getPosicio());
+	                            saltaAccioCasella = true; // Si ha mogut, no executem l'acció de la nova casella
 	                        }
 	                        break;
 	                    }
@@ -896,9 +904,11 @@ public class PantallaJuego {
 	            }
 	        }
 	        
-	        // Executar lògica de la casella on arribat
-	        GestorTaulell gt = new GestorTaulell();
-	        gt.executarCasella(gestorPartida.getPartida(), j, gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio()));
+	        // Executar lògica de la casella on arribat (si no ens ha mogut una foca)
+	        if (!saltaAccioCasella) {
+	        	GestorTaulell gt = new GestorTaulell();
+	        	gt.executarCasella(gestorPartida.getPartida(), j, gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio()));
+	        }
 	        
 	        // Verificar victoria tras movimiento y efectos
 	        boolean wasFinished = gestorPartida.getPartida().isFinalitzada();
