@@ -905,8 +905,8 @@ public class PantallaJuego {
 	        }
 	        
 	        // Executar lògica de la casella on arribat (si no ens ha mogut una foca)
+	        GestorTaulell gt = new GestorTaulell();
 	        if (!saltaAccioCasella) {
-	        	GestorTaulell gt = new GestorTaulell();
 	        	gt.executarCasella(gestorPartida.getPartida(), j, gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio()));
 	        }
 	        
@@ -922,7 +922,7 @@ public class PantallaJuego {
 	                // Registrem la victoria al ranking de forma automática
 	                try (Connection con = getBDConnection()) {
 	                    if (con != null) {
-	                        new GestorBBDD().registrarVictoria(guanyador.getId(), con);
+	                        new GestorBBDD().registrarVictoria(guanyador.getId(), guanyador.getNickname(), con);
 	                    }
 	                } catch (Exception e1) {
 	                    System.err.println("Error registrant victoria: " + e1.getMessage());
