@@ -48,8 +48,12 @@ public class Pinguino extends Jugador {
 
 		// Validem: Rival no nul i que les quantitats de boles siguin lògiques
 		if (pingu != null && bolesJ1 >= 0 && bolesJ2 >= 0) {
-			int diferencia = bolesJ1 - bolesJ2;
+			if (bolesJ1 == 0 && bolesJ2 == 0) {
+				// No hi ha batalla si ningú té boles
+				return;
+			}
 
+			int diferencia = bolesJ1 - bolesJ2;
 			if (bolesJ1 > bolesJ2) {
 				// CAS 1: Guanya l'atacant
 				System.out.println(this.getNickname() + " guanya!");

@@ -17,10 +17,9 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane styleClass="root" stylesheets="@PantallaJuego.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaJuego">
+<BorderPane styleClass="root" stylesheets="@PantallaJuego.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaJuego">
 
     <top>
         <MenuBar>
@@ -74,14 +73,14 @@
                    <!-- Title Image (Top Center) -->
                    <VBox alignment="TOP_CENTER" mouseTransparent="true" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
                        <children>
-                           <ImageView fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
+                           <ImageView fitHeight="223.0" fitWidth="727.0" pickOnBounds="true" preserveRatio="true">
                                <image>
                                    <Image url="@../assets/TITULO_MENU.png" />
                                </image>
                            </ImageView>
                        </children>
                    </VBox>
-               <HBox layoutX="182.0" layoutY="778.0" pickOnBounds="false" prefHeight="277.0" prefWidth="1195.0" styleClass="buttons-hbox" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="182.0">
+               <HBox layoutX="113.0" layoutY="758.0" pickOnBounds="false" prefHeight="314.0" prefWidth="1264.0" styleClass="buttons-hbox" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="113.0">
                   <children>
                            <VBox alignment="CENTER" pickOnBounds="false" spacing="2">
                                <Label fx:id="lblNieve" mouseTransparent="true" styleClass="item-count" text="0" />
@@ -137,7 +136,7 @@
                                <Label fx:id="lblPeces" mouseTransparent="true" styleClass="item-count" text="0" />
                                <Button fx:id="peces" onAction="#handlePeces" styleClass="item-button">
                                    <graphic>
-                                       <ImageView fitHeight="118.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
+                                       <ImageView fitHeight="127.0" fitWidth="124.0" pickOnBounds="true" preserveRatio="true">
                                            <image>
                                                <Image url="@../assets/BOTON USAR PEZ.png" />
                                            </image>
@@ -149,19 +148,29 @@
                </HBox>
 
                           <!-- Eventos (Superior derecha) -->
-                    <VBox alignment="TOP_CENTER" layoutX="1571.0" layoutY="734.0" prefHeight="297.0" prefWidth="308.0" spacing="5" styleClass="logs-pane" AnchorPane.rightAnchor="41.0" AnchorPane.topAnchor="734.0">
-                        <Label prefHeight="39.0" prefWidth="150.0" styleClass="card-title-mini" text="Eventos" />
+                    <VBox alignment="TOP_CENTER" layoutX="1531.0" layoutY="739.0" prefHeight="313.0" prefWidth="308.0" spacing="5" styleClass="logs-pane" AnchorPane.rightAnchor="81.0" AnchorPane.topAnchor="739.0">
+                        <Label alignment="BOTTOM_CENTER" prefHeight="39.0" prefWidth="150.0" styleClass="card-title-mini" text="Eventos" />
                         <ScrollPane fx:id="scrollEventos" fitToWidth="true" hbarPolicy="NEVER" prefHeight="187.0" prefWidth="278.0" styleClass="log-scroll-mini">
                             <content>
                                 <VBox fx:id="logEventos" spacing="3" />
                             </content>
                         </ScrollPane>
                     </VBox>
-
-                          <!-- Jugadores (Superior izquierda) -->
-                    <VBox fx:id="sidebarPlayers" layoutX="1648.0" layoutY="95.0" prefWidth="220.0" spacing="8" styleClass="card-integrated" AnchorPane.leftAnchor="1648.0" AnchorPane.topAnchor="95.0">
-                        <Label styleClass="card-title-mini" text="Jugadores" />
-                    </VBox>
+               <VBox alignment="TOP_CENTER" layoutX="1325.0" layoutY="192.0" prefHeight="440.0" prefWidth="514.0" spacing="5" styleClass="inventory-sidebar">
+                  <children>
+                           <Label prefHeight="40.0" prefWidth="250.0" styleClass="sidebar-title" text="JUGADORES" />
+                     <GridPane fx:id="gridInventarios" alignment="CENTER" prefHeight="288.0" prefWidth="484.0">
+                       <columnConstraints>
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                       </columnConstraints>
+                       <rowConstraints>
+                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                       </rowConstraints>
+                     </GridPane>
+                  </children>
+               </VBox>
                 </AnchorPane>
             </AnchorPane>
         </StackPane>

@@ -124,7 +124,7 @@ public class PantallaJuego {
 	private static final int ROWS = 5;
 
 	@FXML
-	private VBox sidebarPlayers;
+	private GridPane gridInventarios;
 
 	private static final String TAG_CASILLA_TEXT = "CASILLA_TEXT";
 
@@ -327,14 +327,13 @@ public class PantallaJuego {
 	}
 
 	private void actualizarSidebarJugadores() {
-		sidebarPlayers.getChildren().clear();
+		gridInventarios.getChildren().clear();
 		
-		Label title = new Label("Estado Jugadores");
-		title.getStyleClass().add("sidebar-title");
-		sidebarPlayers.getChildren().add(title);
-
 		Partida pActual = gestorPartida.getPartida();
-		for (Jugador j : pActual.getJugadors()) {
+		ArrayList<Jugador> js = pActual.getJugadors();
+		
+		for (int i = 0; i < js.size(); i++) {
+			Jugador j = js.get(i);
 			VBox card = new VBox(5);
 			card.getStyleClass().add("player-status-card");
 			
@@ -345,7 +344,7 @@ public class PantallaJuego {
 
 			HBox header = new HBox(10);
 			Circle colorIndicator = new Circle(8);
-			String colorHex = getColorForPlayerIndex(pActual.getJugadors().indexOf(j));
+			String colorHex = getColorForPlayerIndex(i);
 			colorIndicator.setStyle("-fx-fill: " + colorHex + ";");
 			
 			Label name = new Label(j.getNickname());
@@ -370,7 +369,10 @@ public class PantallaJuego {
 				card.getChildren().add(cpuLabel);
 			}
 
-			sidebarPlayers.getChildren().add(card);
+			// Posicionar en la cuadrícula 2x2: (0,0), (1,0), (0,1), (1,1)
+			int col = i % 2;
+			int row = i / 2;
+			gridInventarios.add(card, col, row);
 		}
 	}
 
@@ -721,7 +723,7 @@ public class PantallaJuego {
 	    slide.setByX(dx);
 	    slide.setByY(dy);
 
-	    slide.setOnFinished(e -> {
+	    slide.setOnFinished(e -> Platform.runLater(() -> {
 	        pieza.setTranslateX(targetTX);
 	        pieza.setTranslateY(targetTY);
 	        
@@ -733,6 +735,11 @@ public class PantallaJuego {
 	            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
 	                if (rival != pActual && rival.getPosicio() == newPos) {
 	                    if (rival instanceof Pinguino pRival) {
+	                    	 // Si cap dels dos té boles, no mostrem batalla ni fem res especial
+	                        if (pActual.getInventari().getBoles() == 0 && pRival.getInventari().getBoles() == 0) {
+	                        	break; 
+	                        }
+	                    	
 	                        // Batalla entre pingüins
 	                        registrarEvento("Col·lisió! Batalla entre " + pActual.getNickname() + " i " + pRival.getNickname(), "log-warning");
 	                        
@@ -741,34 +748,36 @@ public class PantallaJuego {
 	                        int bolesJ2Abans = pRival.getInventari().getBoles();
 	                        int posJ1Abans = pActual.getPosicio();
 	                        int posJ2Abans = pRival.getPosicio();
-
-	                        mostrarOverlayBatalla();
-	                        pActual.gestionarBatalla(pRival);
-
-	                        // Mostrar resultat en un Alert
-	                        Alert batallaAlert = new Alert(AlertType.INFORMATION);
-	                        estilar(batallaAlert);
-	                        batallaAlert.setTitle("Resultat de la Batalla");
-	                        batallaAlert.setHeaderText("¡Combat de boles de neu!");
 	                        
-	                        String resultMsg = "";
-	                        if (pActual.getPosicio() < posJ1Abans) {
-	                            resultMsg = pRival.getNickname() + " guanya! " + pActual.getNickname() + " retrocedeix.";
-	                        } else if (pRival.getPosicio() < posJ2Abans) {
-	                            resultMsg = pActual.getNickname() + " guanya! " + pRival.getNickname() + " retrocedeix.";
-	                        } else {
-	                            resultMsg = "Empat! Ambdós perden totes les boles de neu.";
-	                        }
-	                        batallaAlert.setContentText(resultMsg);
-	                        batallaAlert.showAndWait();
+	                   
+	                        mostrarOverlayBatalla(() -> {
+	                            pActual.gestionarBatalla(pRival);
 
-	                        // Animació de retrocés si algú ha mogut
-	                        if (pActual.getPosicio() != posJ1Abans) {
-	                            animarRetroceso(pActual, posJ1Abans, pActual.getPosicio());
-	                        }
-	                        if (pRival.getPosicio() != posJ2Abans) {
-	                            animarRetroceso(pRival, posJ2Abans, pRival.getPosicio());
-	                        }
+	                            // Mostrar resultat en un Alert
+	                            Alert batallaAlert = new Alert(AlertType.INFORMATION);
+	                            estilar(batallaAlert);
+	                            batallaAlert.setTitle("Resultat de la Batalla");
+	                            batallaAlert.setHeaderText("¡Combat de boles de neu!");
+	                            
+	                            String resultMsg = "";
+	                            if (pActual.getPosicio() < posJ1Abans) {
+	                                resultMsg = pRival.getNickname() + " guanya! " + pActual.getNickname() + " retrocedeix.";
+	                            } else if (pRival.getPosicio() < posJ2Abans) {
+	                                resultMsg = pActual.getNickname() + " guanya! " + pRival.getNickname() + " retrocedeix.";
+	                            } else {
+	                                resultMsg = "Empat! Ambdós perden totes les boles de neu.";
+	                            }
+	                            batallaAlert.setContentText(resultMsg);
+	                            batallaAlert.showAndWait();
+
+	                            // Animació de retrocés si algú ha mogut
+	                            if (pActual.getPosicio() != posJ1Abans) {
+	                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio());
+	                            }
+	                            if (pRival.getPosicio() != posJ2Abans) {
+	                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio());
+	                            }
+	                        });
 	                        
 	                        break; // Una única trobada per torn
 	                    } else if (rival instanceof model.entitats.Foca fRival) {
@@ -820,34 +829,44 @@ public class PantallaJuego {
 	        
 	        // Comprovar si el següent és CPU
 	        checkTurnoCPU();
-	    });
+	    }));
 
 	    slide.play();
 	}
 
 	/**
-	 * Muestra un overlay de batalla en el centro de la pantalla.
+	 * Muestra un overlay de batalla en el centro de la pantalla y ejecuta una acción al terminar.
 	 */
-	private void mostrarOverlayBatalla() {
+	private void mostrarOverlayBatalla(Runnable onComplete) {
 		try {
 			Image img = new Image(getClass().getResourceAsStream("/assets/GestionarBatallaTEXTO.png"));
 			ImageView overlay = new ImageView(img);
 			overlay.setPreserveRatio(true);
 			overlay.setFitWidth(800);
-			overlay.setMouseTransparent(true); // No interferir con clics
+			overlay.setMouseTransparent(true);
 
 			Platform.runLater(() -> {
-				boardContainer.getChildren().add(overlay);
-				javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(Duration.millis(1500), overlay);
+				// Usamos un StackPane para centrar automáticamente el ImageView
+				StackPane wrapper = new StackPane(overlay);
+				wrapper.setMouseTransparent(true);
+				wrapper.setPrefSize(1920, 1080); // Resolucion base
+				
+				boardContainer.getChildren().add(wrapper);
+				
+				javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(Duration.millis(1500), wrapper);
 				ft.setFromValue(0.0);
 				ft.setToValue(1.0);
 				ft.setAutoReverse(true);
 				ft.setCycleCount(2);
-				ft.setOnFinished(e -> boardContainer.getChildren().remove(overlay));
+				ft.setOnFinished(e -> {
+					boardContainer.getChildren().remove(wrapper);
+					if (onComplete != null) onComplete.run();
+				});
 				ft.play();
 			});
 		} catch (Exception e) {
 			System.err.println("Error cargando GestionarBatallaTEXTO: " + e.getMessage());
+			if (onComplete != null) onComplete.run();
 		}
 	}
 

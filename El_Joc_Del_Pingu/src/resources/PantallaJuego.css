@@ -96,6 +96,61 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 15, 0, 0, 0);
 }
 
+/* ---- NUEVA BARRA LATERAL INVENTARIO ---- */
+.inventory-sidebar {
+    -fx-background-image: url("../assets/INVENTARIOS_JUGADORES.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-padding: 50 15 15 15; /* Más padding superior para el título de la imagen */
+    -fx-spacing: 12;
+}
+
+.sidebar-title {
+    -fx-text-fill: #F0F4FF; /* Blanco nieve para máxima claridad */
+    -fx-font-size: 16px; /* Aumentado de 11px */
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 5 0;
+    -fx-alignment: center;
+}
+
+.player-status-card {
+    -fx-background-color: rgba(13, 27, 42, 0.4); /* Fondo muy sutil para dejar ver la imagen trasera */
+    -fx-padding: 8;
+    -fx-border-color: rgba(127, 212, 240, 0.3);
+    -fx-border-width: 1;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
+
+.player-status-card.is-current-turn {
+    -fx-background-color: rgba(127, 212, 240, 0.2);
+    -fx-border-color: #7FD4F0;
+    -fx-border-width: 2;
+}
+
+.player-name {
+    -fx-text-fill: #F0F4FF;
+    -fx-font-size: 14px; /* Aumentado de 10px */
+    -fx-font-weight: bold;
+}
+
+.player-inv-mini {
+    -fx-padding: 5 0 0 15;
+}
+
+.player-inv-mini .label {
+    -fx-text-fill: #C8D8E8; /* Gris azulado claro */
+    -fx-font-size: 12px; /* Aumentado de 8px */
+}
+
+.cpu-label {
+    -fx-text-fill: #C8D8E8;
+    -fx-font-size: 12px; /* Aumentado de 8px */
+    -fx-font-style: italic;
+    -fx-padding: 5 0 0 15;
+}
+
 .card-title-mini {
     -fx-text-fill: #7FD4F0;
     -fx-font-size: 10px;
