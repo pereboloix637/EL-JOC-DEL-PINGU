@@ -51,8 +51,10 @@ public class Event extends Casella {
 				pingui.getInventari().afegirItem(new Peix("Peix", 1));
 				System.out.println(pingui.getNickname() + " ha obtingut 1 peix!");
 				vista.PantallaJuego.mostrarPopupItem(pingui, "Pez.png");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment i ha obtingut 1 peix!", "log-info");
 			} else {
 				System.out.println(pingui.getNickname() + " ja té el màxim de peixos (2).");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment però ja té el màxim de peixos!", "log-info");
 			}
 			break;
 
@@ -64,8 +66,10 @@ public class Event extends Casella {
 				pingui.getInventari().afegirItem(new BolaNeu("Bola de Neu", bolesAfegir));
 				System.out.println(pingui.getNickname() + " ha obtingut " + bolesAfegir + " boles de neu!");
 				vista.PantallaJuego.mostrarPopupItem(pingui, "BolasNieve.png");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment i ha obtingut " + bolesAfegir + " boles de neu!", "log-info");
 			} else {
 				System.out.println(pingui.getNickname() + " ja té el màxim de boles de neu (6).");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment però ja té el màxim de boles de neu!", "log-info");
 			}
 			break;
 
@@ -75,8 +79,10 @@ public class Event extends Casella {
 				pingui.getInventari().afegirItem(new Dau("Dau ràpid", 1, 5, 10));
 				System.out.println(pingui.getNickname() + " ha obtingut un dau ràpid! (5-10 caselles)");
 				vista.PantallaJuego.mostrarPopupItem(pingui, "Dado_Rapido.png");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment i ha obtingut un dau ràpid!", "log-info");
 			} else {
 				System.out.println(pingui.getNickname() + " ja té el màxim de daus especials (3).");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment però ja té el màxim de daus especials!", "log-info");
 			}
 			break;
 
@@ -86,8 +92,10 @@ public class Event extends Casella {
 				pingui.getInventari().afegirItem(new Dau("Dau lent", 1, new int[] { 1, 3 }));
 				System.out.println(pingui.getNickname() + " ha obtingut un dau lent! (1 o 3 caselles)");
 				vista.PantallaJuego.mostrarPopupItem(pingui, "Dado_Lento.png");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment i ha obtingut un dau lent!", "log-info");
 			} else {
 				System.out.println(pingui.getNickname() + " ja té el màxim de daus especials (3).");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment però ja té el màxim de daus especials!", "log-info");
 			}
 			break;
 		}

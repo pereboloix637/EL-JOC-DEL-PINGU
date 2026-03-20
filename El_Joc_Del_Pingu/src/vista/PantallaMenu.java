@@ -252,13 +252,19 @@ public class PantallaMenu {
             ArrayList<Jugador> allPlayers = new ArrayList<>(joinedPlayers);
             String[] availableColors = {"Rojo", "Azul", "Verde", "Amarillo"};
             
-            // Asignar colores a los jugadores
+            // Asignar colores a los jugadores según su orden en el lobby para garantizar unicidad
             for (int i = 0; i < allPlayers.size(); i++) {
-                allPlayers.get(i).setColor(availableColors[i % availableColors.length]);
+                String assignedColor = availableColors[i % availableColors.length];
+                allPlayers.get(i).setColor(assignedColor);
+                System.out.println("Jugador: " + allPlayers.get(i).getNickname() + " -> Color: " + assignedColor);
             }
 
             GestorTaulell gt = new GestorTaulell();
             partida = new Partida(gt.generarTaulell(gt.generarSeedAleatori()), allPlayers);
+            
+            // Opcional: limpiar joinedPlayers después de empezar para una sesión limpia la próxima vez
+            // joinedPlayers.clear(); 
+            // playersList.getItems().clear();
         }
 
         if (partida != null) {

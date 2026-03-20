@@ -39,13 +39,16 @@ public class Os extends Casella {
 			if (result.isPresent() && result.get() == btnYes) {
 				pingui.getInventari().usarItem(peix);
 				System.out.println(pingui.getNickname() + " ha estat atacat per un ós! Però tenia un peix i s'ha salvat.");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha estat atacat per un ós, però s'ha salvat gràcies a un peix!", "log-warning");
 			} else {
 				pingui.setPosicio(0);
 				System.out.println(pingui.getNickname() + " ha estat atacat per un ós! Torna a l'inici.");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha estat atacat per un ós i torna a l'inici!", "log-warning");
 			}
 		} else {
 			pingui.setPosicio(0);
 			System.out.println(pingui.getNickname() + " ha estat atacat per un ós! Torna a l'inici.");
+			vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha estat atacat per un ós i torna a l'inici!", "log-warning");
 		}
 	}
 }

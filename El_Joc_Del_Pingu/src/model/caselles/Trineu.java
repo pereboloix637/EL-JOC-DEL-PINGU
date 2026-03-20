@@ -42,9 +42,11 @@ public class Trineu extends Casella {
 			jugador.setPosicio(seguentTrineu);
 			System.out.println(
 					jugador.getNickname() + " ha agafat un trineu! Avança a la posició " + seguentTrineu + ".");
+			vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ha agafat un trineu i avança a la posició " + seguentTrineu + "!", "log-info");
 		} else {
 			// No hi ha cap trineu per davant: el jugador es queda on és
 			System.out.println(jugador.getNickname() + " ha agafat un trineu però no n'hi ha cap més endavant.");
+			vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ha agafat un trineu però no n'hi ha cap més endavant.", "log-info");
 		}
 	}
 }
