@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LlegirEnv{
+public class LlegirEnv{ // Para leer las creedenciales de la Base de Datos (BBDD o BD)
     private static Map<String, String> envVars = new HashMap<>();
 
     static {

@@ -135,4 +135,25 @@ public class Foca extends Jugador {
 		}
 	}
 
+	/**
+	 * Decideix aleatòriament si la foca colpeja (pegar) o aixafa (aplastar) el pingüí.
+	 * Només triarà aixafar si el pingüí té ítems a l'inventari.
+	 */
+	public void decidirAccion(Pinguino p, Partida partida) {
+		if (this.soborno || this.bloqueix > 0) return;
+
+		boolean tieneItems = p.getInventari().getBoles() > 0 || 
+		                     p.getInventari().getPeixos() > 0 || 
+		                     p.getInventari().getDausEspecials() > 0;
+
+		java.util.Random rand = new java.util.Random();
+		
+		// Si té ítems, tria 50/50. Si no, només pot pegar.
+		if (tieneItems && rand.nextBoolean()) {
+			aplastarPingu(p);
+		} else {
+			pegarPingu(p, partida);
+		}
+	}
+
 }

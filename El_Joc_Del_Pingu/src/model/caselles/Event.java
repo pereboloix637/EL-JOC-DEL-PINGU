@@ -10,8 +10,7 @@ import model.items.Peix;
 import java.util.Random;
 
 /**
- * Casella Event: el pingüí rep un ítem aleatori (peix, boles de neu o dau
- * especial).
+ * Casella Event: el pingüí rep un ítem aleatori (peix, boles de neu o dau especial).
  */
 public class Event extends Casella {
 
