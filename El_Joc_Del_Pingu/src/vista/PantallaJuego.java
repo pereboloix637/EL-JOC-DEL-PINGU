@@ -288,7 +288,7 @@ public class PantallaJuego {
 	}
 
 	public static void mostrarOverlayBatallaEstatico() {
-		if (instanciaActual != null) instanciaActual.mostrarOverlayBatalla();
+		if (instanciaActual != null) instanciaActual.mostrarOverlayBatalla(null);
 	}
 
 	/**
@@ -360,7 +360,7 @@ public class PantallaJuego {
 
 			HBox header = new HBox(10);
 			Circle colorIndicator = new Circle(8);
-			String colorHex = getColorForPlayerIndex(i);
+			String colorHex = getColorForPlayer(j);
 			colorIndicator.setStyle("-fx-fill: " + colorHex + ";");
 			
 			Label name = new Label(j.getNickname());
