@@ -868,98 +868,100 @@ public class PantallaJuego {
 	        pieza.setTranslateX(finalTX);
 	        pieza.setTranslateY(finalTY);
 	        
-	        // Actualitzar model
-	        j.setPosicio(newPos);
-	        
-	        boolean saltaAccioCasella = false;
-	        
-	        // --- LÒGICA DE COL·LISIONS I BATALLA ---
-	        if (j instanceof Pinguino pActual) {
-	            Casella casellaDestino = gestorPartida.getPartida().getTaulell().getCaselles().get(newPos);
-	            boolean esCasellaNormal = casellaDestino instanceof model.caselles.Normal;
-
-	            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
-	                if (rival != pActual && rival.getPosicio() == newPos) {
-	                    if (rival instanceof Pinguino pRival) {
-	                        if (pActual.getInventari().getBoles() == 0 && pRival.getInventari().getBoles() == 0) {
-	                        	break; 
-	                        }
-	                    	
-	                        registrarEvento("Col·lisió! Batalla entre " + pActual.getNickname() + " i " + pRival.getNickname(), "log-warning");
-	                        
-	                        int bolesJ1Abans = pActual.getInventari().getBoles();
-	                        int bolesJ2Abans = pRival.getInventari().getBoles();
-	                        int posJ1Abans = pActual.getPosicio();
-	                        int posJ2Abans = pRival.getPosicio();
-	                        
-	                        mostrarOverlayBatalla(() -> {
-	                            pActual.gestionarBatalla(pRival);
-
-	                            Alert batallaAlert = new Alert(AlertType.INFORMATION);
-	                            estilar(batallaAlert);
-	                            batallaAlert.setTitle("Resultat de la Batalla");
-	                            batallaAlert.setHeaderText("¡Combat de boles de neu!");
-	                            
-	                            String resultMsg = "";
-	                            if (pActual.getPosicio() < posJ1Abans) {
-	                                resultMsg = pRival.getNickname() + " guanya! " + pActual.getNickname() + " retrocedeix.";
-	                            } else if (pRival.getPosicio() < posJ2Abans) {
-	                                resultMsg = pActual.getNickname() + " guanya! " + pRival.getNickname() + " retrocedeix.";
-	                            } else {
-	                                resultMsg = "Empat! Ambdós perden totes les boles de neu.";
-	                            }
-	                            batallaAlert.setContentText(resultMsg);
-	                            batallaAlert.showAndWait();
-
-	                            if (pActual.getPosicio() != posJ1Abans) {
-	                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio());
-	                            }
-	                            if (pRival.getPosicio() != posJ2Abans) {
-	                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio());
-	                            }
-	                        });
-	                        
-	                        break; 
-	                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaNormal) {
-	                        registrarEvento(pActual.getNickname() + " ha topat amb la foca " + fRival.getNickname(), "log-warning");
-	                        int posAbans = pActual.getPosicio();
-	                        fRival.decidirAccion(pActual, gestorPartida.getPartida());
-	                        
-	                        if (pActual.getPosicio() != posAbans) {
-	                            animarRetroceso(pActual, posAbans, pActual.getPosicio());
-	                            saltaAccioCasella = true; 
-	                        }
-	                        break;
-	                    }
-	                }
-	            }
-	        }
-	        
-	        GestorTaulell gt = new GestorTaulell();
-	        if (!saltaAccioCasella) {
-	        	gt.executarCasella(gestorPartida.getPartida(), j, gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio()));
-	        }
-	        
-	        // Verificar victoria tras movimiento y efectos
-	        gt.comprovarFiTorn(gestorPartida.getPartida());
-	        
-	        if (gestorPartida.getPartida().isFinalitzada()) {
-	            actualizarUI();
-	            Jugador guanyador = gestorPartida.getPartida().getGuanyador();
-
-	            if (guanyador instanceof model.entitats.Pinguino p) {
-	                // Incrementem la victòria en memòria. Es persistirà si l'usuari decideix guardar.
-	                p.setVictories(p.getVictories() + 1);
-	                System.out.println("Victòria incrementada en memòria per a: " + p.getNickname());
-	            }
-
-	            mostrarAlertaGanador(guanyador);
-	            return;
-	        }
-
-	        gestorPartida.seguentTorn();
-	        actualizarUI();
-	        checkTurnoCPU();
+	        Platform.runLater(() -> {
+		        // Actualitzar model
+		        j.setPosicio(newPos);
+		        
+		        boolean saltaAccioCasella = false;
+		        
+		        // --- LÒGICA DE COL·LISIONS I BATALLA ---
+		        if (j instanceof Pinguino pActual) {
+		            Casella casellaDestino = gestorPartida.getPartida().getTaulell().getCaselles().get(newPos);
+		            boolean esCasellaNormal = casellaDestino instanceof model.caselles.Normal;
+	
+		            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
+		                if (rival != pActual && rival.getPosicio() == newPos) {
+		                    if (rival instanceof Pinguino pRival) {
+		                        if (pActual.getInventari().getBoles() == 0 && pRival.getInventari().getBoles() == 0) {
+		                        	break; 
+		                        }
+		                    	
+		                        registrarEvento("Col·lisió! Batalla entre " + pActual.getNickname() + " i " + pRival.getNickname(), "log-warning");
+		                        
+		                        int bolesJ1Abans = pActual.getInventari().getBoles();
+		                        int bolesJ2Abans = pRival.getInventari().getBoles();
+		                        int posJ1Abans = pActual.getPosicio();
+		                        int posJ2Abans = pRival.getPosicio();
+		                        
+		                        mostrarOverlayBatalla(() -> {
+		                            pActual.gestionarBatalla(pRival);
+	
+		                            Alert batallaAlert = new Alert(AlertType.INFORMATION);
+		                            estilar(batallaAlert);
+		                            batallaAlert.setTitle("Resultat de la Batalla");
+		                            batallaAlert.setHeaderText("¡Combat de boles de neu!");
+		                            
+		                            String resultMsg = "";
+		                            if (pActual.getPosicio() < posJ1Abans) {
+		                                resultMsg = pRival.getNickname() + " guanya! " + pActual.getNickname() + " retrocedeix.";
+		                            } else if (pRival.getPosicio() < posJ2Abans) {
+		                                resultMsg = pActual.getNickname() + " guanya! " + pRival.getNickname() + " retrocedeix.";
+		                            } else {
+		                                resultMsg = "Empat! Ambdós perden totes les boles de neu.";
+		                            }
+		                            batallaAlert.setContentText(resultMsg);
+		                            batallaAlert.showAndWait();
+	
+		                            if (pActual.getPosicio() != posJ1Abans) {
+		                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio());
+		                            }
+		                            if (pRival.getPosicio() != posJ2Abans) {
+		                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio());
+		                            }
+		                        });
+		                        
+		                        break; 
+		                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaNormal) {
+		                        registrarEvento(pActual.getNickname() + " ha topat amb la foca " + fRival.getNickname(), "log-warning");
+		                        int posAbans = pActual.getPosicio();
+		                        fRival.decidirAccion(pActual, gestorPartida.getPartida());
+		                        
+		                        if (pActual.getPosicio() != posAbans) {
+		                            animarRetroceso(pActual, posAbans, pActual.getPosicio());
+		                            saltaAccioCasella = true; 
+		                        }
+		                        break;
+		                    }
+		                }
+		            }
+		        }
+		        
+		        GestorTaulell gt = new GestorTaulell();
+		        if (!saltaAccioCasella) {
+		        	gt.executarCasella(gestorPartida.getPartida(), j, gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio()));
+		        }
+		        
+		        // Verificar victoria tras movimiento y efectos
+		        gt.comprovarFiTorn(gestorPartida.getPartida());
+		        
+		        if (gestorPartida.getPartida().isFinalitzada()) {
+		            actualizarUI();
+		            Jugador guanyador = gestorPartida.getPartida().getGuanyador();
+	
+		            if (guanyador instanceof model.entitats.Pinguino p) {
+		                // Incrementem la victòria en memòria. Es persistirà si l'usuari decideix guardar.
+		                p.setVictories(p.getVictories() + 1);
+		                System.out.println("Victòria incrementada en memòria per a: " + p.getNickname());
+		            }
+	
+		            mostrarAlertaGanador(guanyador);
+		            return;
+		        }
+	
+		        gestorPartida.seguentTorn();
+		        actualizarUI();
+		        checkTurnoCPU();
+	        });
 	    }));
 
 	    sequence.play();
@@ -1005,7 +1007,7 @@ public class PantallaJuego {
 				ft.setCycleCount(2);
 				ft.setOnFinished(e -> {
 					boardContainer.getChildren().remove(wrapper);
-					if (onComplete != null) onComplete.run();
+					if (onComplete != null) javafx.application.Platform.runLater(onComplete);
 				});
 				ft.play();
 			});

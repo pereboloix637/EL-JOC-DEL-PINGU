@@ -36,6 +36,9 @@ public class Os extends Casella {
 			javafx.scene.control.ButtonType btnNo = new javafx.scene.control.ButtonType("No, guardar Peix");
 			alert.getButtonTypes().setAll(btnYes, btnNo);
 
+			// Estilem l'alerta
+			vista.PantallaJuego.estilarAlerta(alert);
+
 			java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
 			
 			if (result.isPresent() && result.get() == btnYes) {
