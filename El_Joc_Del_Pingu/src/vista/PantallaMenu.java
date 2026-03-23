@@ -1,5 +1,7 @@
 package vista;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.NumberBinding;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.animation.PauseTransition;
@@ -10,6 +12,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ListView;
@@ -50,6 +54,8 @@ public class PantallaMenu {
     @FXML private Label deleteFeedbackLabel;
     @FXML private VBox landingContainer;
     @FXML private VBox contentContainer;
+    @FXML private StackPane menuRoot;
+    @FXML private AnchorPane menuContainer;
 
     private ArrayList<Jugador> joinedPlayers = new ArrayList<>();
     private int cpuCount = 0;
@@ -58,6 +64,49 @@ public class PantallaMenu {
     @FXML
     private void initialize() {
         System.out.println("PantallaMenu inicializada");
+
+        // ── Escalado dinámico PERFECTO para Laptops sin romper la config base ──
+        // Limpiamos el StackPane principal y forzamos que pueda encogerse a cualquier tamaño
+        menuRoot.getChildren().clear();
+        menuRoot.setMinSize(0, 0);
+        // Evitamos que los contenedores superiores fuercen tamaños mínimos (ej. el BorderPane raíz)
+        if (menuRoot.getParent() instanceof javafx.scene.layout.Region) {
+            ((javafx.scene.layout.Region) menuRoot.getParent()).setMinSize(0, 0);
+        }
+
+        // Creamos un wrapper que se ajustará a la ventana real, dándonos las dimensiones correctas
+        javafx.scene.layout.Pane wrapper = new javafx.scene.layout.Pane();
+        menuRoot.getChildren().add(wrapper);
+
+        // Añadimos nuestro diseño original de 1920x1080
+        wrapper.getChildren().add(menuContainer);
+
+        // Transformación directa sobre el contenedor original
+        javafx.scene.transform.Scale scaleTransform = new javafx.scene.transform.Scale(1, 1, 0, 0);
+        menuContainer.getTransforms().clear();
+        menuContainer.getTransforms().add(scaleTransform);
+
+        // Recalculamos la escala y la posición en cuanto la ventana cambie de resolución
+        javafx.beans.value.ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> {
+            double w = wrapper.getWidth();
+            double h = wrapper.getHeight();
+            if (w == 0 || h == 0) return;
+
+            // Factor de escala respetando aspecto 16:9
+            double scaleFactor = Math.min(w / 1920.0, h / 1080.0);
+            scaleTransform.setX(scaleFactor);
+            scaleTransform.setY(scaleFactor);
+
+            // Centrar manualmente para que los botones nunca se queden fuera ni sus zonas de clic se desplacen
+            double scaledWidth = 1920.0 * scaleFactor;
+            double scaledHeight = 1080.0 * scaleFactor;
+            menuContainer.setLayoutX((w - scaledWidth) / 2.0);
+            menuContainer.setLayoutY((h - scaledHeight) / 2.0);
+        };
+
+        wrapper.widthProperty().addListener(resizeListener);
+        wrapper.heightProperty().addListener(resizeListener);
+
 
         // Personalización de colores del ranking por posición (Se configura ANTES de cargar datos)
         rankingList.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {

@@ -157,26 +157,36 @@ public class PantallaJuego {
 		} catch (Exception e) {
 			System.err.println("Error cargando imágenes de pingüinos: " + e.getMessage());
 		}
-		// Usamos el tamaño que venga definido del FXML (ajustado en Scene Builder)
-		javafx.scene.transform.Scale scaleTransform = new javafx.scene.transform.Scale(1, 1, 0, 0);
-
-		// El factor de escala ahora depende del contenedor RAÍZ (el que se estira con la ventana)
-		// Ajustamos a la nueva resolución base 1920x1080
-		NumberBinding scaleFactor = Bindings.min(
-		    boardRoot.widthProperty().divide(1920.0), 
-		    boardRoot.heightProperty().divide(1080.0)
-		);
-		
-		scaleTransform.xProperty().bind(scaleFactor);
-		scaleTransform.yProperty().bind(scaleFactor);
-
-		// Metemos el boardContainer (Fondo + Grid + UI) en un Group para escalarlo todo junto
-		javafx.scene.Group scaleGroup = new javafx.scene.Group(boardContainer);
-		scaleGroup.getTransforms().add(scaleTransform);
-		
-		// El boardRoot (StackPane) centrará el Group automáticamente
+		// ── Escalado dinámico PERFECTO para Laptops sin romper la config base ──
 		boardRoot.getChildren().clear();
-		boardRoot.getChildren().add(scaleGroup);
+		boardRoot.setMinSize(0, 0);
+
+		javafx.scene.layout.Pane wrapper = new javafx.scene.layout.Pane();
+		boardRoot.getChildren().add(wrapper);
+
+		wrapper.getChildren().add(boardContainer);
+
+		javafx.scene.transform.Scale scaleTransform = new javafx.scene.transform.Scale(1, 1, 0, 0);
+		boardContainer.getTransforms().clear();
+		boardContainer.getTransforms().add(scaleTransform);
+
+		javafx.beans.value.ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> {
+		    double w = wrapper.getWidth();
+		    double h = wrapper.getHeight();
+		    if (w == 0 || h == 0) return;
+
+		    double scaleFactor = Math.min(w / 1920.0, h / 1080.0);
+		    scaleTransform.setX(scaleFactor);
+		    scaleTransform.setY(scaleFactor);
+
+		    double scaledWidth = 1920.0 * scaleFactor;
+		    double scaledHeight = 1080.0 * scaleFactor;
+		    boardContainer.setLayoutX((w - scaledWidth) / 2.0);
+		    boardContainer.setLayoutY((h - scaledHeight) / 2.0);
+		};
+
+		wrapper.widthProperty().addListener(resizeListener);
+		wrapper.heightProperty().addListener(resizeListener);
 		
 		registrarEvento("¡El juego ha comenzado!", "log-info");
 
@@ -986,7 +996,8 @@ public class PantallaJuego {
 	 */
 	public void animarRetroceso(Jugador j, int oldPos, int newPos) {
 	    ImageView pieza = getPiezaParaJugador(j);
-	    if (pieza == null) return;
+	    if (pieza == null)
+	    return;
 
 	    // Calculamos desplazamientos físicos en el GridPane
 	    int oldLogicalRow = oldPos / COLUMNS;
