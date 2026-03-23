@@ -1,5 +1,6 @@
 package controlador;
 
+import controlador.AudioManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -40,6 +41,9 @@ public class Main extends Application {
         primaryStage.setFullScreen(true);
         primaryStage.setFullScreenExitHint("");
         primaryStage.show();
+
+        // Reproducir música al iniciar
+        AudioManager.getInstance().playMusic();
     }
 
     public static void main(String[] args) {

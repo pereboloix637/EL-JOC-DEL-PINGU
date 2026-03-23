@@ -32,6 +32,17 @@
                     </ImageView>
                 </StackPane>
                 
+                <!-- MUTE BUTTON -->
+                <Button fx:id="btnMute" onAction="#handleToggleMute" styleClass="mute-button" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0">
+                    <graphic>
+                        <ImageView fx:id="imgMute" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../assets/speaker_on.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                
                 <!-- LANDING SCREEN -->
                 <VBox fx:id="landingContainer" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" spacing="20" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0">
                     <ImageView fitWidth="800.0" pickOnBounds="true" preserveRatio="true">

@@ -82,6 +82,11 @@
     -fx-background-size: 100% 100%;
 }
 
+.cell-Os-attacking {
+    -fx-background-image: url("../assets/casilla_oso_atacando.png");
+    -fx-background-size: 100% 100%;
+}
+
 .cell-Forat {
     -fx-background-image: url("../assets/casilla_agujero.png");
     -fx-background-size: 100% 100%;

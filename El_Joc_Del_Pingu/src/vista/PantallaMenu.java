@@ -1,5 +1,8 @@
 package vista;
 
+import controlador.AudioManager;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.NumberBinding;
 import javafx.fxml.FXML;
@@ -56,6 +59,8 @@ public class PantallaMenu {
     @FXML private VBox contentContainer;
     @FXML private StackPane menuRoot;
     @FXML private AnchorPane menuContainer;
+    @FXML private Button btnMute;
+    @FXML private ImageView imgMute;
 
     private ArrayList<Jugador> joinedPlayers = new ArrayList<>();
     private int cpuCount = 0;
@@ -140,6 +145,25 @@ public class PantallaMenu {
             }
         } catch (Exception e) {
             System.err.println("Error en la inicialització de dades: " + e.getMessage());
+        }
+
+        updateMuteUI();
+    }
+
+    @FXML
+    private void handleToggleMute(ActionEvent event) {
+        AudioManager.getInstance().toggleMute();
+        updateMuteUI();
+    }
+
+    private void updateMuteUI() {
+        if (imgMute == null) return;
+        boolean isMuted = AudioManager.getInstance().isMuted();
+        String iconPath = isMuted ? "/assets/speaker_off.png" : "/assets/speaker_on.png";
+        try {
+            imgMute.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream(iconPath)));
+        } catch (Exception e) {
+            System.err.println("Error actualizando icono de silencio: " + e.getMessage());
         }
     }
 

@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane styleClass="root" stylesheets="@PantallaJuego.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaJuego">
+<BorderPane styleClass="root" stylesheets="@PantallaJuego.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaJuego">
 
     <top>
         <MenuBar>
@@ -29,6 +29,7 @@
                         <MenuItem fx:id="menuItem" mnemonicParsing="false" onAction="#handleGoToMenu" text="Menu" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem fx:id="saveGame" mnemonicParsing="false" onAction="#handleSaveGame" text="Guardar" />
+                        <MenuItem fx:id="menuMute" mnemonicParsing="false" onAction="#handleToggleMute" text="Música: ON" />
                         <MenuItem fx:id="quitGame" mnemonicParsing="false" onAction="#handleQuitGame" text="Salir" />
                     </items>
                 </Menu>
