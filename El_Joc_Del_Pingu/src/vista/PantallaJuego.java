@@ -56,6 +56,7 @@ import javafx.application.Platform;
 import controlador.GestorPartida;
 import controlador.GestorTaulell;
 import controlador.GestorBBDD;
+import controlador.AudioManager;
 
 public class PantallaJuego {
 
@@ -64,6 +65,8 @@ public class PantallaJuego {
 	private MenuItem saveGame;
 	@FXML
 	private MenuItem menuItem;
+	@FXML
+	private MenuItem menuMute;
 	@FXML
 	private MenuItem quitGame;
 	
@@ -145,6 +148,7 @@ public class PantallaJuego {
 	@FXML
 	private void initialize() {
 		instanciaActual = this;
+		updateMuteUI();
 		// Cargar imágenes de los pingüinos
 		try {
 			// Cargar imágenes de forma dinámica según el tipo de jugador si ya hay partida
@@ -639,6 +643,18 @@ public class PantallaJuego {
 			pause.setOnFinished(e -> tile.getStyleClass().remove("cell-Os-attacking"));
 			pause.play();
 		}
+	}
+
+	@FXML
+	private void handleToggleMute(ActionEvent event) {
+		AudioManager.getInstance().toggleMute();
+		updateMuteUI();
+	}
+
+	private void updateMuteUI() {
+		if (menuMute == null) return;
+		boolean isMuted = AudioManager.getInstance().isMuted();
+		menuMute.setText(isMuted ? "Música: OFF" : "Música: ON");
 	}
 
 

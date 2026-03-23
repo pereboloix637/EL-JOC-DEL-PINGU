@@ -155,6 +155,13 @@ public class GestorTaulell {
 	    }
 
 	    // Validem que cap comptador especial passi del límit (5)
+	    // I que es compleixin els mínims demanats: 1:Os(2), 2:Trineu(2), 3:Forat(2), 4:Event(4), 5:Trencadis(2)
+	    if (comptadors[1] < 2) return false;
+	    if (comptadors[2] < 2) return false;
+	    if (comptadors[3] < 2) return false;
+	    if (comptadors[4] < 4) return false;
+	    if (comptadors[5] < 2) return false;
+
 	    for (int i = 1; i <= 5; i++) {
 	        if (comptadors[i] > 5) {
 	            return false; // Massa caselles repetides d'aquest tipus
@@ -174,104 +181,63 @@ public class GestorTaulell {
 	 * @return Un String de 50 caràcters per utilitzar amb generarTaulell(seed).
 	 */
 	public String generarSeedAleatori() {
+	    String seed;
+	    int intents = 0;
+	    do {
+	        seed = generarCandidatoSeed();
+	        intents++;
+	    } while (!esSeedValid(seed) && intents < 100);
+	    
+	    return seed;
+	}
+
+	/**
+	 * Genera un candidat a seed intentant complir les regles bàsiques.
+	 */
+	private String generarCandidatoSeed() {
 	    StringBuilder seed = new StringBuilder(50);
 	    Random random = new Random();
 
-	    // Comptadors màxims per evitar que hi hagi moltes d'un mateix tipus repetides
-	    int maxOs = 5;
-	    int maxTrineu = 5;
-	    int maxForat = 5;
-	    int maxEvent = 5;
-	    int maxTrencadis = 5;
-
-	    // Registre de l'última posició on ha aparegut cada tipus especial.
-	    // Inicialitzat a -10 per permetre que qualsevol tipus pugui aparèixer des del principi.
-	    // Índex: 0=normal, 1=os, 2=trineu, 3=forat, 4=event, 5=trencadís
+	    int[] comptadorsEspecial = new int[6]; // 1-5
 	    int[] ultimaPosicio = {-10, -10, -10, -10, -10, -10};
-
-	    // Nombre mínim de caselles que han de passar entre dos especials del mateix tipus
 	    int separacioMinima = 4;
 
 	    for (int i = 0; i < 50; i++) {
-
-	        // Les primeres 4 i les 2 últimes posicions sempre són caselles normals
 	        if (i < 4 || i >= 48) {
 	            seed.append('0');
 	            continue;
 	        }
 
 	        boolean afegit = false;
-	        while (!afegit) {
+	        int intentsCasella = 0;
+	        while (!afegit && intentsCasella < 20) {
+	            intentsCasella++;
+	            // Probabilitats ajustades: 40% normal, 12% cadascun dels 5 especials (60% total especial)
+	            int roll = random.nextInt(100);
+	            int type;
+	            if (roll < 40) type = 0;
+	            else if (roll < 52) type = 1;
+	            else if (roll < 64) type = 2;
+	            else if (roll < 76) type = 3;
+	            else if (roll < 88) type = 4;
+	            else type = 5;
 
-	            // Es genera un número entre 0 i 9.
-	            // Els valors 0-4 (5 opcions) corresponen al tipus normal → 50% de probabilitat.
-	            // Els valors 5-9 (1 opció cada un) corresponen als 5 tipus especials → 10% cadascun.
-	            int roll = random.nextInt(10);
-	            int type = (roll < 5) ? 0 : (roll - 4);
-
-	            switch (type) {
-	                case 0:
-	                    // Casella normal: sempre s'afegeix sense restriccions
-	                    seed.append('0');
+	            if (type == 0) {
+	                seed.append('0');
+	                afegit = true;
+	            } else {
+	                // Comprovar límits (màxim 5) i separació
+	                if (comptadorsEspecial[type] < 5 && (i - ultimaPosicio[type]) >= separacioMinima) {
+	                    seed.append(type);
+	                    comptadorsEspecial[type]++;
+	                    ultimaPosicio[type] = i;
 	                    afegit = true;
-	                    break;
-
-	                case 1:
-	                    // Casella os: comprova que no s'hagi superat el màxim
-	                    // i que hagin passat prou caselles des de l'última aparició
-	                    if (maxOs > 0 && (i - ultimaPosicio[1]) >= separacioMinima) {
-	                        seed.append('1');
-	                        maxOs--;
-	                        ultimaPosicio[1] = i;
-	                        afegit = true;
-	                    }
-	                    break;
-
-	                case 2:
-	                    // Casella trineu: mateixa lògica que l'os
-	                    if (maxTrineu > 0 && (i - ultimaPosicio[2]) >= separacioMinima) {
-	                        seed.append('2');
-	                        maxTrineu--;
-	                        ultimaPosicio[2] = i;
-	                        afegit = true;
-	                    }
-	                    break;
-
-	                case 3:
-	                    // Casella forat: mateixa lògica que l'os
-	                    if (maxForat > 0 && (i - ultimaPosicio[3]) >= separacioMinima) {
-	                        seed.append('3');
-	                        maxForat--;
-	                        ultimaPosicio[3] = i;
-	                        afegit = true;
-	                    }
-	                    break;
-
-	                case 4:
-	                    // Casella event: mateixa lògica que l'os
-	                    if (maxEvent > 0 && (i - ultimaPosicio[4]) >= separacioMinima) {
-	                        seed.append('4');
-	                        maxEvent--;
-	                        ultimaPosicio[4] = i;
-	                        afegit = true;
-	                    }
-	                    break;
-
-	                case 5:
-	                    // Casella trencadís: mateixa lògica que l'os
-	                    if (maxTrencadis > 0 && (i - ultimaPosicio[5]) >= separacioMinima) {
-	                        seed.append('5');
-	                        maxTrencadis--;
-	                        ultimaPosicio[5] = i;
-	                        afegit = true;
-	                    }
-	                    break;
+	                }
 	            }
-	            // Si la casella especial no compleix les condicions (màxim superat o massa propera),
-	            // el bucle torna a intentar-ho amb un nou tipus aleatori
 	        }
+	        // Si no s'ha pogut afegir res després de molts intents (estrany), posem una normal
+	        if (!afegit) seed.append('0');
 	    }
-
 	    return seed.toString();
 	}
 }

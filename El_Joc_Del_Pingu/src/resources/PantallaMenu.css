@@ -402,6 +402,32 @@
     -fx-background-color: #2E6B8A;
 }
 
+/* ---- BOTON SILENCIO (Circular y vidrioso) ---- */
+.mute-button {
+    -fx-background-color: rgba(13, 27, 42, 0.6);
+    -fx-background-radius: 50;
+    -fx-min-width: 60px;
+    -fx-min-height: 60px;
+    -fx-max-width: 60px;
+    -fx-max-height: 60px;
+    -fx-padding: 0;
+    -fx-border-color: #3AB5E6;
+    -fx-border-radius: 50;
+    -fx-border-width: 2;
+    -fx-alignment: center;
+}
+
+.mute-button:hover {
+    -fx-background-color: rgba(58, 181, 230, 0.4);
+    -fx-border-color: #7FD4F0;
+    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 4, 4);
+}
+
+.mute-button:pressed {
+    -fx-background-color: #0D1B2A;
+    -fx-translate-y: 2;
+}
+
 /* Campos dentro de diálogo: sin sombra exterior para evitar doble borde */
 .dialog-pane .text-field,
 .dialog-pane .password-field {
