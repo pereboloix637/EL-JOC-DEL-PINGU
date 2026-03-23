@@ -131,8 +131,16 @@ public class PantallaMenu {
         });
 
         showLanding();
-        handleRefreshGames();
-        handleRefreshRanking();
+
+        // Una única connexió per carregar totes les dades inicials
+        try (Connection con = GestorBBDD.conectarBaseDatos()) {
+            if (con != null) {
+                refreshGames(con);
+                refreshRanking(con);
+            }
+        } catch (Exception e) {
+            System.err.println("Error en la inicialització de dades: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -152,6 +160,16 @@ public class PantallaMenu {
             estilar(alert);
             alert.showAndWait();
             return;
+        }
+
+        // Validar si el usuario ya está en la lista de jugadores unidos
+        for (Jugador j : joinedPlayers) {
+            if (j.getNickname().equalsIgnoreCase(username)) {
+                Alert alert = new Alert(AlertType.WARNING, "El usuario '" + username + "' ya se ha unido a la partida.", ButtonType.OK);
+                estilar(alert);
+                alert.showAndWait();
+                return;
+            }
         }
 
         try (Connection con = GestorBBDD.conectarBaseDatos()) {
@@ -206,26 +224,34 @@ public class PantallaMenu {
 
     @FXML
     private void handleRefreshGames() {
-        try (Connection con = GestorBBDD.conectarBaseDatos()) { // Hardcoded for demo/dev
+        try (Connection con = GestorBBDD.conectarBaseDatos()) { 
             if (con != null) {
-                ArrayList<String> games = dbManager.llistarPartides(con);
-                savedGamesList.getItems().setAll(games);
+                refreshGames(con);
             }
         } catch (Exception e) {
             System.err.println("Error cargando partidas: " + e.getMessage());
         }
     }
 
+    private void refreshGames(Connection con) {
+        ArrayList<String> games = dbManager.llistarPartides(con);
+        savedGamesList.getItems().setAll(games);
+    }
+
     @FXML
     private void handleRefreshRanking() {
         try (Connection con = GestorBBDD.conectarBaseDatos()) {
             if (con != null) {
-                ArrayList<String> ranking = dbManager.obtenerRanking(con);
-                rankingList.getItems().setAll(ranking);
+                refreshRanking(con);
             }
         } catch (Exception e) {
             System.err.println("Error cargando ranking: " + e.getMessage());
         }
+    }
+
+    private void refreshRanking(Connection con) {
+        ArrayList<String> ranking = dbManager.obtenerRanking(con);
+        rankingList.getItems().setAll(ranking);
     }
 
     @FXML
