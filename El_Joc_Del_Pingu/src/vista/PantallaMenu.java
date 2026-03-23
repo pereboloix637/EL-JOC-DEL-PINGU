@@ -56,6 +56,7 @@ public class PantallaMenu {
     @FXML private TabPane mainTabPane;
     @FXML private Label deleteFeedbackLabel;
     @FXML private VBox landingContainer;
+    @FXML private VBox rulesContainer;
     @FXML private VBox contentContainer;
     @FXML private StackPane menuRoot;
     @FXML private AnchorPane menuContainer;
@@ -482,6 +483,10 @@ public class PantallaMenu {
     private void showLanding() {
         landingContainer.setVisible(true);
         landingContainer.setManaged(true);
+        if (rulesContainer != null) {
+            rulesContainer.setVisible(true);
+            rulesContainer.setManaged(true);
+        }
         contentContainer.setVisible(false);
         contentContainer.setManaged(false);
     }
@@ -489,6 +494,10 @@ public class PantallaMenu {
     private void showContent() {
         landingContainer.setVisible(false);
         landingContainer.setManaged(false);
+        if (rulesContainer != null) {
+            rulesContainer.setVisible(false);
+            rulesContainer.setManaged(false);
+        }
         contentContainer.setVisible(true);
         contentContainer.setManaged(true);
     }

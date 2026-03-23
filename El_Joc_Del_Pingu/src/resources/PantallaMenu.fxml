@@ -52,6 +52,22 @@
                     </ImageView>
                 </VBox>
 
+                   <!-- REGLAS / DESCRIPCION (Izquierda) -->
+                <VBox fx:id="rulesContainer" alignment="CENTER_LEFT" maxWidth="480" prefWidth="480.0" spacing="12" styleClass="card" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="60.0">
+                    <padding>
+                        <Insets bottom="20" left="20" right="20" top="20" />
+                    </padding>
+                    <Label style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;" text="❄ CÓMO JUGAR ❄" wrapText="true" />
+                    <Separator />
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-line-spacing: 3;" text="El objetivo es conseguir más bolas de nieve que tus oponentes." wrapText="true" />
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-line-spacing: 3;" text="En tu turno, tira los dados y muévete por los suelos helados hacia la meta." wrapText="true" />
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-line-spacing: 3;" text="Tu misión es evitar los agujeros u osos y utilizar los trineos y casillas de evento a tu favor." wrapText="true" />
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-line-spacing: 3;" text="Los pingüinos (llamados Pingus) son los jugadores, mientras que las Focas son los bots que no tienen inventario, pero pueden causarte problemas en tu travesía." wrapText="true" />
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-line-spacing: 3;" text="La partida termina cuando un jugador llega a la meta (la casilla 50)." wrapText="true" />
+                    <Separator />
+                    <Label style="-fx-font-size: 15px; -fx-text-fill: #7FD4F0; -fx-font-weight: bold; -fx-line-spacing: 3;" text="¿Qué me dices? ¿Llegarás al final o sucumbirás ante el tablero y sus peligros?" textAlignment="CENTER" wrapText="true" />
+                </VBox>
+
                 <!-- MENU BUTTONS - Integrated Options & Enlarged -->
                 <VBox alignment="BOTTOM_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" spacing="20" AnchorPane.bottomAnchor="60.0" AnchorPane.rightAnchor="60.0">
                     <Button minWidth="320" onAction="#handleOpenNewGame" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="NUEVA PARTIDA" />
