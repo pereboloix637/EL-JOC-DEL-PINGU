@@ -232,6 +232,9 @@
 .log-turn {
     -fx-font-size: 10px;
     -fx-padding: 3 0 3 0;
+    -fx-wrap-text: true;
+    -fx-text-overrun: ellipsis;
+    -fx-max-height: 58px; /* Suficiente para unas 3 líneas del font Press Start 2P */
 }
 
 .log-info {
