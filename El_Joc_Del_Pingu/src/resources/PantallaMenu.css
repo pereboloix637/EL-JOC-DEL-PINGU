@@ -440,3 +440,30 @@
     -fx-background-color: #1C3A52;
     -fx-effect: none;
 }
+
+/* ---- BOTON ELIMINAR MINI (Para listas) ---- */
+.delete-button-small {
+    -fx-background-color: rgba(255, 107, 107, 0.1);
+    -fx-text-fill: #FF6B6B;
+    -fx-border-color: rgba(255, 107, 107, 0.5);
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 0 10;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-min-height: 28px;
+    -fx-alignment: center;
+}
+
+.delete-button-small:hover {
+    -fx-background-color: #FF6B6B;
+    -fx-text-fill: white;
+    -fx-border-color: white;
+    -fx-effect: dropshadow(one-pass-box, #FF6B6B, 0, 0, 3, 3);
+}
+
+.delete-button-small:pressed {
+    -fx-translate-y: 1;
+}
