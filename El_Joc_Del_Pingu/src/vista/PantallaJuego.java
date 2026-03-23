@@ -921,22 +921,16 @@ public class PantallaJuego {
 	        }
 	        
 	        // Verificar victoria tras movimiento y efectos
-	        boolean wasFinished = gestorPartida.getPartida().isFinalitzada();
 	        gt.comprovarFiTorn(gestorPartida.getPartida());
 	        
 	        if (gestorPartida.getPartida().isFinalitzada()) {
 	            actualizarUI();
 	            Jugador guanyador = gestorPartida.getPartida().getGuanyador();
 
-	            if (!wasFinished && guanyador != null && !(guanyador instanceof model.entitats.Foca)) {
-	                // Registrem la victoria al ranking de forma automática
-	                try (Connection con = getBDConnection()) {
-	                    if (con != null) {
-	                        new GestorBBDD().registrarVictoria(guanyador.getId(), guanyador.getNickname(), con);
-	                    }
-	                } catch (Exception e1) {
-	                    System.err.println("Error registrant victoria: " + e1.getMessage());
-	                }
+	            if (guanyador instanceof model.entitats.Pinguino p) {
+	                // Incrementem la victòria en memòria. Es persistirà si l'usuari decideix guardar.
+	                p.setVictories(p.getVictories() + 1);
+	                System.out.println("Victòria incrementada en memòria per a: " + p.getNickname());
 	            }
 
 	            mostrarAlertaGanador(guanyador);
