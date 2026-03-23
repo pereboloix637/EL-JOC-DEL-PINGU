@@ -3,8 +3,12 @@ package vista;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import javafx.animation.Interpolator;
 
 import javafx.animation.TranslateTransition;
+import javafx.animation.SequentialTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.Transition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.NumberBinding;
 import javafx.event.ActionEvent;
@@ -291,6 +295,8 @@ public class PantallaJuego {
 		Platform.runLater(() -> {
 			Label lbl = new Label("[" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] " + mensaje);
 			lbl.getStyleClass().add(styleClass);
+			lbl.setWrapText(true);
+			lbl.setTextOverrun(javafx.scene.control.OverrunStyle.ELLIPSIS);
 			logEventos.getChildren().add(lbl);
 			// Scroll automàtic al final
 			scrollEventos.setVvalue(1.0);
@@ -757,9 +763,10 @@ public class PantallaJuego {
 	}
 
 	/**
-	 * Mou una peça amb una animació de transició i actualitza el model en acabar.
+	 * Mou una peça amb una animació de saltets de casilla en casilla.
 	 */
 	private void moverPieza(Jugador j, int steps) {
+	    if (steps <= 0) return;
 	    bloquearControles(true);
 	    ImageView pieza = getPiezaParaJugador(j);
 	    if (pieza == null) return;
@@ -767,34 +774,7 @@ public class PantallaJuego {
 	    int oldPos = j.getPosicio();
 	    int newPos = Math.min(oldPos + steps, gestorPartida.getPartida().getTaulell().getCaselles().size() - 1);
 
-	    int oldLogicalRow = oldPos / COLUMNS;
-	    int oldLogicalCol = oldPos % COLUMNS;
-	    if (oldLogicalRow % 2 != 0) {
-	    	oldLogicalCol = (COLUMNS - 1) - oldLogicalCol;
-	    }
-	    
-	    int newLogicalRow = newPos / COLUMNS;
-	    int newLogicalCol = newPos % COLUMNS;
-	    if (newLogicalRow % 2 != 0) {
-	    	newLogicalCol = (COLUMNS - 1) - newLogicalCol;
-	    }
-
-	    int oldRow = (ROWS - 1) - oldLogicalRow;
-	    int oldCol = oldLogicalCol;
-	    int newRow = (ROWS - 1) - newLogicalRow;
-	    int newCol = newLogicalCol;
-
-	    // the grid geometry gives us fixed constraints based on 10x5 physical structure 
-	    // in a scene where width is exactly mapped to % constraints
-	    // For translations, simply use bound constraints of the cells inside the Grid
-	    double cellWidth = tablero.getPrefWidth() * 0.10;   // 10% de ancho x columna
-	    double cellHeight = tablero.getPrefHeight() * 0.20; // 20% de alto x fila
-
-	    // Calcular offset actual y objetivo para que la animación sea fluida
-	    double currentTX = pieza.getTranslateX();
-	    double currentTY = pieza.getTranslateY();
-	    
-	    // Pre-calcular cuántos jugadores habrá en la nueva posición antes que yo (según orden en la lista)
+	    // Pre-calcular cuántos jugadores habrá en la nueva posición para el offset final
 	    int numEnNuevaCasilla = 0;
 	    ArrayList<Jugador> js = gestorPartida.getPartida().getJugadors();
 	    for (int i = 0; i < js.indexOf(j); i++) {
@@ -803,40 +783,69 @@ public class PantallaJuego {
 	    	}
 	    }
 	    
-	    // Offset objetivo
-	    double calcTX = 0, calcTY = 0;
+	    double targetTX = 0, targetTY = 0;
 	    double offsetSeparacion = 15.0;
-	    
-	    // Contar cuántos hay ya en el destino
 	    int totalEnDestino = 0;
 	    for (Jugador other : js) {
 	    	if (other.getPosicio() == newPos) totalEnDestino++;
 	    }
-	    // Yo seré el totalEnDestino + 1 (aunque aquí sumo 1 para simular mi llegada)
 	    totalEnDestino++; 
 
 	    if (totalEnDestino > 1) {
 		    switch (numEnNuevaCasilla) {
-		    	case 0: calcTX = -offsetSeparacion; calcTY = -offsetSeparacion; break;
-		    	case 1: calcTX =  offsetSeparacion; calcTY = -offsetSeparacion; break;
-		    	case 2: calcTX = -offsetSeparacion; calcTY =  offsetSeparacion; break;
-		    	case 3: calcTX =  offsetSeparacion; calcTY =  offsetSeparacion; break;
+		    	case 0: targetTX = -offsetSeparacion; targetTY = -offsetSeparacion; break;
+		    	case 1: targetTX =  offsetSeparacion; targetTY = -offsetSeparacion; break;
+		    	case 2: targetTX = -offsetSeparacion; targetTY =  offsetSeparacion; break;
+		    	case 3: targetTX =  offsetSeparacion; targetTY =  offsetSeparacion; break;
 		    }
 	    }
 
-	    final double targetTX = calcTX;
-	    final double targetTY = calcTY;
+	    double currentTX = pieza.getTranslateX();
+	    double currentTY = pieza.getTranslateY();
+	    
+	    SequentialTransition sequence = new SequentialTransition();
+	    double cellWidth = tablero.getPrefWidth() * 0.10;   
+	    double cellHeight = tablero.getPrefHeight() * 0.20; 
 
-	    double dx = (newCol - oldCol) * cellWidth + (targetTX - currentTX);
-	    double dy = (newRow - oldRow) * cellHeight + (targetTY - currentTY);
+	    double accumTX = currentTX;
+	    double accumTY = currentTY;
 
-	    TranslateTransition slide = new TranslateTransition(Duration.millis(500), pieza);
-	    slide.setByX(dx);
-	    slide.setByY(dy);
+	    for (int i = 1; i <= steps; i++) {
+	        int pA = oldPos + i - 1;
+	        int pB = oldPos + i;
+	        if (pB > newPos) break;
 
-	    slide.setOnFinished(e -> Platform.runLater(() -> {
-	        pieza.setTranslateX(targetTX);
-	        pieza.setTranslateY(targetTY);
+	        int[] cA = getGridCoords(pA);
+	        int[] cB = getGridCoords(pB);
+
+	        final double stepDx = (cB[1] - cA[1]) * cellWidth + ((targetTX - currentTX) / (double)steps);
+	        final double stepDy = (cB[0] - cA[0]) * cellHeight + ((targetTY - currentTY) / (double)steps);
+	        final double startX = accumTX;
+	        final double startY = accumTY;
+
+	        Transition jump = new Transition() {
+	            { setCycleDuration(Duration.millis(450)); }
+	            @Override protected void interpolate(double frac) {
+	                double curX = startX + stepDx * frac;
+	                double curY = startY + stepDy * frac;
+	                double hopY = -45 * Math.sin(Math.PI * frac); // Trayectoria ovalada
+	                pieza.setTranslateX(curX);
+	                pieza.setTranslateY(curY + hopY);
+	            }
+	        };
+
+	        sequence.getChildren().add(jump);
+
+	        accumTX += stepDx;
+	        accumTY += stepDy;
+	    }
+
+	    final double finalTX = targetTX;
+	    final double finalTY = targetTY;
+
+	    sequence.setOnFinished(e -> Platform.runLater(() -> {
+	        pieza.setTranslateX(finalTX);
+	        pieza.setTranslateY(finalTY);
 	        
 	        // Actualitzar model
 	        j.setPosicio(newPos);
@@ -851,25 +860,20 @@ public class PantallaJuego {
 	            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
 	                if (rival != pActual && rival.getPosicio() == newPos) {
 	                    if (rival instanceof Pinguino pRival) {
-	                    	 // Si cap dels dos té boles, no mostrem batalla ni fem res especial
 	                        if (pActual.getInventari().getBoles() == 0 && pRival.getInventari().getBoles() == 0) {
 	                        	break; 
 	                        }
 	                    	
-	                        // Batalla entre pingüins
 	                        registrarEvento("Col·lisió! Batalla entre " + pActual.getNickname() + " i " + pRival.getNickname(), "log-warning");
 	                        
-	                        // Guardem estat pre-batalla per saber qui perd boles o retrocedeix
 	                        int bolesJ1Abans = pActual.getInventari().getBoles();
 	                        int bolesJ2Abans = pRival.getInventari().getBoles();
 	                        int posJ1Abans = pActual.getPosicio();
 	                        int posJ2Abans = pRival.getPosicio();
 	                        
-	                   
 	                        mostrarOverlayBatalla(() -> {
 	                            pActual.gestionarBatalla(pRival);
 
-	                            // Mostrar resultat en un Alert
 	                            Alert batallaAlert = new Alert(AlertType.INFORMATION);
 	                            estilar(batallaAlert);
 	                            batallaAlert.setTitle("Resultat de la Batalla");
@@ -886,7 +890,6 @@ public class PantallaJuego {
 	                            batallaAlert.setContentText(resultMsg);
 	                            batallaAlert.showAndWait();
 
-	                            // Animació de retrocés si algú ha mogut
 	                            if (pActual.getPosicio() != posJ1Abans) {
 	                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio());
 	                            }
@@ -895,18 +898,15 @@ public class PantallaJuego {
 	                            }
 	                        });
 	                        
-	                        break; // Una única trobada per torn
+	                        break; 
 	                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaNormal) {
-	                        // Trobada amb la Foca (NOMÉS SI LA CASELLA ÉS NORMAL)
 	                        registrarEvento(pActual.getNickname() + " ha topat amb la foca " + fRival.getNickname(), "log-warning");
 	                        int posAbans = pActual.getPosicio();
-	                        
-	                        // Acció aleatòria (pegar o aplastar)
 	                        fRival.decidirAccion(pActual, gestorPartida.getPartida());
 	                        
 	                        if (pActual.getPosicio() != posAbans) {
 	                            animarRetroceso(pActual, posAbans, pActual.getPosicio());
-	                            saltaAccioCasella = true; // Si ha mogut, no executem l'acció de la nova casella
+	                            saltaAccioCasella = true; 
 	                        }
 	                        break;
 	                    }
@@ -914,7 +914,6 @@ public class PantallaJuego {
 	            }
 	        }
 	        
-	        // Executar lògica de la casella on arribat (si no ens ha mogut una foca)
 	        GestorTaulell gt = new GestorTaulell();
 	        if (!saltaAccioCasella) {
 	        	gt.executarCasella(gestorPartida.getPartida(), j, gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio()));
@@ -937,16 +936,26 @@ public class PantallaJuego {
 	            return;
 	        }
 
-	        // Passar el torn
 	        gestorPartida.seguentTorn();
-	        
 	        actualizarUI();
-	        
-	        // Comprovar si el següent és CPU
 	        checkTurnoCPU();
 	    }));
 
-	    slide.play();
+	    sequence.play();
+	}
+
+	/**
+	 * Helper para obtener coordenadas (fila, columna) de una posición lógica del tablero.
+	 */
+	private int[] getGridCoords(int pos) {
+		int logicalRow = pos / COLUMNS;
+		int logicalCol = pos % COLUMNS;
+		if (logicalRow % 2 != 0) {
+			logicalCol = (COLUMNS - 1) - logicalCol;
+		}
+		int row = (ROWS - 1) - logicalRow;
+		int col = logicalCol;
+		return new int[] { row, col };
 	}
 
 	/**
