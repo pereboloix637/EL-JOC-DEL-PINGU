@@ -279,81 +279,83 @@ public class GestorBBDD {
 
 			// 2. Gestionar cada Jugador
 			for (Jugador j : partida.getJugadors()) {
-				// ── 2.1 Garantir que el jugador existeix a la taula 'jugador' (global) ──
-				if (j.getId() == 0) {
-					String nomJ = j.getNickname();
-					String sqlCheck = "SELECT id FROM jugador WHERE nom = '" + nomJ + "'";
-					ArrayList<LinkedHashMap<String, String>> resCheck = select(con, sqlCheck);
+				if (j instanceof Pinguino) {
+					// ── 2.1 Garantir que el jugador existeix a la taula 'jugador' (global) ──
+					if (j.getId() == 0) {
+						String nomJ = j.getNickname();
+						String sqlCheck = "SELECT id FROM jugador WHERE nom = '" + nomJ + "'";
+						ArrayList<LinkedHashMap<String, String>> resCheck = select(con, sqlCheck);
 
-					if (!resCheck.isEmpty()) {
-						j.setId(Integer.parseInt(resCheck.get(0).get("ID")));
-						// Arreglo del bug de persistencia de color y victorias:
-						if (j instanceof Pinguino pingu) {
-							update(con, "UPDATE jugador SET color = '" + j.getColor() + "', victories = " + pingu.getVictories() + " WHERE id = " + j.getId());
+						if (!resCheck.isEmpty()) {
+							j.setId(Integer.parseInt(resCheck.get(0).get("ID")));
+							// Arreglo del bug de persistencia de color y victorias:
+							if (j instanceof Pinguino pingu) {
+								update(con, "UPDATE jugador SET color = '" + j.getColor() + "', victories = " + pingu.getVictories() + " WHERE id = " + j.getId());
+							} else {
+								update(con, "UPDATE jugador SET color = '" + j.getColor() + "' WHERE id = " + j.getId());
+							}
 						} else {
-							update(con, "UPDATE jugador SET color = '" + j.getColor() + "' WHERE id = " + j.getId());
+							ArrayList<LinkedHashMap<String, String>> resMax = select(con,
+									"SELECT MAX(id) AS MAX_ID FROM jugador");
+							int nouIdJ = (resMax.isEmpty() || resMax.get(0).get("MAX_ID") == null) ? 1
+									: Integer.parseInt(resMax.get(0).get("MAX_ID")) + 1;
+							j.setId(nouIdJ);
+
+							String colorJ = j.getColor();
+							int esCpu = (j instanceof Foca ? 1 : 0);
+	                        String pass = "";
+	                        int vic = 0;
+	                        if (j instanceof Pinguino pingu) {
+	                            pass = pingu.getContrasenya() != null ? pingu.getContrasenya() : "";
+	                            vic = pingu.getVictories();
+	                        }
+							String sqlInsJ = "INSERT INTO jugador (id, nom, color, es_cpu, contrasenya, victories) VALUES (" + nouIdJ + ", '" + nomJ
+									+ "', '" + colorJ + "', " + esCpu + ", '" + pass + "', " + vic + ")";
+							insert(con, sqlInsJ);
 						}
-					} else {
-						ArrayList<LinkedHashMap<String, String>> resMax = select(con,
-								"SELECT MAX(id) AS MAX_ID FROM jugador");
-						int nouIdJ = (resMax.isEmpty() || resMax.get(0).get("MAX_ID") == null) ? 1
-								: Integer.parseInt(resMax.get(0).get("MAX_ID")) + 1;
-						j.setId(nouIdJ);
-
-						String colorJ = j.getColor();
-						int esCpu = (j instanceof Foca ? 1 : 0);
-                        String pass = "";
-                        int vic = 0;
-                        if (j instanceof Pinguino pingu) {
-                            pass = pingu.getContrasenya() != null ? pingu.getContrasenya() : "";
-                            vic = pingu.getVictories();
-                        }
-						String sqlInsJ = "INSERT INTO jugador (id, nom, color, es_cpu, contrasenya, victories) VALUES (" + nouIdJ + ", '" + nomJ
-								+ "', '" + colorJ + "', " + esCpu + ", '" + pass + "', " + vic + ")";
-						insert(con, sqlInsJ);
 					}
-				}
 
-				// ── 2.2 Upsert a 'jugador_partida' (estat del jugador en aquesta partida) ──
-				int jId = j.getId();
-				int pos = j.getPosicio();
-				int tBloq = j.getTornsBloquejat();
-				int esGuanyador = (partida.getGuanyador() != null
-						&& partida.getGuanyador().getNickname().equals(j.getNickname())) ? 1 : 0;
+					// ── 2.2 Upsert a 'jugador_partida' (estat del jugador en aquesta partida) ──
+					int jId = j.getId();
+					int pos = j.getPosicio();
+					int tBloq = j.getTornsBloquejat();
+					int esGuanyador = (partida.getGuanyador() != null
+							&& partida.getGuanyador().getNickname().equals(j.getNickname())) ? 1 : 0;
 
-				String sqlCheckJP = "SELECT * FROM jugador_partida WHERE jugador_id = " + jId + " AND partida_id = "
-						+ pId;
-				ArrayList<LinkedHashMap<String, String>> resJP = select(con, sqlCheckJP);
-
-				if (resJP.isEmpty()) {
-					String sqlInsJP = "INSERT INTO jugador_partida (jugador_id, partida_id, posicio, torns_bloquejat, es_guanyador) VALUES ("
-							+ jId + ", " + pId + ", " + pos + ", " + tBloq + ", " + esGuanyador + ")";
-					insert(con, sqlInsJP);
-				} else {
-					String sqlUpdJP = "UPDATE jugador_partida SET posicio = " + pos + ", torns_bloquejat = " + tBloq
-							+ ", es_guanyador = " + esGuanyador + " WHERE jugador_id = " + jId + " AND partida_id = "
+					String sqlCheckJP = "SELECT * FROM jugador_partida WHERE jugador_id = " + jId + " AND partida_id = "
 							+ pId;
-					update(con, sqlUpdJP);
-				}
+					ArrayList<LinkedHashMap<String, String>> resJP = select(con, sqlCheckJP);
 
-				// ── 2.3 Upsert a 'inventari' (només Pinguins) ──
-				if (j instanceof Pinguino p) {
-					int daus = p.getInventari().getDausEspecials();
-					int peixos = p.getInventari().getPeixos();
-					int boles = p.getInventari().getBoles();
-
-					String sqlCheckInv = "SELECT * FROM inventari WHERE jugador_id = " + jId + " AND partida_id = "
-							+ pId;
-					ArrayList<LinkedHashMap<String, String>> resInv = select(con, sqlCheckInv);
-
-					if (resInv.isEmpty()) {
-						String sqlInsInv = "INSERT INTO inventari (jugador_id, partida_id, daus, peixos, boles_neu) VALUES ("
-								+ jId + ", " + pId + ", " + daus + ", " + peixos + ", " + boles + ")";
-						insert(con, sqlInsInv);
+					if (resJP.isEmpty()) {
+						String sqlInsJP = "INSERT INTO jugador_partida (jugador_id, partida_id, posicio, torns_bloquejat, es_guanyador) VALUES ("
+								+ jId + ", " + pId + ", " + pos + ", " + tBloq + ", " + esGuanyador + ")";
+						insert(con, sqlInsJP);
 					} else {
-						String sqlUpdInv = "UPDATE inventari SET daus = " + daus + ", peixos = " + peixos
-								+ ", boles_neu = " + boles + " WHERE jugador_id = " + jId + " AND partida_id = " + pId;
-						update(con, sqlUpdInv);
+						String sqlUpdJP = "UPDATE jugador_partida SET posicio = " + pos + ", torns_bloquejat = " + tBloq
+								+ ", es_guanyador = " + esGuanyador + " WHERE jugador_id = " + jId + " AND partida_id = "
+								+ pId;
+						update(con, sqlUpdJP);
+					}
+
+					// ── 2.3 Upsert a 'inventari' (només Pinguins) ──
+					if (j instanceof Pinguino p) {
+						int daus = p.getInventari().getDausEspecials();
+						int peixos = p.getInventari().getPeixos();
+						int boles = p.getInventari().getBoles();
+
+						String sqlCheckInv = "SELECT * FROM inventari WHERE jugador_id = " + jId + " AND partida_id = "
+								+ pId;
+						ArrayList<LinkedHashMap<String, String>> resInv = select(con, sqlCheckInv);
+
+						if (resInv.isEmpty()) {
+							String sqlInsInv = "INSERT INTO inventari (jugador_id, partida_id, daus, peixos, boles_neu) VALUES ("
+									+ jId + ", " + pId + ", " + daus + ", " + peixos + ", " + boles + ")";
+							insert(con, sqlInsInv);
+						} else {
+							String sqlUpdInv = "UPDATE inventari SET daus = " + daus + ", peixos = " + peixos
+									+ ", boles_neu = " + boles + " WHERE jugador_id = " + jId + " AND partida_id = " + pId;
+							update(con, sqlUpdInv);
+						}
 					}
 				}
 			}
