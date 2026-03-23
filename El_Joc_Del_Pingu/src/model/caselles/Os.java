@@ -20,6 +20,8 @@ public class Os extends Casella {
 			return;
 		Pinguino pingui = (Pinguino) jugador;
 
+		vista.PantallaJuego.mostrarAtaqueOso(this.getPosicio());
+
 		Peix peix = (Peix) pingui.getInventari().getLlista().stream()
 				.filter(i -> i instanceof Peix && i.getQuantitat() > 0).findFirst().orElse(null);
 

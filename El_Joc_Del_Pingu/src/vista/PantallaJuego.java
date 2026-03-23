@@ -9,6 +9,7 @@ import javafx.animation.TranslateTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.Transition;
+import javafx.animation.PauseTransition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.NumberBinding;
 import javafx.event.ActionEvent;
@@ -121,6 +122,7 @@ public class PantallaJuego {
 	private static Partida partidaInicial;
 	
 	private static PantallaJuego instanciaActual;
+	private Map<Integer, StackPane> glassTiles = new HashMap<>();
 
 	// Caché de imágenes para evitar recargas constantes
 	private static final Map<String, Image> imageCache = new HashMap<>();
@@ -562,6 +564,7 @@ public class PantallaJuego {
 			GridPane.setColumnIndex(iceBlock, col);
 
 			tablero.getChildren().add(0, iceBlock); // Add to back so players stay on top
+			glassTiles.put(i, iceBlock);
 		}
 	}
 
@@ -617,6 +620,24 @@ public class PantallaJuego {
 			
 		} catch (Exception e) {
 			System.err.println("Error carregant la imatge del popup: " + imagenNombre);
+		}
+	}
+
+	/**
+	 * Mostra l'animació d'atac de l'ós canviant la imatge de la casella.
+	 */
+	public static void mostrarAtaqueOso(int pos) {
+		if (instanciaActual == null) return;
+		Platform.runLater(() -> instanciaActual.ejecutarAtaqueOso(pos));
+	}
+
+	private void ejecutarAtaqueOso(int pos) {
+		StackPane tile = glassTiles.get(pos);
+		if (tile != null) {
+			tile.getStyleClass().add("cell-Os-attacking");
+			PauseTransition pause = new PauseTransition(Duration.seconds(2.0));
+			pause.setOnFinished(e -> tile.getStyleClass().remove("cell-Os-attacking"));
+			pause.play();
 		}
 	}
 
