@@ -941,7 +941,7 @@ public class PantallaJuego {
 		                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaNormal) {
 		                        registrarEvento(pActual.getNickname() + " ha topat amb la foca " + fRival.getNickname(), "log-warning");
 		                        int posAbans = pActual.getPosicio();
-		                        fRival.decidirAccion(pActual, gestorPartida.getPartida());
+		                        fRival.AccionesFoca(pActual, gestorPartida.getPartida());
 		                        
 		                        if (pActual.getPosicio() != posAbans) {
 		                            animarRetroceso(pActual, posAbans, pActual.getPosicio());
