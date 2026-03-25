@@ -136,8 +136,7 @@ public class Foca extends Jugador {
 	}
 
 	/**
-	 * Decideix aleatòriament si la foca colpeja (pegar) o aixafa (aplastar) el pingüí.
-	 * Amb probabilitats variables segons posició del jugador i inventari.
+	Mediante probabilidades y de tus acciones la Foca querra aplastarte o pegarte
 	 */
 	public void AccionesFoca(Pinguino p, Partida partida) {
 		if (this.soborno || this.bloqueix > 0) return;

@@ -1035,43 +1035,63 @@ public class PantallaJuego {
 	}
 
 	/**
-	 * Anima el retroceso de un jugador a una nueva posición.
+	 * Anima el retroceso de un jugador a una nueva posición, moviéndose casilla a casilla.
 	 */
 	public void animarRetroceso(Jugador j, int oldPos, int newPos) {
 	    ImageView pieza = getPiezaParaJugador(j);
-	    if (pieza == null)
-	    return;
+	    if (pieza == null) return;
+	    if (oldPos <= newPos) {
+	        actualizarUI();
+	        return;
+	    }
 
-	    // Calculamos desplazamientos físicos en el GridPane
-	    int oldLogicalRow = oldPos / COLUMNS;
-	    int oldLogicalCol = oldPos % COLUMNS;
-	    if (oldLogicalRow % 2 != 0) oldLogicalCol = (COLUMNS - 1) - oldLogicalCol;
-	    
-	    int newLogicalRow = newPos / COLUMNS;
-	    int newLogicalCol = newPos % COLUMNS;
-	    if (newLogicalRow % 2 != 0) newLogicalCol = (COLUMNS - 1) - newLogicalCol;
+	    SequentialTransition sequence = new SequentialTransition();
+	    double cellWidth = tablero.getPrefWidth() * 0.10;
+	    double cellHeight = tablero.getPrefHeight() * 0.20;
 
-	    int oldRow = (ROWS - 1) - oldLogicalRow;
-	    int oldCol = oldLogicalCol;
-	    int newRow = (ROWS - 1) - newLogicalRow;
-	    int newCol = newLogicalCol;
+	    double currentTX = pieza.getTranslateX();
+	    double currentTY = pieza.getTranslateY();
 
-	    double cellWidth = tablero.getPrefWidth() * 0.0918;
-	    double cellHeight = tablero.getPrefHeight() * 0.1711;
+	    double accumTX = currentTX;
+	    double accumTY = currentTY;
 
-	    double dx = (newCol - oldCol) * cellWidth;
-	    double dy = (newRow - oldRow) * cellHeight;
+	    int steps = oldPos - newPos;
 
-	    TranslateTransition retreat = new TranslateTransition(Duration.millis(800), pieza);
-	    retreat.setByX(dx);
-	    retreat.setByY(dy);
-	    retreat.setOnFinished(e -> {
-	        // Reset translations and let actualizarUI position them correctly with offsets
+	    for (int i = 1; i <= steps; i++) {
+	        int pA = oldPos - i + 1;
+	        int pB = oldPos - i;
+
+	        int[] cA = getGridCoords(pA);
+	        int[] cB = getGridCoords(pB);
+
+	        final double stepDx = (cB[1] - cA[1]) * cellWidth;
+	        final double stepDy = (cB[0] - cA[0]) * cellHeight;
+	        final double startX = accumTX;
+	        final double startY = accumTY;
+
+	        Transition jump = new Transition() {
+	            { setCycleDuration(Duration.millis(450)); }
+	            @Override protected void interpolate(double frac) {
+	                double curX = startX + stepDx * frac;
+	                double curY = startY + stepDy * frac;
+	                double hopY = -45 * Math.sin(Math.PI * frac); // Trayectoria ovalada
+	                pieza.setTranslateX(curX);
+	                pieza.setTranslateY(curY + hopY);
+	            }
+	        };
+
+	        sequence.getChildren().add(jump);
+
+	        accumTX += stepDx;
+	        accumTY += stepDy;
+	    }
+
+	    sequence.setOnFinished(e -> {
 	        pieza.setTranslateX(0);
 	        pieza.setTranslateY(0);
 	        actualizarUI();
 	    });
-	    retreat.play();
+	    sequence.play();
 	}
 
 	public static void animarRetrocesoEstatico(Jugador j, int oldPos, int newPos) {
