@@ -5,14 +5,17 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.NumberBinding;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.util.Duration;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.AnchorPane;
@@ -62,10 +65,19 @@ public class PantallaMenu {
     @FXML private AnchorPane menuContainer;
     @FXML private Button btnMute;
     @FXML private ImageView imgMute;
+    @FXML private Button btnMuteSfx;
+    @FXML private ImageView imgMuteSfx;
+    @FXML private Button btnSettings;
+    @FXML private VBox settingsPane;
+    @FXML private Slider musicSlider;
+    @FXML private Slider sfxSlider;
 
     private ArrayList<Jugador> joinedPlayers = new ArrayList<>();
     private int cpuCount = 0;
     private GestorBBDD dbManager = new GestorBBDD();
+
+    @FXML private Label dbStatusLabel;
+    @FXML private javafx.scene.control.ProgressBar dbProgressBar;
 
     @FXML
     private void initialize() {
@@ -172,33 +184,135 @@ public class PantallaMenu {
 
         showLanding();
 
-        // Una única connexió per carregar totes les dades inicials
-        try (Connection con = GestorBBDD.conectarBaseDatos()) {
-            if (con != null) {
-                refreshGames(con);
-                refreshRanking(con);
+        // Cargar datos asíncronamente al iniciar
+        ejecutarTareaDB("Cargando datos...", () -> {
+            try (Connection con = GestorBBDD.conectarBaseDatos()) {
+                if (con != null) {
+                    ArrayList<String> games = dbManager.llistarPartides(con);
+                    ArrayList<String> ranking = dbManager.obtenerRanking(con);
+                    Platform.runLater(() -> {
+                        savedGamesList.getItems().setAll(games);
+                        rankingList.getItems().setAll(ranking);
+                    });
+                }
             }
-        } catch (Exception e) {
-            System.err.println("Error en la inicialització de dades: " + e.getMessage());
+            return null;
+        });
+
+        updateMuteUI();
+
+        // Registrar sonidos para todos los botones del menú
+        registrarSonsBotons(menuContainer);
+
+        // Inicializar sliders de volumen
+        if (musicSlider != null) {
+            musicSlider.setValue(AudioManager.getInstance().getMusicVolume());
+            musicSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                AudioManager.getInstance().setMusicVolume(newVal.doubleValue());
+            });
+        }
+        if (sfxSlider != null) {
+            sfxSlider.setValue(AudioManager.getInstance().getSfxVolume());
+            sfxSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                AudioManager.getInstance().setSfxVolume(newVal.doubleValue());
+            });
         }
 
         updateMuteUI();
     }
+/**
+     * Registra recursivamente los sonidos de hover y click para todos los botones
+     * dentro de un nodo padre.
+     */
+    private void registrarSonsBotons(Node node) {
+        if (node instanceof Button) {
+            Button btn = (Button) node;
+            
+            // Sonido al pasar el ratón (hover)
+            btn.setOnMouseEntered(e -> {
+                AudioManager.getInstance().playSound("/assets/Hover_boton_hielo.mp3");
+            });
+            
+            // Sonido al hacer clic (ACTION para que conviva con FXML onAction)
+            btn.addEventHandler(ActionEvent.ACTION, e -> {
+                AudioManager.getInstance().playSound("/assets/Audio_click_hielo.mp3");
+            });
+            
+        } else if (node instanceof javafx.scene.Parent) {
+            // Recorrer hijos si es un contenedor
+            for (Node child : ((javafx.scene.Parent) node).getChildrenUnmodifiable()) {
+                registrarSonsBotons(child);
+            }
+        }
+    }
+
+    private void ejecutarTareaDB(String mensaje, java.util.concurrent.Callable<Void> tarea) {
+        dbStatusLabel.setText(mensaje);
+        dbStatusLabel.setVisible(true);
+        dbProgressBar.setVisible(true);
+        dbProgressBar.setProgress(-1); // Indeterminado
+
+        new Thread(() -> {
+            try {
+                tarea.call();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    dbStatusLabel.setText("Error en la DB");
+                });
+            } finally {
+                Platform.runLater(() -> {
+                    dbProgressBar.setVisible(false);
+                    dbStatusLabel.setVisible(false);
+                });
+            }
+        }).start();
+    }
 
     @FXML
     private void handleToggleMute(ActionEvent event) {
-        AudioManager.getInstance().toggleMute();
+        AudioManager.getInstance().toggleMusicMute();
         updateMuteUI();
     }
 
+    @FXML
+    private void handleToggleSfxMute(ActionEvent event) {
+        AudioManager.getInstance().toggleSfxMute();
+        updateMuteUI();
+    }
+
+    @FXML
+    private void handleToggleSettings(ActionEvent event) {
+        if (settingsPane != null) {
+            boolean isVisible = settingsPane.isVisible();
+            settingsPane.setVisible(!isVisible);
+            settingsPane.setManaged(!isVisible);
+        }
+    }
+
     private void updateMuteUI() {
-        if (imgMute == null) return;
-        boolean isMuted = AudioManager.getInstance().isMuted();
-        String iconPath = isMuted ? "/assets/speaker_off.png" : "/assets/speaker_on.png";
-        try {
-            imgMute.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream(iconPath)));
-        } catch (Exception e) {
-            System.err.println("Error actualizando icono de silencio: " + e.getMessage());
+        // Actualizar música
+        if (imgMute != null) {
+            boolean musicMuted = AudioManager.getInstance().isMusicMuted();
+            String musicIcon = musicMuted ? "/assets/speaker_off.png" : "/assets/speaker_on.png";
+            try {
+                imgMute.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream(musicIcon)));
+            } catch (Exception e) {
+                System.err.println("Error actualizando icono música: " + e.getMessage());
+            }
+        }
+
+        // Actualizar SFX
+        if (imgMuteSfx != null) {
+            boolean sfxMuted = AudioManager.getInstance().isSfxMuted();
+            String sfxIcon = sfxMuted ? "/assets/speaker_off.png" : "/assets/speaker_on.png";
+            try {
+                imgMuteSfx.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream(sfxIcon)));
+                // Opcional: podrías cambiar el color o añadir un pequeño texto/overlay 
+                // para diferenciar música de efectos si usas el mismo icono
+            } catch (Exception e) {
+                System.err.println("Error actualizando icono SFX: " + e.getMessage());
+            }
         }
     }
 
@@ -231,30 +345,29 @@ public class PantallaMenu {
             }
         }
 
-        try (Connection con = GestorBBDD.conectarBaseDatos()) {
-            if (con != null) {
-                boolean valid = dbManager.validarLogin(username, password, con);
-                if (!valid) {
-                    Alert alert = new Alert(AlertType.ERROR, "Contraseña incorrecta para el usuario: " + username, ButtonType.OK);
-                    estilar(alert);
-                    alert.showAndWait();
-                    return;
+        ejecutarTareaDB("Validando usuario...", () -> {
+            try (Connection con = GestorBBDD.conectarBaseDatos()) {
+                if (con != null) {
+                    boolean valid = dbManager.validarLogin(username, password, con);
+                    Platform.runLater(() -> {
+                        if (valid) {
+                            Pinguino p = new Pinguino(username, "Azul", new model.items.Inventari());
+                            p.setContrasenya(password);
+                            joinedPlayers.add(p);
+                            playersList.getItems().add(username + " (Humano)");
+                            userField.clear();
+                            passField.clear();
+                            System.out.println("Jugador añadido: " + username);
+                        } else {
+                            Alert alert = new Alert(AlertType.ERROR, "Contraseña incorrecta para el usuario: " + username, ButtonType.OK);
+                            estilar(alert);
+                            alert.showAndWait();
+                        }
+                    });
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Error validando login: " + e.getMessage());
-        }
-
-        // Añadir a la lista de jugadores (Si pasa, o es nuevo o está OK)
-        Pinguino p = new Pinguino(username, "Azul", new model.items.Inventari());
-        p.setContrasenya(password);
-        
-        joinedPlayers.add(p);
-        playersList.getItems().add(username + " (Humano)");
-        
-        userField.clear();
-        passField.clear();
-        System.out.println("Jugador añadido: " + username);
+            return null;
+        });
     }
 
     @FXML
@@ -283,35 +396,30 @@ public class PantallaMenu {
 
     @FXML
     private void handleRefreshGames() {
-        try (Connection con = GestorBBDD.conectarBaseDatos()) { 
-            if (con != null) {
-                refreshGames(con);
+        ejecutarTareaDB("Cargando partidas...", () -> {
+            try (Connection con = GestorBBDD.conectarBaseDatos()) {
+                if (con != null) {
+                    ArrayList<String> games = dbManager.llistarPartides(con);
+                    Platform.runLater(() -> savedGamesList.getItems().setAll(games));
+                }
             }
-        } catch (Exception e) {
-            System.err.println("Error cargando partidas: " + e.getMessage());
-        }
-    }
-
-    private void refreshGames(Connection con) {
-        ArrayList<String> games = dbManager.llistarPartides(con);
-        savedGamesList.getItems().setAll(games);
+            return null;
+        });
     }
 
     @FXML
     private void handleRefreshRanking() {
-        try (Connection con = GestorBBDD.conectarBaseDatos()) {
-            if (con != null) {
-                refreshRanking(con);
+        ejecutarTareaDB("Cargando ranking...", () -> {
+            try (Connection con = GestorBBDD.conectarBaseDatos()) {
+                if (con != null) {
+                    ArrayList<String> ranking = dbManager.obtenerRanking(con);
+                    Platform.runLater(() -> rankingList.getItems().setAll(ranking));
+                }
             }
-        } catch (Exception e) {
-            System.err.println("Error cargando ranking: " + e.getMessage());
-        }
+            return null;
+        });
     }
 
-    private void refreshRanking(Connection con) {
-        ArrayList<String> ranking = dbManager.obtenerRanking(con);
-        rankingList.getItems().setAll(ranking);
-    }
 
     @FXML
     private void handleStartGame(ActionEvent event) {
@@ -426,11 +534,11 @@ public class PantallaMenu {
 
         if (partida != null) {
             try {
-                // Pasar la partida a la siguiente pantalla
+                // Pasar la partida a la siguiente pantalla (se guardará estáticamente en PantallaJuego)
                 PantallaJuego.setPartidaInicial(partida);
                 
-                // Usar el método centralizado para mantener resolución y estado
-                controlador.Main.cambiarEscena("/resources/PantallaJuego.fxml");
+                // IR A LA PANTALLA DE CARGA DE PARTIDA (con tips)
+                controlador.Main.cambiarEscena("/resources/PantallaCargaPartida.fxml");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -457,28 +565,30 @@ public class PantallaMenu {
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 int id = Integer.parseInt(selected.split(":")[1].trim().split(" ")[0]);
-                try (Connection con = GestorBBDD.conectarBaseDatos()) {
-                    if (con != null) {
-                        boolean exito = dbManager.esborrarPartida(id, con);
-                        if (exito) {
-                            System.out.println("Partida " + id + " borrada correctamente.");
-                            handleRefreshGames(); // Refrescar la lista
-                            
-                            deleteFeedbackLabel.setText("Partida borrada correctamente.");
-                            deleteFeedbackLabel.setVisible(true);
-                            PauseTransition pause = new PauseTransition(Duration.seconds(3));
-                            pause.setOnFinished(e -> deleteFeedbackLabel.setVisible(false));
-                            pause.play();
-                            
-                        } else {
-                            Alert error = new Alert(AlertType.ERROR, "Error al borrar la partida de la base de datos.", ButtonType.OK);
-                            estilar(error);
-                            error.showAndWait();
+                ejecutarTareaDB("Borrando partida...", () -> {
+                    try (Connection con = GestorBBDD.conectarBaseDatos()) {
+                        if (con != null) {
+                            boolean exito = dbManager.esborrarPartida(id, con);
+                            Platform.runLater(() -> {
+                                if (exito) {
+                                    System.out.println("Partida " + id + " borrada correctamente.");
+                                    handleRefreshGames(); // Refrescar la lista (esto lanzará otra tarea)
+                                    
+                                    deleteFeedbackLabel.setText("Partida borrada correctamente.");
+                                    deleteFeedbackLabel.setVisible(true);
+                                    PauseTransition pause = new PauseTransition(Duration.seconds(3));
+                                    pause.setOnFinished(e -> deleteFeedbackLabel.setVisible(false));
+                                    pause.play();
+                                } else {
+                                    Alert error = new Alert(AlertType.ERROR, "Error al borrar la partida.", ButtonType.OK);
+                                    estilar(error);
+                                    error.showAndWait();
+                                }
+                            });
                         }
                     }
-                } catch (Exception e) {
-                    System.err.println("Error al borrar partida: " + e.getMessage());
-                }
+                    return null;
+                });
             }
         });
     }

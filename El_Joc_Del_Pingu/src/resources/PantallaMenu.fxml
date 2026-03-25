@@ -6,6 +6,7 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
@@ -18,7 +19,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080" prefWidth="1920" styleClass="root" stylesheets="@PantallaMenu.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaMenu">
+<BorderPane maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080" prefWidth="1920" styleClass="root" stylesheets="@PantallaMenu.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vista.PantallaMenu">
 
     <center>
         <StackPane fx:id="menuRoot" BorderPane.alignment="CENTER">
@@ -32,16 +33,14 @@
                     </ImageView>
                 </StackPane>
                 
-                <!-- MUTE BUTTON -->
-                <Button fx:id="btnMute" onAction="#handleToggleMute" styleClass="mute-button" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0">
-                    <graphic>
-                        <ImageView fx:id="imgMute" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@../assets/speaker_on.png" />
-                            </image>
-                        </ImageView>
-                    </graphic>
-                </Button>
+
+                
+                   <!-- LOGO PCI -->
+                <ImageView fitHeight="120.0" fitWidth="216.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                    <image>
+                        <Image url="@../assets/LogoPCI.png" />
+                    </image>
+                </ImageView>
                 
                 <!-- LANDING SCREEN -->
                 <VBox fx:id="landingContainer" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" spacing="20" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0">
@@ -73,6 +72,7 @@
                     <Button minWidth="320" onAction="#handleOpenNewGame" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="NUEVA PARTIDA" />
                     <Button minWidth="320" onAction="#handleOpenLoadGame" prefHeight="68.0" prefWidth="386.0" styleClass="landing-nav-button" text="CARGAR PARTIDA" />
                     <Button minWidth="320" onAction="#handleOpenRanking" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="RANKING" />
+                    <Button minWidth="320" onAction="#handleToggleSettings" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="OPCIONES" />
                     <Button minWidth="320" onAction="#handleQuitGame" styleClass="landing-nav-button, quit-button" text="SALIR DEL JUEGO" />
                 </VBox>
 
@@ -80,6 +80,11 @@
                 <VBox fx:id="contentContainer" managed="false" maxWidth="800" spacing="20" visible="false" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="560.0" AnchorPane.rightAnchor="560.0" AnchorPane.topAnchor="40.0">
                     <HBox alignment="CENTER_LEFT">
                         <Button onAction="#handleBackToLanding" styleClass="back-button" text="← VOLVER AL MENÚ" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <VBox alignment="CENTER_RIGHT" spacing="5">
+                            <Label fx:id="dbStatusLabel" style="-fx-text-fill: #7FD4F0; -fx-font-size: 12px;" text="" visible="false" />
+                            <javafx.scene.control.ProgressBar fx:id="dbProgressBar" prefWidth="150.0" visible="false" />
+                        </VBox>
                     </HBox>
 
                     <VBox spacing="16" styleClass="card" VBox.vgrow="ALWAYS">
@@ -143,6 +148,57 @@
                         </javafx.scene.control.TabPane>
                     </VBox>
                 </VBox>
+                <!-- SETTINGS CONTAINER (FOR CENTERING WITHOUT FILLING) -->
+                <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" pickOnBounds="false">
+                    <VBox fx:id="settingsPane" alignment="TOP_LEFT" managed="false" maxHeight="-Infinity" maxWidth="-Infinity" mouseTransparent="false" pickOnBounds="true" prefWidth="350.0" spacing="12" styleClass="settings-pane-ref" visible="false">
+                        <padding>
+                            <Insets bottom="15" left="20" right="20" top="12" />
+                        </padding>
+                        
+                        <!-- HEADER -->
+                        <HBox alignment="CENTER_LEFT">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label styleClass="settings-title-ref" text="AJUSTES" />
+                                <Separator styleClass="settings-separator-ref" />
+                            </VBox>
+                            <Button onAction="#handleToggleSettings" styleClass="close-button-ref" text="✕" translateY="-8" translateX="8" />
+                        </HBox>
+
+                        <!-- MUSICA SECTION -->
+                        <VBox spacing="8">
+                            <Label styleClass="settings-label-ref" text="Música" />
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <Button fx:id="btnMute" onAction="#handleToggleMute" styleClass="mute-button-ref">
+                                    <graphic>
+                                        <ImageView fx:id="imgMute" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../assets/speaker_on.png" />
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                                <Slider fx:id="musicSlider" max="1.0" min="0.0" prefWidth="220.0" value="0.5" styleClass="settings-slider-ref" />
+                            </HBox>
+                        </VBox>
+                        
+                        <!-- EFECTOS SECTION -->
+                        <VBox spacing="8">
+                            <Label styleClass="settings-label-ref" text="Efectos" />
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <Button fx:id="btnMuteSfx" onAction="#handleToggleSfxMute" styleClass="mute-button-ref">
+                                    <graphic>
+                                        <ImageView fx:id="imgMuteSfx" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../assets/speaker_on.png" />
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                                <Slider fx:id="sfxSlider" max="1.0" min="0.0" prefWidth="220.0" value="0.5" styleClass="settings-slider-ref" />
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </StackPane>
             </AnchorPane>
         </StackPane>
     </center>

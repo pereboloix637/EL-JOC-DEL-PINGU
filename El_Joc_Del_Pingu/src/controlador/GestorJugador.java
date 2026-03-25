@@ -12,10 +12,6 @@ import model.items.Peix;
 
 // Gestiona les acciones del jugador en la partida
 public class GestorJugador {
-
-	public GestorJugador() {
-	}
-
 	
 	// Usa l'ítem de l'inventari que coincideixi amb el nom
 	public void jugadorUsaItem(Pinguino p, String nombreItem) {

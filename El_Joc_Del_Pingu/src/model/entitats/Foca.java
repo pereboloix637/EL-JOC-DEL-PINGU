@@ -137,20 +137,37 @@ public class Foca extends Jugador {
 
 	/**
 	 * Decideix aleatòriament si la foca colpeja (pegar) o aixafa (aplastar) el pingüí.
-	 * Només triarà aixafar si el pingüí té ítems a l'inventari.
+	 * Amb probabilitats variables segons posició del jugador i inventari.
 	 */
-	public void decidirAccion(Pinguino p, Partida partida) {
+	public void AccionesFoca(Pinguino p, Partida partida) {
 		if (this.soborno || this.bloqueix > 0) return;
 
-		boolean tieneItems = p.getInventari().getBoles() > 0 || 
-		                     p.getInventari().getPeixos() > 0 || 
-		                     p.getInventari().getDausEspecials() > 0;
+		int totalItems = p.getInventari().getBoles() + p.getInventari().getPeixos() + p.getInventari().getDausEspecials();
+		boolean tieneItems = totalItems > 0;
 
 		java.util.Random rand = new java.util.Random();
 		
-		// Si té ítems, tria 50/50. Si no, només pot pegar.
-		if (tieneItems && rand.nextBoolean()) {
-			aplastarPingu(p);
+		int chancePegar = 50;
+		int chanceAplastar = 50;
+
+		// Si està molt a prop del final (casella 40 o més, donat que el final és la 50)
+		if (p.getPosicio() >= 40) {
+			chancePegar = 75;
+			chanceAplastar = 25;
+		}
+		// Si té més de 3 ítems
+		else if (totalItems > 3) {
+			chancePegar = 25;
+			chanceAplastar = 75;
+		}
+
+		if (tieneItems) {
+			int roll = rand.nextInt(100);
+			if (roll < chanceAplastar) {
+				aplastarPingu(p);
+			} else {
+				pegarPingu(p, partida);
+			}
 		} else {
 			pegarPingu(p, partida);
 		}
