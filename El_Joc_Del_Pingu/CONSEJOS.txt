@@ -5,3 +5,5 @@
 "Quizás te sorprenda saber que existe un Pingu y una Foca oculta..."
 "El dado lento te puede ayudar a caer en casillas lejanas."
 "¡El dado rapido puede ayudarte a recorrer muchas casillas!"
+"Los trineos te hacen avanzar y los abujeros te hacen retroceder."
+"¡Que no te peguen las focas! Puede ser la diferencia entre ganar y perder..."
