@@ -440,3 +440,27 @@
     -fx-background-color: #1C3A52;
     -fx-effect: none;
 }
+
+/* ---- PROGRESS BAR (Estilo Barra de Carga Ártica) ---- */
+.progress-bar {
+    -fx-background-color: transparent;
+    -fx-padding: 2;
+}
+
+.progress-bar > .track {
+    -fx-background-color: #0D1B2A;
+    -fx-background-radius: 0;
+    -fx-border-color: #2E6B8A;
+    -fx-border-width: 2;
+}
+
+.progress-bar > .bar {
+    -fx-background-color: linear-gradient(to bottom, #7FD4F0, #3AB5E6);
+    -fx-background-radius: 0;
+    -fx-background-insets: 2;
+    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 4, 4);
+}
+
+.progress-bar:indeterminate > .bar {
+    -fx-background-color: linear-gradient(to right, #0D1B2A, #7FD4F0, #0D1B2A);
+}
