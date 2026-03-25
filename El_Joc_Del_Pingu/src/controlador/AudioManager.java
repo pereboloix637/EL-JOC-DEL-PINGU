@@ -12,7 +12,10 @@ import java.net.URL;
 public class AudioManager {
     private static AudioManager instance;
     private MediaPlayer mediaPlayer;
-    private boolean muted = false;
+    private boolean musicMuted = false;
+    private boolean sfxMuted = false;
+    private double musicVolume = 0.5;
+    private double sfxVolume = 0.5;
 
     private AudioManager() {
         try {
@@ -21,7 +24,7 @@ public class AudioManager {
                 Media media = new Media(resource.toExternalForm());
                 mediaPlayer = new MediaPlayer(media);
                 mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-                mediaPlayer.setVolume(0.5); // Volumen inicial al 50%
+                mediaPlayer.setVolume(musicVolume); 
             } else {
                 System.err.println("No se ha encontrado el archivo de música: soundtrack_menu_pingu.mp3");
             }
@@ -49,21 +52,78 @@ public class AudioManager {
         }
     }
 
-    public void toggleMute() {
-        muted = !muted;
+    public void toggleMusicMute() {
+        musicMuted = !musicMuted;
+        if (mediaPlayer != null) {
+            mediaPlayer.setMute(musicMuted);
+        }
+    }
+
+    public void toggleSfxMute() {
+        sfxMuted = !sfxMuted;
+    }
+
+    public boolean isMusicMuted() {
+        return musicMuted;
+    }
+    
+    public boolean isSfxMuted() {
+        return sfxMuted;
+    }
+    
+    public void setMusicMuted(boolean muted) {
+        this.musicMuted = muted;
         if (mediaPlayer != null) {
             mediaPlayer.setMute(muted);
         }
     }
 
-    public boolean isMuted() {
-        return muted;
+    public void setSfxMuted(boolean muted) {
+        this.sfxMuted = muted;
     }
-    
-    public void setMuted(boolean muted) {
-        this.muted = muted;
+
+    public double getMusicVolume() {
+        return musicVolume;
+    }
+
+    public void setMusicVolume(double volume) {
+        this.musicVolume = volume;
         if (mediaPlayer != null) {
-            mediaPlayer.setMute(muted);
+            mediaPlayer.setVolume(volume);
+        }
+    }
+
+    public double getSfxVolume() {
+        return sfxVolume;
+    }
+
+    public void setSfxVolume(double volume) {
+        this.sfxVolume = volume;
+    }
+
+    /**
+     * Reproduce un efecto de sonido corto una sola vez.
+     * @param resourcePath Ruta al recurso de audio (ej: "/assets/hover.mp3")
+     */
+    public void playSound(String resourcePath) {
+        try {
+            URL resource = getClass().getResource(resourcePath);
+            if (resource != null) {
+                Media media = new Media(resource.toExternalForm());
+                MediaPlayer sfxPlayer = new MediaPlayer(media);
+                sfxPlayer.setMute(sfxMuted);
+                sfxPlayer.setVolume(sfxVolume);
+                sfxPlayer.play();
+                
+                // Limpieza automática cuando termina el sonido
+                sfxPlayer.setOnEndOfMedia(() -> {
+                    sfxPlayer.dispose();
+                });
+            } else {
+                System.err.println("No se ha encontrado el efecto de sonido: " + resourcePath);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al reproducir efecto de sonido: " + e.getMessage());
         }
     }
 }

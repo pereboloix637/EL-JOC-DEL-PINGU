@@ -6,6 +6,7 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
@@ -32,16 +33,7 @@
                     </ImageView>
                 </StackPane>
                 
-                <!-- MUTE BUTTON -->
-                <Button fx:id="btnMute" onAction="#handleToggleMute" styleClass="mute-button" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0">
-                    <graphic>
-                        <ImageView fx:id="imgMute" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@../assets/speaker_on.png" />
-                            </image>
-                        </ImageView>
-                    </graphic>
-                </Button>
+
                 
                 <!-- LANDING SCREEN -->
                 <VBox fx:id="landingContainer" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" spacing="20" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0">
@@ -73,6 +65,7 @@
                     <Button minWidth="320" onAction="#handleOpenNewGame" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="NUEVA PARTIDA" />
                     <Button minWidth="320" onAction="#handleOpenLoadGame" prefHeight="68.0" prefWidth="386.0" styleClass="landing-nav-button" text="CARGAR PARTIDA" />
                     <Button minWidth="320" onAction="#handleOpenRanking" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="RANKING" />
+                    <Button minWidth="320" onAction="#handleToggleSettings" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="OPCIONES" />
                     <Button minWidth="320" onAction="#handleQuitGame" styleClass="landing-nav-button, quit-button" text="SALIR DEL JUEGO" />
                 </VBox>
 
@@ -144,6 +137,57 @@
                         </javafx.scene.control.TabPane>
                     </VBox>
                 </VBox>
+                <!-- SETTINGS CONTAINER (FOR CENTERING WITHOUT FILLING) -->
+                <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" pickOnBounds="false">
+                    <VBox fx:id="settingsPane" alignment="TOP_LEFT" managed="false" maxHeight="-Infinity" maxWidth="-Infinity" mouseTransparent="false" pickOnBounds="true" prefWidth="350.0" spacing="12" styleClass="settings-pane-ref" visible="false">
+                        <padding>
+                            <Insets bottom="15" left="20" right="20" top="12" />
+                        </padding>
+                        
+                        <!-- HEADER -->
+                        <HBox alignment="CENTER_LEFT">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label styleClass="settings-title-ref" text="AJUSTES" />
+                                <Separator styleClass="settings-separator-ref" />
+                            </VBox>
+                            <Button onAction="#handleToggleSettings" styleClass="close-button-ref" text="✕" translateY="-8" translateX="8" />
+                        </HBox>
+
+                        <!-- MUSICA SECTION -->
+                        <VBox spacing="8">
+                            <Label styleClass="settings-label-ref" text="Música" />
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <Button fx:id="btnMute" onAction="#handleToggleMute" styleClass="mute-button-ref">
+                                    <graphic>
+                                        <ImageView fx:id="imgMute" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../assets/speaker_on.png" />
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                                <Slider fx:id="musicSlider" max="1.0" min="0.0" prefWidth="220.0" value="0.5" styleClass="settings-slider-ref" />
+                            </HBox>
+                        </VBox>
+                        
+                        <!-- EFECTOS SECTION -->
+                        <VBox spacing="8">
+                            <Label styleClass="settings-label-ref" text="Efectos" />
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <Button fx:id="btnMuteSfx" onAction="#handleToggleSfxMute" styleClass="mute-button-ref">
+                                    <graphic>
+                                        <ImageView fx:id="imgMuteSfx" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../assets/speaker_on.png" />
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                                <Slider fx:id="sfxSlider" max="1.0" min="0.0" prefWidth="220.0" value="0.5" styleClass="settings-slider-ref" />
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </StackPane>
             </AnchorPane>
         </StackPane>
     </center>

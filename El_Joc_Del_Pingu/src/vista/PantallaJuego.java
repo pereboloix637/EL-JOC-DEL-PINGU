@@ -68,6 +68,8 @@ public class PantallaJuego {
 	@FXML
 	private MenuItem menuMute;
 	@FXML
+	private MenuItem menuMuteSfx;
+	@FXML
 	private MenuItem quitGame;
 	
 	
@@ -647,14 +649,25 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleToggleMute(ActionEvent event) {
-		AudioManager.getInstance().toggleMute();
+		AudioManager.getInstance().toggleMusicMute();
+		updateMuteUI();
+	}
+
+	@FXML
+	private void handleToggleSfxMute(ActionEvent event) {
+		AudioManager.getInstance().toggleSfxMute();
 		updateMuteUI();
 	}
 
 	private void updateMuteUI() {
-		if (menuMute == null) return;
-		boolean isMuted = AudioManager.getInstance().isMuted();
-		menuMute.setText(isMuted ? "Música: OFF" : "Música: ON");
+		if (menuMute != null) {
+			boolean musicMuted = AudioManager.getInstance().isMusicMuted();
+			menuMute.setText(musicMuted ? "Música: OFF" : "Música: ON");
+		}
+		if (menuMuteSfx != null) {
+			boolean sfxMuted = AudioManager.getInstance().isSfxMuted();
+			menuMuteSfx.setText(sfxMuted ? "Efectos: OFF" : "Efectos: ON");
+		}
 	}
 
 

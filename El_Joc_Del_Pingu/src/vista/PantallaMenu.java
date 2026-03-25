@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.NumberBinding;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.animation.PauseTransition;
@@ -13,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.AnchorPane;
@@ -62,6 +64,12 @@ public class PantallaMenu {
     @FXML private AnchorPane menuContainer;
     @FXML private Button btnMute;
     @FXML private ImageView imgMute;
+    @FXML private Button btnMuteSfx;
+    @FXML private ImageView imgMuteSfx;
+    @FXML private Button btnSettings;
+    @FXML private VBox settingsPane;
+    @FXML private Slider musicSlider;
+    @FXML private Slider sfxSlider;
 
     private ArrayList<Jugador> joinedPlayers = new ArrayList<>();
     private int cpuCount = 0;
@@ -149,22 +157,96 @@ public class PantallaMenu {
         }
 
         updateMuteUI();
+
+        // Registrar sonidos para todos los botones del menú
+        registrarSonsBotons(menuContainer);
+
+        // Inicializar sliders de volumen
+        if (musicSlider != null) {
+            musicSlider.setValue(AudioManager.getInstance().getMusicVolume());
+            musicSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                AudioManager.getInstance().setMusicVolume(newVal.doubleValue());
+            });
+        }
+        if (sfxSlider != null) {
+            sfxSlider.setValue(AudioManager.getInstance().getSfxVolume());
+            sfxSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                AudioManager.getInstance().setSfxVolume(newVal.doubleValue());
+            });
+        }
+
+        updateMuteUI();
+    }
+/**
+     * Registra recursivamente los sonidos de hover y click para todos los botones
+     * dentro de un nodo padre.
+     */
+    private void registrarSonsBotons(Node node) {
+        if (node instanceof Button) {
+            Button btn = (Button) node;
+            
+            // Sonido al pasar el ratón (hover)
+            btn.setOnMouseEntered(e -> {
+                AudioManager.getInstance().playSound("/assets/Hover_boton_hielo.mp3");
+            });
+            
+            // Sonido al hacer clic (ACTION para que conviva con FXML onAction)
+            btn.addEventHandler(ActionEvent.ACTION, e -> {
+                AudioManager.getInstance().playSound("/assets/Audio_click_hielo.mp3");
+            });
+            
+        } else if (node instanceof javafx.scene.Parent) {
+            // Recorrer hijos si es un contenedor
+            for (Node child : ((javafx.scene.Parent) node).getChildrenUnmodifiable()) {
+                registrarSonsBotons(child);
+            }
+        }
     }
 
     @FXML
     private void handleToggleMute(ActionEvent event) {
-        AudioManager.getInstance().toggleMute();
+        AudioManager.getInstance().toggleMusicMute();
         updateMuteUI();
     }
 
+    @FXML
+    private void handleToggleSfxMute(ActionEvent event) {
+        AudioManager.getInstance().toggleSfxMute();
+        updateMuteUI();
+    }
+
+    @FXML
+    private void handleToggleSettings(ActionEvent event) {
+        if (settingsPane != null) {
+            boolean isVisible = settingsPane.isVisible();
+            settingsPane.setVisible(!isVisible);
+            settingsPane.setManaged(!isVisible);
+        }
+    }
+
     private void updateMuteUI() {
-        if (imgMute == null) return;
-        boolean isMuted = AudioManager.getInstance().isMuted();
-        String iconPath = isMuted ? "/assets/speaker_off.png" : "/assets/speaker_on.png";
-        try {
-            imgMute.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream(iconPath)));
-        } catch (Exception e) {
-            System.err.println("Error actualizando icono de silencio: " + e.getMessage());
+        // Actualizar música
+        if (imgMute != null) {
+            boolean musicMuted = AudioManager.getInstance().isMusicMuted();
+            String musicIcon = musicMuted ? "/assets/speaker_off.png" : "/assets/speaker_on.png";
+            try {
+                imgMute.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream(musicIcon)));
+            } catch (Exception e) {
+                System.err.println("Error actualizando icono música: " + e.getMessage());
+            }
+        }
+
+        // Actualizar SFX
+        if (imgMuteSfx != null) {
+            boolean sfxMuted = AudioManager.getInstance().isSfxMuted();
+            String sfxIcon = sfxMuted ? "/assets/speaker_off.png" : "/assets/speaker_on.png";
+            try {
+                imgMuteSfx.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream(sfxIcon)));
+                // Opcional: podrías cambiar el color o añadir un pequeño texto/overlay 
+                // para diferenciar música de efectos si usas el mismo icono
+            } catch (Exception e) {
+                System.err.println("Error actualizando icono SFX: " + e.getMessage());
+            }
         }
     }
 
