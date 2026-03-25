@@ -71,8 +71,8 @@ public class Pinguino extends Jugador {
 				System.out.println("L'atacant retrocedirà " + Math.abs(diferencia) + " caselles...");
 				resultMsg = pingu.getNickname() + " guanya! " + this.getNickname() + " retrocedeix.";
 			} else {
-				// CAS 3: Empat - Es perden totes les boles
-				System.out.println("Empat! Es perden totes les boles de neu.");
+				// CAS 3: Empat
+				System.out.println("Empat! Cap jugador retrocedeix, però perden les boles de neu.");
 				this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 				pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 				resultMsg = "Empat! Ambdós perden totes les boles de neu.";
