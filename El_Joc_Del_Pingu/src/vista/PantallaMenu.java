@@ -147,6 +147,40 @@ public class PantallaMenu {
                 }
             }
         });
+        
+        // Celda personalizada para playersList para incluir botón de eliminar
+        playersList.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
+            private final javafx.scene.layout.HBox container = new javafx.scene.layout.HBox(10);
+            private final javafx.scene.control.Label nameLabel = new javafx.scene.control.Label();
+            private final javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+            private final javafx.scene.control.Button removeBtn = new javafx.scene.control.Button("-");
+
+            {
+                container.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                javafx.scene.layout.HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+                removeBtn.getStyleClass().add("delete-button-small");
+                removeBtn.setOnAction(e -> {
+                    int index = getIndex();
+                    if (index >= 0 && index < joinedPlayers.size()) {
+                        joinedPlayers.remove(index);
+                        playersList.getItems().remove(index);
+                    }
+                });
+                nameLabel.setTextFill(javafx.scene.paint.Color.WHITESMOKE);
+                container.getChildren().addAll(nameLabel, spacer, removeBtn);
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                } else {
+                    nameLabel.setText(item);
+                    setGraphic(container);
+                }
+            }
+        });
 
         showLanding();
 
