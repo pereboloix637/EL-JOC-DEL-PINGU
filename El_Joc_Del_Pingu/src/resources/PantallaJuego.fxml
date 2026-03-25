@@ -81,6 +81,14 @@
                            </ImageView>
                        </children>
                    </VBox>
+
+                   <!-- LOGO PCI -->
+                   <ImageView fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0">
+                       <image>
+                           <Image url="@../assets/LogoPCI.png" />
+                       </image>
+                   </ImageView>
+
                <HBox layoutX="53.0" layoutY="752.0" pickOnBounds="false" prefHeight="314.0" prefWidth="1264.0" styleClass="buttons-hbox" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="53.0">
                   <children>
                            <VBox alignment="CENTER" pickOnBounds="false" spacing="2">

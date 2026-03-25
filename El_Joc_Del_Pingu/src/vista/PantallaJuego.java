@@ -580,7 +580,8 @@ public class PantallaJuego {
 
 	private void mostrarPopupUI(Jugador j, String imagenNombre) {
 		ImageView pieza = getPiezaParaJugador(j);
-		if (pieza == null) return;
+		if (pieza == null)
+		return;
 
 		int pos = j.getPosicio();
 		int logicalRow = pos / COLUMNS;
