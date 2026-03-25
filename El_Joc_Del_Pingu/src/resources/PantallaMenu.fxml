@@ -87,6 +87,11 @@
                 <VBox fx:id="contentContainer" managed="false" maxWidth="800" spacing="20" visible="false" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="560.0" AnchorPane.rightAnchor="560.0" AnchorPane.topAnchor="40.0">
                     <HBox alignment="CENTER_LEFT">
                         <Button onAction="#handleBackToLanding" styleClass="back-button" text="← VOLVER AL MENÚ" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <VBox alignment="CENTER_RIGHT" spacing="5">
+                            <Label fx:id="dbStatusLabel" style="-fx-text-fill: #7FD4F0; -fx-font-size: 12px;" text="" visible="false" />
+                            <javafx.scene.control.ProgressBar fx:id="dbProgressBar" prefWidth="150.0" visible="false" />
+                        </VBox>
                     </HBox>
 
                     <VBox spacing="16" styleClass="card" VBox.vgrow="ALWAYS">

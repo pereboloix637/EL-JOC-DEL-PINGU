@@ -15,19 +15,27 @@ public class AudioManager {
     private boolean muted = false;
 
     private AudioManager() {
-        try {
-            URL resource = getClass().getResource("/assets/soundtrack_menu_pingu.mp3");
-            if (resource != null) {
-                Media media = new Media(resource.toExternalForm());
-                mediaPlayer = new MediaPlayer(media);
-                mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-                mediaPlayer.setVolume(0.5); // Volumen inicial al 50%
-            } else {
-                System.err.println("No se ha encontrado el archivo de música: soundtrack_menu_pingu.mp3");
+        // Constructor vacío, la inicialización es asíncrona
+    }
+
+    public void initAsync() {
+        if (mediaPlayer != null) return;
+        
+        new Thread(() -> {
+            try {
+                URL resource = getClass().getResource("/assets/soundtrack_menu_pingu.mp3");
+                if (resource != null) {
+                    Media media = new Media(resource.toExternalForm());
+                    mediaPlayer = new MediaPlayer(media);
+                    mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+                    mediaPlayer.setVolume(0.5); // Volumen inicial al 50%
+                } else {
+                    System.err.println("No se ha encontrado el archivo de música: soundtrack_menu_pingu.mp3");
+                }
+            } catch (Exception e) {
+                System.err.println("Error asíncrono en AudioManager: " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.err.println("Error al inicializar el reproductor de audio: " + e.getMessage());
-        }
+        }).start();
     }
 
     public static AudioManager getInstance() {
