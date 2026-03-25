@@ -87,3 +87,9 @@ Cada jugador avanza por turnos utilizando dados para moverse por el tablero. Dur
 Los pingüinos pueden tener inventario y utilizar objetos para defenderse o atacar, mientras que las focas (CPU o bots) no tienen inventario pero pueden atacar.
 
 La partida continúa hasta que un jugador llega al final del tablero.
+
+# VERSION DEL JAVAFX Y DE JAVA
+## JAVAFX
+La version del javaFX es la 21.0.20
+## JAVA
+El java fue realizado en Eclipse 4.33

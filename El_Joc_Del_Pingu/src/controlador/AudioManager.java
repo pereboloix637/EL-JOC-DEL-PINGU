@@ -28,9 +28,7 @@ public class AudioManager {
             } else {
                 System.err.println("No se ha encontrado el archivo de música: soundtrack_menu_pingu.mp3");
             }
-        } catch (Exception e) {
-            System.err.println("Error al inicializar el reproductor de audio: " + e.getMessage());
-        }
+        }).start();
     }
 
     public static AudioManager getInstance() {

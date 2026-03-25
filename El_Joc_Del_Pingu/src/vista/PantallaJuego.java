@@ -529,50 +529,66 @@ public class PantallaJuego {
 		}
 	}
 
-	private void mostrarTiposDeCasillasEnTablero(Taulell t) {
-		// Clear only the tiles we generated in previous calls
-		tablero.getChildren().removeIf(node -> TAG_CASILLA_TEXT.equals(node.getUserData()));
+    private void mostrarTiposDeCasillasEnTablero(Taulell t) {
+        // Limpiar celdas previas
+        tablero.getChildren().removeIf(node -> TAG_CASILLA_TEXT.equals(node.getUserData()));
+        glassTiles.clear();
 
-		int total = t.getCaselles().size();
-		for (int i = 0; i < total; i++) {
-			Casella casilla = t.getCaselles().get(i);
+        int total = t.getCaselles().size();
+        int batchSize = 10;
 
-			// Wrap in a StackPane to represent the cell (no text, only CSS class)
-			StackPane iceBlock = new StackPane();
-			iceBlock.setUserData(TAG_CASILLA_TEXT);
-			iceBlock.getStyleClass().add("board-cell");
-			iceBlock.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-			GridPane.setFillWidth(iceBlock, true);
-			GridPane.setFillHeight(iceBlock, true);
+        new Thread(() -> {
+            for (int i = 0; i < total; i += batchSize) {
+                final int start = i;
+                final int end = Math.min(i + batchSize, total);
 
-			// Add specific type class for coloring/assets
-			if (i == 0) {
-				iceBlock.getStyleClass().add("start-cell");
-			} else if (i == total - 1) {
-				iceBlock.getStyleClass().add("finish-cell");
-			} else {
-				iceBlock.getStyleClass().add("cell-" + casilla.getClass().getSimpleName());
-			}
+                Platform.runLater(() -> {
+                    for (int j = start; j < end; j++) {
+                        Casella casilla = t.getCaselles().get(j);
+                        StackPane iceBlock = createCellNode(j, casilla, total);
+                        tablero.getChildren().add(0, iceBlock);
+                        glassTiles.put(j, iceBlock);
+                    }
+                });
 
-			// Snake mapping to inner 10x5 area of 12x7 grid
-			int logicalRow = i / COLUMNS;
-			int logicalCol = i % COLUMNS;
-			
-			// Fila impar = derecha a izquierda
-			if (logicalRow % 2 != 0) {
-				logicalCol = (COLUMNS - 1) - logicalCol;
-			}
+                try {
+                    Thread.sleep(16); // Aproximadamente un frame para dejar respirar a la UI
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }).start();
+    }
 
-			int row = (ROWS - 1) - logicalRow;
-			int col = logicalCol;
+    private StackPane createCellNode(int i, Casella casilla, int total) {
+        StackPane iceBlock = new StackPane();
+        iceBlock.setUserData(TAG_CASILLA_TEXT);
+        iceBlock.getStyleClass().add("board-cell");
+        iceBlock.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        GridPane.setFillWidth(iceBlock, true);
+        GridPane.setFillHeight(iceBlock, true);
 
-			GridPane.setRowIndex(iceBlock, row);
-			GridPane.setColumnIndex(iceBlock, col);
+        if (i == 0) {
+            iceBlock.getStyleClass().add("start-cell");
+        } else if (i == total - 1) {
+            iceBlock.getStyleClass().add("finish-cell");
+        } else {
+            iceBlock.getStyleClass().add("cell-" + casilla.getClass().getSimpleName());
+        }
 
-			tablero.getChildren().add(0, iceBlock); // Add to back so players stay on top
-			glassTiles.put(i, iceBlock);
-		}
-	}
+        int logicalRow = i / COLUMNS;
+        int logicalCol = i % COLUMNS;
+        if (logicalRow % 2 != 0) {
+            logicalCol = (COLUMNS - 1) - logicalCol;
+        }
+        int row = (ROWS - 1) - logicalRow;
+        int col = logicalCol;
+
+        GridPane.setRowIndex(iceBlock, row);
+        GridPane.setColumnIndex(iceBlock, col);
+        
+        return iceBlock;
+    }
 
 
 	public static void mostrarPopupItem(Jugador j, String imagenNombre) {
@@ -582,7 +598,8 @@ public class PantallaJuego {
 
 	private void mostrarPopupUI(Jugador j, String imagenNombre) {
 		ImageView pieza = getPiezaParaJugador(j);
-		if (pieza == null) return;
+		if (pieza == null)
+		return;
 
 		int pos = j.getPosicio();
 		int logicalRow = pos / COLUMNS;
@@ -953,7 +970,7 @@ public class PantallaJuego {
 		                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaNormal) {
 		                        registrarEvento(pActual.getNickname() + " ha topat amb la foca " + fRival.getNickname(), "log-warning");
 		                        int posAbans = pActual.getPosicio();
-		                        fRival.decidirAccion(pActual, gestorPartida.getPartida());
+		                        fRival.AccionesFoca(pActual, gestorPartida.getPartida());
 		                        
 		                        if (pActual.getPosicio() != posAbans) {
 		                            animarRetroceso(pActual, posAbans, pActual.getPosicio());
