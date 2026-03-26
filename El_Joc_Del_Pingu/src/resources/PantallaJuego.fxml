@@ -31,7 +31,7 @@
                         <MenuItem fx:id="saveGame" mnemonicParsing="false" onAction="#handleSaveGame" text="Guardar" />
                         <MenuItem fx:id="menuMute" mnemonicParsing="false" onAction="#handleToggleMute" text="Música: ON" />
                         <MenuItem fx:id="menuMuteSfx" mnemonicParsing="false" onAction="#handleToggleSfxMute" text="Efectos: ON" />
-                        <MenuItem fx:id="menuFullScreen" mnemonicParsing="false" onAction="#handleToggleFullScreen" text="Pantalla: ON" />
+                        <MenuItem fx:id="menuFullScreen" mnemonicParsing="false" onAction="#handleToggleFullScreen" text="Pantalla Completa: ON" />
                         <MenuItem fx:id="quitGame" mnemonicParsing="false" onAction="#handleQuitGame" text="Salir" />
                     </items>
                 </Menu>
@@ -68,6 +68,8 @@
                         <ImageView id="P2" fx:id="P2" fitHeight="42.5" fitWidth="42.5" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
                         <ImageView id="P3" fx:id="P3" fitHeight="42.5" fitWidth="42.5" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
                         <ImageView id="P4" fx:id="P4" fitHeight="42.5" fitWidth="42.5" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+                        <ImageView id="P5" fx:id="P5" fitHeight="42.5" fitWidth="42.5" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+                        <ImageView id="P6" fx:id="P6" fitHeight="42.5" fitWidth="42.5" pickOnBounds="true" preserveRatio="true" styleClass="player" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
                     </children>
                 </GridPane>
 
@@ -176,6 +178,7 @@
                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                        </columnConstraints>
                        <rowConstraints>
+                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                        </rowConstraints>

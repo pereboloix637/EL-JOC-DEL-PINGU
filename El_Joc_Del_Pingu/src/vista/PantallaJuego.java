@@ -124,6 +124,10 @@ public class PantallaJuego {
 	private ImageView P3;
 	@FXML
 	private ImageView P4;
+	@FXML
+	private ImageView P5;
+	@FXML
+	private ImageView P6;
 
 	private GestorPartida gestorPartida;
 	private static Partida partidaInicial;
@@ -160,14 +164,13 @@ public class PantallaJuego {
 			actualizarImagenesIniciales();
 
 			// Ensure centering in GridPane
-			GridPane.setHalignment(P1, HPos.CENTER);
-			GridPane.setValignment(P1, VPos.CENTER);
-			GridPane.setHalignment(P2, HPos.CENTER);
-			GridPane.setValignment(P2, VPos.CENTER);
-			GridPane.setHalignment(P3, HPos.CENTER);
-			GridPane.setValignment(P3, VPos.CENTER);
-			GridPane.setHalignment(P4, HPos.CENTER);
-			GridPane.setValignment(P4, VPos.CENTER);
+			ImageView[] piezas = {P1, P2, P3, P4, P5, P6};
+			for (ImageView p : piezas) {
+				if (p != null) {
+					GridPane.setHalignment(p, HPos.CENTER);
+					GridPane.setValignment(p, VPos.CENTER);
+				}
+			}
 		} catch (Exception e) {
 			System.err.println("Error cargando imágenes de pingüinos: " + e.getMessage());
 		}
@@ -238,6 +241,8 @@ public class PantallaJuego {
 		P2.setVisible(js.size() > 1);
 		P3.setVisible(js.size() > 2);
 		P4.setVisible(js.size() > 3);
+		P5.setVisible(js.size() > 4);
+		P6.setVisible(js.size() > 5);
 		
 		// Actualitzar la posició física de cada peça al GridPane
 		Map<Integer, Integer> recuento = new HashMap<>();
@@ -406,12 +411,18 @@ public class PantallaJuego {
 				inv.getChildren().addAll(peces, boles, daus);
 				card.getChildren().add(inv);
 			} else {
-				Label cpuLabel = new Label("(CPU - Foca)");
+				// Mostrar nombre como Foca 1, Foca 2, etc.
+				int focaNum = 0;
+				for (int k = 0; k <= i; k++) {
+					if (js.get(k) instanceof Foca) focaNum++;
+				}
+				name.setText("Foca " + focaNum);
+				Label cpuLabel = new Label("(CPU)");
 				cpuLabel.getStyleClass().add("cpu-label");
 				card.getChildren().add(cpuLabel);
 			}
 
-			// Posicionar en la cuadrícula 2x2: (0,0), (1,0), (0,1), (1,1)
+			// Posicionar en la cuadrícula 2x3
 			int col = i % 2;
 			int row = i / 2;
 			gridInventarios.add(card, col, row);
@@ -428,6 +439,8 @@ public class PantallaJuego {
 			case 1: return P2;
 			case 2: return P3;
 			case 3: return P4;
+			case 4: return P5;
+			case 5: return P6;
 			default: return null;
 		}
 	}
@@ -450,11 +463,16 @@ public class PantallaJuego {
 			String fColor = colorStr;
 			if (colorStr.equalsIgnoreCase("Rojo")) fColor = "Roja";
 			if (colorStr.equalsIgnoreCase("Amarillo")) fColor = "Amarilla";
+			if (colorStr.equalsIgnoreCase("Morado")) fColor = "LIila";
 			
 			filename = "Foca" + fColor + ".png";
 		} else {
-			// Para el pinguino usamos el formato PINGUINO_COLOR.png en mayúsculas
-			filename = "PINGUINO_" + colorStr.toUpperCase() + ".png";
+			// Morado y Naranja usan espacio en el nombre del archivo
+			if (colorStr.equalsIgnoreCase("Morado") || colorStr.equalsIgnoreCase("Naranja")) {
+				filename = "PINGUINO " + colorStr.toUpperCase() + ".png";
+			} else {
+				filename = "PINGUINO_" + colorStr.toUpperCase() + ".png";
+			}
 		}
 
 		try {
@@ -489,6 +507,8 @@ public class PantallaJuego {
 			P2.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_AZUL.png")));
 			P3.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_VERDE.png")));
 			P4.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_AMARILLO.png")));
+			P5.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO MORADO.png")));
+			P6.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO NARANJA.png")));
 		}
 	}
 
@@ -513,6 +533,8 @@ public class PantallaJuego {
 			case 1: return P2;
 			case 2: return P3;
 			case 3: return P4;
+			case 4: return P5;
+			case 5: return P6;
 			default: return null;
 		}
 	}
@@ -527,6 +549,8 @@ public class PantallaJuego {
 			case "azul":     return "#3498DB";
 			case "verde":    return "#27AE60";
 			case "amarillo": return "#F1C40F";
+			case "morado":   return "#8E44AD";
+			case "naranja":  return "#E67E22";
 			default:         return "#FFFFFF";
 		}
 	}
@@ -696,7 +720,7 @@ public class PantallaJuego {
 		}
 		if (menuFullScreen != null) {
 			boolean fs = controlador.Main.isFullScreenEnabled();
-			menuFullScreen.setText(fs ? "Pantalla: ON" : "Pantalla: OFF");
+			menuFullScreen.setText(fs ? "Pantalla Completa: ON" : "Pantalla Completa: OFF");
 		}
 	}
 

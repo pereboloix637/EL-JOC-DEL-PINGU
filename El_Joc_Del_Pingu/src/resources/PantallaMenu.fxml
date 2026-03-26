@@ -99,7 +99,7 @@
                                     <content>
                                         <VBox spacing="15">
                                             <Label styleClass="section-title" text="NUEVA EXPEDICIÓN" />
-                                            <Label styleClass="hint" text="Añade jugadores (2-4, mín. 1 humano)." wrapText="true" />
+                                            <Label styleClass="hint" text="Añade jugadores (2-6, mín. 1 humano)." wrapText="true" />
                                             <Separator />
                                             <javafx.scene.control.ListView fx:id="playersList" prefHeight="250" styleClass="players-list" />
                                             

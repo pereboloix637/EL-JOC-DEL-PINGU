@@ -327,8 +327,8 @@ public class PantallaMenu {
 
     @FXML
     private void handleLogin(ActionEvent event) {
-        if (joinedPlayers.size() >= 4) {
-            Alert alert = new Alert(AlertType.WARNING, "Máximo 4 jugadores permitidos.", ButtonType.OK);
+        if (joinedPlayers.size() >= 6) {
+            Alert alert = new Alert(AlertType.WARNING, "Máximo 6 jugadores permitidos.", ButtonType.OK);
             estilar(alert);
             alert.showAndWait();
             return;
@@ -381,8 +381,8 @@ public class PantallaMenu {
 
     @FXML
     private void handleAddCPU(ActionEvent event) {
-        if (joinedPlayers.size() >= 4) {
-            Alert alert = new Alert(AlertType.WARNING, "Máximo 4 jugadores permitidos.", ButtonType.OK);
+        if (joinedPlayers.size() >= 6) {
+            Alert alert = new Alert(AlertType.WARNING, "Máximo 6 jugadores permitidos.", ButtonType.OK);
             estilar(alert);
             alert.showAndWait();
             return;
@@ -524,7 +524,7 @@ public class PantallaMenu {
             }
 
             ArrayList<Jugador> allPlayers = new ArrayList<>(joinedPlayers);
-            String[] availableColors = {"Rojo", "Azul", "Verde", "Amarillo"};
+            String[] availableColors = {"Rojo", "Azul", "Verde", "Amarillo", "Morado", "Naranja"};
             
             // Asignar colores a los jugadores según su orden en el lobby para garantizar unicidad
             for (int i = 0; i < allPlayers.size(); i++) {
