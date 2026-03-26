@@ -31,6 +31,7 @@
                         <MenuItem fx:id="saveGame" mnemonicParsing="false" onAction="#handleSaveGame" text="Guardar" />
                         <MenuItem fx:id="menuMute" mnemonicParsing="false" onAction="#handleToggleMute" text="Música: ON" />
                         <MenuItem fx:id="menuMuteSfx" mnemonicParsing="false" onAction="#handleToggleSfxMute" text="Efectos: ON" />
+                        <MenuItem fx:id="menuFullScreen" mnemonicParsing="false" onAction="#handleToggleFullScreen" text="Pantalla: ON" />
                         <MenuItem fx:id="quitGame" mnemonicParsing="false" onAction="#handleQuitGame" text="Salir" />
                     </items>
                 </Menu>

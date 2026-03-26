@@ -71,6 +71,7 @@ public class PantallaMenu {
     @FXML private VBox settingsPane;
     @FXML private Slider musicSlider;
     @FXML private Slider sfxSlider;
+    @FXML private javafx.scene.control.CheckBox fullScreenCheck;
 
     private ArrayList<Jugador> joinedPlayers = new ArrayList<>();
     private int cpuCount = 0;
@@ -215,6 +216,14 @@ public class PantallaMenu {
             sfxSlider.setValue(AudioManager.getInstance().getSfxVolume());
             sfxSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
                 AudioManager.getInstance().setSfxVolume(newVal.doubleValue());
+            });
+        }
+
+        // Inicializar checkbox de pantalla completa
+        if (fullScreenCheck != null) {
+            fullScreenCheck.setSelected(controlador.Main.isFullScreenEnabled());
+            fullScreenCheck.selectedProperty().addListener((obs, oldVal, newVal) -> {
+                controlador.Main.setFullScreenEnabled(newVal);
             });
         }
 

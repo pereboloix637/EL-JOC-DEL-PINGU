@@ -197,6 +197,14 @@
                                 <Slider fx:id="sfxSlider" max="1.0" min="0.0" prefWidth="220.0" value="0.5" styleClass="settings-slider-ref" />
                             </HBox>
                         </VBox>
+
+                        <!-- PANTALLA COMPLETA SECTION -->
+                        <VBox spacing="8">
+                            <Label styleClass="settings-label-ref" text="Pantalla" />
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <javafx.scene.control.CheckBox fx:id="fullScreenCheck" selected="true" text="Pantalla Completa" styleClass="fullscreen-check" />
+                            </HBox>
+                        </VBox>
                     </VBox>
                 </StackPane>
             </AnchorPane>
