@@ -22,13 +22,14 @@ public class PantallaCargaPartida {
     		"¡Las focas no tienen inventario! Pero te sorprenderá saber como actúan.",
     		"A veces la estrategia gana a la fuerza, y los ítems lo saben perfectamente.",
     		"Quizás te sorprenda saber que existe un Pingu y una Foca oculta...",
-    		"El dado lento te puede ayudar a caer en casillas lejanas.",
+    		"El dado lento te puede ayudar a caer en casillas cercanas.",
     		"¡El dado rapido puede ayudarte a recorrer muchas casillas!",
     		"Los trineos te hacen avanzar y los abujeros te hacen retroceder.",
     		"¡Que no te peguen las focas! Puede ser la diferencia entre ganar y perder...",
     		"¡El primero en llegar a la meta gana! Sea un Pingu o una Foca...",
     		"PCI Studios mantiene a flote este juego, desde un barco claro.",
-    		"¿Los Pingus y las Focas se pintan? Me gustaria saber si les gustaria tener unas gafas."
+    		"¿Los Pingus y las Focas se pintan? Me gustaria saber si les gustaria tener unas gafas.",
+    		"Hay hasta 7 Pingus y 7 Focas, si no me crees prueba a poner hasta 6 jugadores y ten mucha paciencia."
     };
 
     @FXML
