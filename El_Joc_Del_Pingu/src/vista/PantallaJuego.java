@@ -739,7 +739,8 @@ public class PantallaJuego {
 	private void goToMenu() {
 		try {
 			// Usar el método centralizado para mantener resolución y estado
-			controlador.Main.cambiarEscena("/resources/PantallaMenu.fxml");
+			// Forzamos la recarga para que el menú no guarde caché (Joined players, etc.)
+			controlador.Main.cambiarEscena("/resources/PantallaMenu.fxml", true);
 		} catch (Exception e) {
 			e.printStackTrace();
 			registrarEvento("Error al volver al menú.", "log-warning");

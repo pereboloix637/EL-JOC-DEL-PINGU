@@ -9,6 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.animation.PauseTransition;
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.util.Duration;
 import javafx.scene.control.Button;
@@ -81,6 +82,13 @@ public class PantallaMenu {
 
     @FXML
     private void initialize() {
+        // Efecto de entrada (Fade In)
+        menuRoot.setOpacity(0.0);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(500), menuRoot);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
+
         System.out.println("PantallaMenu inicializada");
 
         // ── Escalado dinámico PERFECTO para Laptops sin romper la config base ──
@@ -538,7 +546,8 @@ public class PantallaMenu {
                 PantallaJuego.setPartidaInicial(partida);
                 
                 // IR A LA PANTALLA DE CARGA DE PARTIDA (con tips)
-                controlador.Main.cambiarEscena("/resources/PantallaCargaPartida.fxml");
+                // Forzamos recarga para que los tips y la barra se reinicien
+                controlador.Main.cambiarEscena("/resources/PantallaCargaPartida.fxml", true);
             } catch (Exception e) {
                 e.printStackTrace();
             }

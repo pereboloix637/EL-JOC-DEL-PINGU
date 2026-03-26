@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* ============================================================
+   PANTALLA CARGA — Estilo pixel-art (Invernal)
+   ============================================================ */
+
+.root {
+    -fx-font-family: "Press Start 2P", "Courier New", "Monospaced";
+    -fx-background-color: black;
+    background-color: black;
+}
+
+/* ProgressBar Styling - Estilo "Card" helado */
+.progress-bar {
+    -fx-pref-height: 40px;
+    -fx-min-height: 40px;
+    min-height: 40px;
+    -fx-background-radius: 0;
+    -fx-padding: 4;
+    padding: 4px;
+    -fx-background-color: rgba(13, 27, 42, 0.9);
+    background-color: rgba(13, 27, 42, 0.9);
+    -fx-border-color: #7FD4F0;
+    /* Cian helado del menú */
+    border-color: #7FD4F0;
+    -fx-border-width: 3;
+    border-width: 3px;
+    -fx-border-radius: 0;
+    border-radius: 0px;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 4, 4);
+}
+
+.progress-bar .track {
+    -fx-background-color: transparent;
+    background-color: transparent;
+}
+
+.progress-bar .bar {
+    -fx-background-color: linear-gradient(to right, #2E6B8A, #3AB5E6, #7FD4F0);
+    background-color: linear-gradient(to right, #2E6B8A, #3AB5E6, #7FD4F0);
+    -fx-background-radius: 0;
+    -fx-effect: dropshadow(three-pass-box, #3AB5E6, 10, 0.5, 0, 0);
+}
+
+/* Loading Label Styling - Fuente pixel e info del menú */
+.loading-label {
+    -fx-font-family: "Press Start 2P";
+    font-family: "Press Start 2P";
+    -fx-font-size: 26px;
+    font-size: 26px;
+    -fx-text-fill: #7FD4F0;
+    /* Azulito cian helado */
+    -fx-background-color: rgba(13, 27, 42, 0.85); /* Fondo oscuro semi-transparente */
+    background-color: rgba(13, 27, 42, 0.85);
+    -fx-padding: 12 24 12 24; /* Margen interno */
+    padding: 12px 24px 12px 24px;
+    -fx-border-color: #3AB5E6; /* Borde cian sutil */
+    border-color: #3AB5E6;
+    -fx-border-width: 2;
+    border-width: 2px;
+    -fx-effect: none;
+}
