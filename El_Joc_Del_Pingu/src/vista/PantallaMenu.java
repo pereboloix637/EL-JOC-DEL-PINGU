@@ -396,7 +396,7 @@ public class PantallaMenu {
             return;
         }
         cpuCount++;
-        String cpuName = "CPU " + cpuCount;
+        String cpuName = "Foca " + cpuCount;
         Foca cpu = new Foca(cpuName, "tempColor");
         joinedPlayers.add(cpu);
         playersList.getItems().add(cpuName + " (CPU)");

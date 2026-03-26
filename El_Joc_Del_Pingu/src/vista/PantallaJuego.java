@@ -37,10 +37,21 @@ import javafx.scene.control.ScrollPane;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Scanner;
 import java.sql.Connection;
 import javafx.util.Duration;
 import javafx.scene.control.ChoiceDialog;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Polygon;
+import javafx.scene.layout.Pane;
+import javafx.animation.RotateTransition;
+import javafx.animation.FadeTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.FillTransition;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+import javafx.scene.Group;
 
 import model.caselles.Casella;
 import model.core.Partida;
@@ -320,6 +331,18 @@ public class PantallaJuego {
 
 	public static void mostrarOverlayBatallaEstatico() {
 		if (instanciaActual != null) instanciaActual.mostrarOverlayBatalla(null);
+	}
+
+	public static void mostrarRuletaEstatico(Jugador j, int itemIndex, Runnable onFinished) {
+		if (instanciaActual != null) {
+			Platform.runLater(() -> instanciaActual.mostrarRuletaItem(j, itemIndex, onFinished));
+		}
+	}
+
+	public static void actualizarUIEstatica() {
+		if (instanciaActual != null) {
+			Platform.runLater(() -> instanciaActual.actualizarUI());
+		}
 	}
 
 	/**
@@ -690,6 +713,164 @@ public class PantallaJuego {
 		}
 	}
 
+	/**
+	 * Mostra una ruleta estil pixel-art per determinar quin item rep el jugador.
+	 */
+	public void mostrarRuletaItem(Jugador j, int itemIndex, Runnable onFinished) {
+		StackPane rootOverlay = boardRoot;
+		
+		// Fondo oscuro
+		Pane dim = new Pane();
+		dim.setStyle("-fx-background-color: rgba(0,0,0,0.7);");
+		dim.setOpacity(0);
+		
+		VBox rouletteContainer = new VBox(25);
+		rouletteContainer.setAlignment(javafx.geometry.Pos.CENTER);
+		rouletteContainer.setMaxSize(600, 600);
+		
+		Label title = new Label("¡RULETA!");
+		title.getStyleClass().add("big-text-mini");
+		title.setStyle("-fx-text-fill: #00ffff; -fx-font-size: 50px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
+		
+		StackPane wheelStack = new StackPane();
+		
+		// Marco de la rueda proporcionado por el usuario
+		ImageView wheelVisuals = new ImageView(new Image(getClass().getResourceAsStream("/assets/RULETA_ALEATORIA.png")));
+		wheelVisuals.setFitWidth(300);
+		wheelVisuals.setFitHeight(300);
+		wheelVisuals.setPreserveRatio(true);
+		wheelVisuals.setSmooth(false); // Para mantener el estilo pixelart sin blur
+		
+		// Iconos de los items en la rueda
+		Pane itemsPane = new Pane();
+		itemsPane.setPrefSize(300, 300);
+		
+		String[] itemImages = {"Pez.png", "BolasNieve.png", "Dado_Rapido.png", "Dado_Lento.png"};
+		for (int i = 0; i < 4; i++) {
+			ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/assets/" + itemImages[i])));
+			iv.setFitWidth(70);
+			iv.setFitHeight(70);
+			iv.setPreserveRatio(true);
+			
+			// Posicionar en los cuadrantes
+			double angle = Math.toRadians(i * 90);
+			iv.setLayoutX(150 + 95 * Math.cos(angle) - 35);
+			iv.setLayoutY(150 + 95 * Math.sin(angle) - 35);
+			iv.setRotate(i * 90);
+			itemsPane.getChildren().add(iv);
+		}
+		
+		wheelStack.getChildren().addAll(wheelVisuals, itemsPane);
+		wheelStack.setMaxSize(300, 300);
+		
+		// Puntero (flecha blocky pixelart)
+		Polygon pointer = new Polygon(
+			-25, 0,
+			25, 0,
+			25, 20,
+			10, 20,
+			0, 45,
+			-10, 20,
+			-25, 20
+		);
+		pointer.setFill(Color.web("#ff0044"));
+		pointer.setStroke(Color.WHITE);
+		pointer.setStrokeWidth(3);
+		pointer.setTranslateY(-175);
+		
+		rouletteContainer.getChildren().addAll(title, wheelStack, pointer);
+		
+		rootOverlay.getChildren().addAll(dim, rouletteContainer);
+		
+		// Animación entrada
+		FadeTransition fadeIn = new FadeTransition(Duration.millis(300), dim);
+		fadeIn.setToValue(1);
+		fadeIn.play();
+		
+		ScaleTransition scaleIn = new ScaleTransition(Duration.millis(300), rouletteContainer);
+		scaleIn.setFromX(0); scaleIn.setFromY(0);
+		scaleIn.setToX(1); scaleIn.setToY(1);
+		scaleIn.play();
+		
+		// Animación giro
+		// Calculamos el ángulo final para que caiga en itemIndex
+		// Los items están a 0, 90, 180, 270 grados. El puntero está fijo arriba (a las 12).
+		// Queremos que el item deseado llegue al puntero.
+		// Item 0 (Pez) está a 0 deg (derecha). Para llegar arriba (-90 deg), la rueda debe girar -90 o +270? 
+		// Vamos a simplificar: Angulo final = vueltas * 360 - (itemIndex * 90) - 90?
+		// Si itemIndex=0 (Pez), está a 0deg. Si giramos -90deg, el Pez llega arriba.
+		// Si itemIndex=1 (Nieve), está a 90deg (abajo). Si giramos -180deg, llega arriba.
+		
+		int rotations = 5 + new Random().nextInt(3);
+		double targetAngle = rotations * 360 - (itemIndex * 90) - 90;
+		
+		RotateTransition rotate = new RotateTransition(Duration.seconds(3), wheelStack);
+		rotate.setByAngle(targetAngle);
+		rotate.setInterpolator(Interpolator.SPLINE(0.1, 0.5, 0.2, 1)); // Slow down effect
+		
+		rotate.setOnFinished(e -> {
+			lanzarConfeti(boardRoot);
+			
+			PauseTransition wait = new PauseTransition(Duration.seconds(2));
+			wait.setOnFinished(e2 -> {
+				FadeTransition fadeOut = new FadeTransition(Duration.millis(300), dim);
+				fadeOut.setToValue(0);
+				FadeTransition fadeOutC = new FadeTransition(Duration.millis(300), rouletteContainer);
+				fadeOutC.setToValue(0);
+				fadeOutC.setOnFinished(e3 -> {
+					rootOverlay.getChildren().removeAll(dim, rouletteContainer);
+					if (onFinished != null) onFinished.run();
+				});
+				fadeOut.play();
+				fadeOutC.play();
+			});
+			wait.play();
+		});
+		
+		PauseTransition startWait = new PauseTransition(Duration.seconds(0.5));
+		startWait.setOnFinished(e -> rotate.play());
+		startWait.play();
+	}
+
+	private void lanzarConfeti(StackPane parent) {
+		Pane confettiLayer = new Pane();
+		confettiLayer.setMouseTransparent(true);
+		parent.getChildren().add(confettiLayer);
+		
+		Random rnd = new Random();
+		Color[] colors = {Color.RED, Color.GOLD, Color.CYAN, Color.LIME, Color.MAGENTA, Color.ORANGE};
+		
+		for (int i = 0; i < 100; i++) {
+			Rectangle r = new Rectangle(8, 8, colors[rnd.nextInt(colors.length)]);
+			r.setLayoutX(parent.getWidth() / 2);
+			r.setLayoutY(parent.getHeight() / 2 - 50);
+			confettiLayer.getChildren().add(r);
+			
+			double angle = rnd.nextDouble() * 360;
+			double distance = 100 + rnd.nextDouble() * 400;
+			double x = Math.cos(Math.toRadians(angle)) * distance;
+			double y = Math.sin(Math.toRadians(angle)) * distance - 200; // Un poco hacia arriba inicial
+			
+			TranslateTransition tt = new TranslateTransition(Duration.seconds(1 + rnd.nextDouble() * 1.5), r);
+			tt.setByX(x);
+			tt.setByY(y);
+			
+			FadeTransition ft = new FadeTransition(Duration.seconds(1.5 + rnd.nextDouble()), r);
+			ft.setFromValue(1);
+			ft.setToValue(0);
+			
+			RotateTransition rt = new RotateTransition(Duration.seconds(1 + rnd.nextDouble()), r);
+			rt.setByAngle(360 + rnd.nextInt(720));
+			
+			ParallelTransition pt = new ParallelTransition(r, tt, ft, rt);
+			pt.play();
+		}
+		
+		PauseTransition cleanup = new PauseTransition(Duration.seconds(4));
+		cleanup.setOnFinished(e -> parent.getChildren().remove(confettiLayer));
+		cleanup.play();
+	}
+
 	@FXML
 	private void handleToggleMute(ActionEvent event) {
 		AudioManager.getInstance().toggleMusicMute();
@@ -1022,33 +1203,50 @@ public class PantallaJuego {
 		        
 		        GestorTaulell gt = new GestorTaulell();
 		        if (!saltaAccioCasella) {
-		        	gt.executarCasella(gestorPartida.getPartida(), j, gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio()));
+		        	Casella c = gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio());
+		        	if (c instanceof model.caselles.Event && j instanceof Pinguino) {
+		        		// Caso especial: La ruleta es asíncrona.
+		        		// Pasamos un callback a través de una variable estática o por el propio evento si fuera posible.
+		        		// Pero como ya modificamos Event para llamar a mostrarRuletaEstatico, 
+		        		// vamos a interceptar aquí el callback de finalización.
+		        		
+		        		// Usaremos un truco: Envolver la acción para que al terminar la ruleta se llame a finalizarTurno
+		        		((model.caselles.Event)c).setCallbackFinalizacion(() -> {
+		        			finalizarTurno(j);
+		        		});
+		        		gt.executarCasella(gestorPartida.getPartida(), j, c);
+		        		return; // No finalizamos turno aquí, esperamos a la ruleta
+		        	} else {
+		        		gt.executarCasella(gestorPartida.getPartida(), j, c);
+		        	}
 		        }
 		        
-		        // Verificar victoria tras movimiento y efectos
-		        gt.comprovarFiTorn(gestorPartida.getPartida());
-		        
-		        if (gestorPartida.getPartida().isFinalitzada()) {
-		            actualizarUI();
-		            Jugador guanyador = gestorPartida.getPartida().getGuanyador();
-	
-		            if (guanyador instanceof model.entitats.Pinguino p) {
-		                // Incrementem la victòria en memòria. Es persistirà si l'usuari decideix guardar.
-		                p.setVictories(p.getVictories() + 1);
-		                System.out.println("Victòria incrementada en memòria per a: " + p.getNickname());
-		            }
-	
-		            mostrarAlertaGanador(guanyador);
-		            return;
-		        }
-	
-		        gestorPartida.seguentTorn();
-		        actualizarUI();
-		        checkTurnoCPU();
+		        finalizarTurno(j);
 	        });
 	    }));
 
 	    sequence.play();
+	}
+
+	private void finalizarTurno(Jugador j) {
+		GestorTaulell gt = new GestorTaulell();
+		gt.comprovarFiTorn(gestorPartida.getPartida());
+		
+		if (gestorPartida.getPartida().isFinalitzada()) {
+			actualizarUI();
+			Jugador guanyador = gestorPartida.getPartida().getGuanyador();
+
+			if (guanyador instanceof model.entitats.Pinguino p) {
+				p.setVictories(p.getVictories() + 1);
+			}
+
+			mostrarAlertaGanador(guanyador);
+			return;
+		}
+
+		gestorPartida.seguentTorn();
+		actualizarUI();
+		checkTurnoCPU();
 	}
 
 	/**
