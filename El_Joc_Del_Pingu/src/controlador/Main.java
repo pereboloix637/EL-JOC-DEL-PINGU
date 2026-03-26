@@ -44,6 +44,14 @@ public class Main extends Application {
     }
 
     public static void cambiarEscena(String fxmlPath) throws Exception {
+        cambiarEscena(fxmlPath, false);
+    }
+
+    public static void cambiarEscena(String fxmlPath, boolean forceReload) throws Exception {
+        if (forceReload) {
+            sceneCache.remove(fxmlPath);
+        }
+
         Parent root;
         if (sceneCache.containsKey(fxmlPath)) {
             root = sceneCache.get(fxmlPath);
