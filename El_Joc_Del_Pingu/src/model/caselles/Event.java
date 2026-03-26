@@ -16,6 +16,8 @@ public class Event extends Casella {
 
 	// Noms dels events possibles (ús informatiu / futura extensió)
 	private String[] esdeveniments;
+	
+	private Runnable callbackFinalizacion;
 
 	// Constructor
 	public Event(int posicio, String[] esdeveniments) {
@@ -32,53 +34,52 @@ public class Event extends Casella {
 		this.esdeveniments = esdeveniments;
 	}
 
-	// Escull un event aleatori entre 4 i l'aplica a l'inventari del pingüí
+	public void setCallbackFinalizacion(Runnable callback) {
+		this.callbackFinalizacion = callback;
+	}
+
 	@Override
 	public void realitzarAccio(Partida partida, Jugador jugador) {
-		// Només els pingüins poden activar events
-		if (!(jugador instanceof Pinguino))
-			return;
+		if (!(jugador instanceof Pinguino)) return;
 		Pinguino pingui = (Pinguino) jugador;
 
-		Random random = new Random();
-		int index = random.nextInt(4);
+		int index = new Random().nextInt(4);
+		
+		// En lugar de aplicar directamente, pedimos a la vista que muestre la ruleta
+		// y pase un callback para aplicar el premio al terminar.
+		vista.PantallaJuego.mostrarRuletaEstatico(pingui, index, () -> {
+			aplicarPremio(partida, pingui, index);
+			if (callbackFinalizacion != null) {
+				callbackFinalizacion.run();
+				callbackFinalizacion = null; // Limpiar para evitar re-ejecución accidental
+			}
+		});
+	}
 
+	public void aplicarPremio(Partida partida, Pinguino pingui, int index) {
+		Random random = new Random();
 		switch (index) {
 		case 0:
-			// EVENT 0: 1 peix (màxim 2)
 			if (pingui.getInventari().getPeixos() < 2) {
 				pingui.getInventari().afegirItem(new Peix("Peix", 1));
-				System.out.println(pingui.getNickname() + " ha obtingut 1 peix!");
-				vista.PantallaJuego.mostrarPopupItem(pingui, "Pez.png");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment i ha obtingut 1 peix!", "log-info");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha obtenido 1 pez en la ruleta!", "log-info");
 			} else {
-				System.out.println(pingui.getNickname() + " ja té el màxim de peixos (2).");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment però ja té el màxim de peixos!", "log-info");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ya tenía el máximo de peces.", "log-info");
 			}
 			break;
-
 		case 1:
-			// EVENT 1: 1-3 boles de neu (màxim 6)
 			int bolesNoves = random.nextInt(3) + 1;
 			int bolesAfegir = Math.min(bolesNoves, 6 - pingui.getInventari().getBoles());
 			if (bolesAfegir > 0) {
 				pingui.getInventari().afegirItem(new BolaNeu("Bola de Neu", bolesAfegir));
-				System.out.println(pingui.getNickname() + " ha obtingut " + bolesAfegir + " boles de neu!");
-				vista.PantallaJuego.mostrarPopupItem(pingui, "BolasNieve.png");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment i ha obtingut " + bolesAfegir + " boles de neu!", "log-info");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha obtenido " + bolesAfegir + " bolas de nieve!", "log-info");
 			} else {
-				System.out.println(pingui.getNickname() + " ja té el màxim de boles de neu (6).");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment però ja té el màxim de boles de neu!", "log-info");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ya tenía el máximo de bolas de nieve.", "log-info");
 			}
 			break;
-
 		case 2:
-			// EVENT 2: dau ràpid 5-10 caselles (màxim 3 daus especials)
 			if (pingui.getInventari().getDausEspecials() < 3) {
 				pingui.getInventari().afegirItem(new Dau("Dau ràpid", 1, 5, 10));
-				System.out.println(pingui.getNickname() + " ha obtingut un dau ràpid! (5-10 caselles)");
-				vista.PantallaJuego.mostrarPopupItem(pingui, "Dado_Rapido.png");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment i ha obtingut un dau ràpid!", "log-info");
 			} else {
 				System.out.println(pingui.getNickname() + " ja té el màxim de daus especials (3).");
 				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment però ja té el màxim de daus especials!", "log-info");
