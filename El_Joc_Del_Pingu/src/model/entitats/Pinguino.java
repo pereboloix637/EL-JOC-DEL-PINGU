@@ -9,7 +9,7 @@ public class Pinguino extends Jugador {
 	public Inventari inventari;
 	private String contrasenya; // Per al rànquing/login
 	private int victories; // Per al rànquing
-// Aixo es una expansio de Jugador
+
 
 /// CONSTRUCTOR
 	public Pinguino(String nickname, String color, Inventari inventari) {

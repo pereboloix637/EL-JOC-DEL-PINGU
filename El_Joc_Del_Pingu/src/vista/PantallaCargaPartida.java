@@ -28,7 +28,8 @@ public class PantallaCargaPartida {
     		"¡Que no te peguen las focas! Puede ser la diferencia entre ganar y perder...",
     		"¡El primero en llegar a la meta gana! Sea un Pingu o una Foca...",
     		"PCI Studios mantiene a flote este juego, desde un barco claro.",
-    		"¿Los Pingus y las Focas se pintan? Me gustaria saber si les gustaria tener unas gafas."
+    		"¿Los Pingus y las Focas se pintan? Me gustaria saber si les gustaria tener unas gafas.",
+    		"Hay hasta 7 Pingus y 7 Focas, si no me crees prueba a poner hasta 6 jugadores y ten mucha paciencia."
     };
 
     @FXML
