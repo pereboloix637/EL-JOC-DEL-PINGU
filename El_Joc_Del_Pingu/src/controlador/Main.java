@@ -15,6 +15,21 @@ public class Main extends Application {
 
     private static Stage stage;
     private static java.util.Map<String, Parent> sceneCache = new java.util.HashMap<>();
+    private static boolean fullScreenEnabled = true;
+
+    public static boolean isFullScreenEnabled() {
+        return fullScreenEnabled;
+    }
+
+    public static void setFullScreenEnabled(boolean enabled) {
+        fullScreenEnabled = enabled;
+        if (stage != null) {
+            stage.setFullScreen(enabled);
+            if (!enabled) {
+                stage.setMaximized(true);
+            }
+        }
+    }
 
     public static void preCargarEscena(String fxmlPath) {
         try {
@@ -47,7 +62,7 @@ public class Main extends Application {
             stage.getScene().setRoot(root);
         }
 
-        if (!stage.isFullScreen()) {
+        if (fullScreenEnabled && !stage.isFullScreen()) {
             stage.setFullScreen(true);
         }
     }

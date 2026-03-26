@@ -70,6 +70,8 @@ public class PantallaJuego {
 	@FXML
 	private MenuItem menuMuteSfx;
 	@FXML
+	private MenuItem menuFullScreen;
+	@FXML
 	private MenuItem quitGame;
 	
 	
@@ -676,6 +678,13 @@ public class PantallaJuego {
 		updateMuteUI();
 	}
 
+	@FXML
+	private void handleToggleFullScreen(ActionEvent event) {
+		boolean current = controlador.Main.isFullScreenEnabled();
+		controlador.Main.setFullScreenEnabled(!current);
+		updateMuteUI();
+	}
+
 	private void updateMuteUI() {
 		if (menuMute != null) {
 			boolean musicMuted = AudioManager.getInstance().isMusicMuted();
@@ -684,6 +693,10 @@ public class PantallaJuego {
 		if (menuMuteSfx != null) {
 			boolean sfxMuted = AudioManager.getInstance().isSfxMuted();
 			menuMuteSfx.setText(sfxMuted ? "Efectos: OFF" : "Efectos: ON");
+		}
+		if (menuFullScreen != null) {
+			boolean fs = controlador.Main.isFullScreenEnabled();
+			menuFullScreen.setText(fs ? "Pantalla: ON" : "Pantalla: OFF");
 		}
 	}
 

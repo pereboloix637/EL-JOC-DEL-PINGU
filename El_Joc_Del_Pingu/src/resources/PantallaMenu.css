@@ -593,3 +593,43 @@
     -fx-background-color: #3AB5E6;
     -fx-background-radius: 0;
 }
+
+/* ---- CHECKBOX PANTALLA COMPLETA ---- */
+.fullscreen-check {
+    -fx-text-fill: #C8D8E8;
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 11px;
+    -fx-cursor: hand;
+}
+
+.fullscreen-check .box {
+    -fx-background-color: #1B263B;
+    -fx-background-radius: 0;
+    -fx-border-color: #3AB5E6;
+    -fx-border-radius: 0;
+    -fx-border-width: 2;
+    -fx-pref-width: 22px;
+    -fx-pref-height: 22px;
+    -fx-padding: 2;
+    -fx-effect: dropshadow(one-pass-box, black, 2, 2, 0, 0);
+}
+
+.fullscreen-check:hover .box {
+    -fx-border-color: #7FD4F0;
+    -fx-background-color: rgba(58, 181, 230, 0.2);
+    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 3, 3);
+}
+
+.fullscreen-check .mark {
+    -fx-background-color: transparent;
+    -fx-shape: "M0,5 L3,8 L8,0";
+}
+
+.fullscreen-check:selected .mark {
+    -fx-background-color: #7FD4F0;
+}
+
+.fullscreen-check:selected .box {
+    -fx-background-color: rgba(58, 181, 230, 0.3);
+    -fx-border-color: #7FD4F0;
+}
