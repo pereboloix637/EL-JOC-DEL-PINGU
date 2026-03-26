@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image; // Importación necesaria
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -55,16 +56,26 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         stage = primaryStage;
         
-        // Configuración inicial del Stage para que sea rápido
+        // --- CONFIGURACIÓN DEL ICONO ---
+        try {
+            // Buscamos en la carpeta assets que está en la raíz de resources
+            Image icono = new Image(getClass().getResourceAsStream("/assets/LogoJ-delPingu.png"));
+            primaryStage.getIcons().add(icono);
+        } catch (Exception e) {
+            System.err.println("No se pudo cargar el icono de la barra de tareas: " + e.getMessage());
+        }
+        // -------------------------------
+
+        // Configuración inicial del Stage
         primaryStage.setTitle("El Joc del Pingüí");
         primaryStage.setMaximized(true);
         primaryStage.setFullScreen(true);
         primaryStage.setFullScreenExitHint("");
 
         // Cargar primero la pantalla de carga (Splash)
+        // Nota: He mantenido tu ruta tal cual, asegúrate de que "/resources/..." sea correcta en tu estructura
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/PantallaCarga.fxml"));
         Parent root = loader.load();
-        
         
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
         Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
