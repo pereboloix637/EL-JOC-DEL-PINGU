@@ -32,22 +32,22 @@ public class Trencadis extends Casella {
 		if (totalObjectes == 0) {
 			// Sense objectes: passa sense penalització
 			System.out.println(jugador.getNickname()
-					+ " ha trepitjat un sòl trencat, però no porta res → passa sense penalització.");
-			vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ha trepitjat un sòl trencat però passa sense penalització.", "log-info");
+					+ " ha pisado un suelo frágil, pero no lleva nada → pasa sin penalización.");
+			vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ha pisado un suelo frágil pero pasa sin penalización.", "log-info");
 		} else if (totalObjectes <= 5) {
 			// Fins a 5 objectes: perd un torn
 			jugador.setTornsBloquejat(jugador.getTornsBloquejat() + 1);
 			System.out.println(jugador.getNickname()
-					+ " ha trepitjat un sòl trencat i porta " + totalObjectes
-					+ " objectes → perd un torn!");
-			vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ha trepitjat un sòl trencat i perd un torn!", "log-warning");
+					+ " ha pisado un suelo frágil y lleva " + totalObjectes
+					+ " objetos → ¡pierde un turno!");
+			vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ¡ha pisado un suelo frágil y pierde un turno!", "log-warning");
 		} else {
 			// Més de 5 objectes: cau i torna a l'inici
 			jugador.setPosicio(0);
 			System.out.println(jugador.getNickname()
-					+ " ha trepitjat un sòl trencat i porta " + totalObjectes
-					+ " objectes → cau i torna a l'inici!");
-			vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ha trepitjat un sòl trencat i torna a l'inici!", "log-warning");
+					+ " ha pisado un suelo frágil y lleva " + totalObjectes
+					+ " objetos → ¡cae y vuelve al inicio!");
+			vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ¡ha pisado un suelo frágil y vuelve al inicio!", "log-warning");
 		}
 	}
 }

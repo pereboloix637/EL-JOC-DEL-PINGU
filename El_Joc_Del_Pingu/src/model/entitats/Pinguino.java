@@ -60,26 +60,26 @@ public class Pinguino extends Jugador {
 			String resultMsg = "";
 			if (bolesJ1 > bolesJ2) {
 				// CAS 1: Guanya l'atacant
-				System.out.println(this.getNickname() + " gana!");
+				System.out.println(this.getNickname() + " ¡gana!");
 				pingu.mourePosicio(-diferencia); 
-				System.out.println("El rival retrocedera " + diferencia + " caselles...");
-				resultMsg = this.getNickname() + " guanya! " + pingu.getNickname() + " retrocede.";
+				System.out.println("El rival retrocederá " + diferencia + " casillas...");
+				resultMsg = this.getNickname() + " ¡gana! " + pingu.getNickname() + " retrocede.";
 				this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 				pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 			} else if (bolesJ1 < bolesJ2) {
 				// CAS 2: Guanya el contrincant
-				System.out.println(pingu.getNickname() + " gana!");
+				System.out.println(pingu.getNickname() + " ¡gana!");
 				this.mourePosicio(diferencia); 
-				System.out.println("El atacante retrocedera " + Math.abs(diferencia) + " casillas...");
-				resultMsg = pingu.getNickname() + " guanya! " + this.getNickname() + " retrocede.";
+				System.out.println("El atacante retrocederá " + Math.abs(diferencia) + " casillas...");
+				resultMsg = pingu.getNickname() + " ¡gana! " + this.getNickname() + " retrocede.";
 				this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 				pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 			} else {
 				// CAS 3: Empat
-				System.out.println("Empat! Cap jugador retrocedeix, però perden les boles de neu.");
+				System.out.println("¡Empate! Ningún jugador retrocede, pero pierden las bolas de nieve.");
 				this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 				pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
-				resultMsg = "Empate! Ambos pierden todas las bolas de nieve.";
+				resultMsg = "¡Empate! Ambos pierden todas las bolas de nieve.";
 			}
 
 			// Mostrar resultat en un Alert (UI)

@@ -33,10 +33,10 @@ public class BolaNeu extends Item {
 	public boolean usar() {
 		if (getQuantitat() > 0) {
 			setQuantitat(getQuantitat() - 1);
-			System.out.println("Has usat una bola de neu! Et queden " + getQuantitat() + " boles de neu.");
+			System.out.println("¡Has usado una bola de nieve! Te quedan " + getQuantitat() + " bolas de nieve.");
 			return true;
 		}
-		System.out.println("No tens boles de neu!");
+		System.out.println("¡No tienes bolas de nieve!");
 		return false;
 	}
 
@@ -45,8 +45,8 @@ public class BolaNeu extends Item {
 		if (usar()) {
 			int novaPos = Math.max(0, objectiu.getPosicio() - retrocedir);
 			objectiu.setPosicio(novaPos);
-			System.out.println(atacant.getNickname() + " ha llençat una bola de neu a " + objectiu.getNickname()
-					+ "! Retrocedeix " + retrocedir + " caselles fins a la posició " + novaPos + ".");
+			System.out.println(atacant.getNickname() + " ¡ha lanzado una bola de nieve a " + objectiu.getNickname()
+					+ "! Retrocede " + retrocedir + " casillas hasta la posición " + novaPos + ".");
 			return true;
 		}
 		return false;
@@ -60,7 +60,7 @@ public class BolaNeu extends Item {
 				rivals.add(j);
 		}
 		if (rivals.isEmpty()) {
-			System.out.println("No hi ha rivals a qui llençar la bola de neu!");
+			System.out.println("¡No hay rivales a los que lanzar la bola de nieve!");
 			return false;
 		}
 		int idx = (int) (Math.random() * rivals.size());
