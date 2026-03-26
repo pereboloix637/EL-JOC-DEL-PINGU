@@ -119,12 +119,10 @@
 /* ---- INTERFAZ INTEGRADA ---- */
 .card-integrated {
     -fx-background-color: rgba(28, 58, 82, 0.85);
-    /* Slightly lighter and more opaque */
     -fx-border-color: #7FD4F0;
-    /* Brighter cian border */
     -fx-border-width: 2;
     -fx-padding: 10;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 15, 0, 0, 0);
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 6, 6, 0, 0);
 }
 
 /* ---- NUEVA BARRA LATERAL INVENTARIO ---- */
@@ -146,18 +144,20 @@
 }
 
 .player-status-card {
-    -fx-background-color: rgba(13, 27, 42, 0.4); /* Fondo muy sutil para dejar ver la imagen trasera */
+    -fx-background-color: rgba(13, 27, 42, 0.4);
     -fx-padding: 8;
     -fx-border-color: rgba(127, 212, 240, 0.3);
     -fx-border-width: 1;
-    -fx-background-radius: 5;
-    -fx-border-radius: 5;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.5), 3, 3, 0, 0);
 }
 
 .player-status-card.is-current-turn {
     -fx-background-color: rgba(127, 212, 240, 0.2);
     -fx-border-color: #7FD4F0;
     -fx-border-width: 2;
+    -fx-effect: dropshadow(one-pass-box, #7FD4F0, 4, 4, 0, 0);
 }
 
 .player-name {

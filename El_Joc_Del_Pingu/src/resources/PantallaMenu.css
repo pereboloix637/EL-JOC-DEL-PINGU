@@ -126,6 +126,7 @@
     -fx-background-radius: 0;
     -fx-padding: 8 20;
     -fx-border-color: #2E6B8A;
+    -fx-border-radius: 0;
     -fx-border-width: 2 2 0 2;
 }
 
@@ -402,17 +403,17 @@
     -fx-background-color: #2E6B8A;
 }
 
-/* ---- BOTON SILENCIO (Circular y vidrioso) ---- */
+/* ---- BOTON SILENCIO (Blocky) ---- */
 .mute-button {
     -fx-background-color: rgba(13, 27, 42, 0.6);
-    -fx-background-radius: 50;
+    -fx-background-radius: 0;
     -fx-min-width: 60px;
     -fx-min-height: 60px;
     -fx-max-width: 60px;
     -fx-max-height: 60px;
     -fx-padding: 0;
     -fx-border-color: #3AB5E6;
-    -fx-border-radius: 50;
+    -fx-border-radius: 0;
     -fx-border-width: 2;
     -fx-alignment: center;
 }
@@ -447,8 +448,8 @@
     -fx-text-fill: #FF6B6B;
     -fx-border-color: rgba(255, 107, 107, 0.5);
     -fx-border-width: 2;
-    -fx-border-radius: 4;
-    -fx-background-radius: 4;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
     -fx-padding: 0 10;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
@@ -470,12 +471,11 @@
 /* ---- AJUSTES PANEL (Matching Reference Image) ---- */
 .settings-pane-ref {
     -fx-background-color: #0D1B2A;
-    -fx-background-radius: 12;
+    -fx-background-radius: 0;
     -fx-border-color: #3AB5E6;
-    -fx-border-radius: 12;
-    -fx-border-width: 2.5;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 20, 0, 0, 0);
-    /* Standard properties for compatibility */
+    -fx-border-radius: 0;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 6, 6, 0, 0);
     background-color: #0D1B2A;
     border-color: #3AB5E6;
 }
@@ -492,11 +492,11 @@
 
 .settings-separator-ref {
     -fx-background-color: #3AB5E6;
-    -fx-max-height: 1px;
-    -fx-opacity: 0.8;
+    -fx-max-height: 2px;
+    -fx-opacity: 0.9;
     background-color: #3AB5E6;
-    max-height: 1px;
-    opacity: 0.8;
+    max-height: 2px;
+    opacity: 0.9;
 }
 
 .settings-label-ref {
@@ -509,55 +509,55 @@
 
 .mute-button-ref {
     -fx-background-color: #1B263B;
-    -fx-background-radius: 50;
-    -fx-border-color: rgba(58, 181, 230, 0.3);
-    -fx-border-radius: 50;
-    -fx-border-width: 1.5;
+    -fx-background-radius: 0;
+    -fx-border-color: #3AB5E6;
+    -fx-border-radius: 0;
+    -fx-border-width: 2;
     -fx-padding: 8;
     -fx-cursor: hand;
-    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.5), 5, 0, 0, 0);
+    -fx-effect: dropshadow(one-pass-box, black, 2, 2, 0, 0);
     background-color: #1B263B;
     cursor: pointer;
 }
 
 .mute-button-ref:hover {
-    -fx-border-color: #3AB5E6;
-    -fx-effect: dropshadow(three-pass-box, rgba(58, 181, 230, 0.4), 10, 0, 0, 0);
+    -fx-background-color: #3AB5E6;
+    -fx-border-color: white;
 }
 
-/* CUSTOM SLIDER STYLING */
+/* CUSTOM SLIDER STYLING (Pixel Block version) */
 .settings-slider-ref .track {
     -fx-background-color: #1B263B;
     -fx-background-insets: 0;
-    -fx-background-radius: 5;
-    -fx-pref-height: 8;
+    -fx-background-radius: 0;
+    -fx-pref-height: 10;
     background-color: #1B263B;
 }
 
 .settings-slider-ref .thumb {
     -fx-background-color: #7FD4F0;
     -fx-background-insets: 0;
-    -fx-background-radius: 50;
-    -fx-pref-width: 18;
-    -fx-pref-height: 18;
+    -fx-background-radius: 0;
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    -fx-effect: dropshadow(one-pass-box, black, 2, 2, 0, 0);
     background-color: #7FD4F0;
 }
 
 .settings-slider-ref .thumb:hover {
     -fx-background-color: white;
-    -fx-effect: dropshadow(three-pass-box, rgba(127, 212, 240, 0.6), 10, 0, 0, 0);
 }
 
 .close-button-ref {
     -fx-background-color: #0D1B2A;
     -fx-border-color: #3AB5E6;
-    -fx-border-width: 2.5;
+    -fx-border-width: 3;
     -fx-text-fill: white;
     -fx-font-family: "Press Start 2P";
     -fx-font-size: 14px;
     -fx-padding: 6 8 6 8;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(one-pass-box, black, 0, 0, 2, 2);
+    -fx-effect: dropshadow(one-pass-box, black, 3, 3, 0, 0);
     background-color: #0D1B2A;
     border-color: #3AB5E6;
     font-family: "Press Start 2P";
@@ -566,34 +566,30 @@
 }
 
 .close-button-ref:hover {
-    -fx-background-color: #1B263B;
+    -fx-background-color: #FF6B6B;
     -fx-border-color: white;
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
 }
 
-/* Polar Sliders */
+/* Polar Sliders (More blocky) */
 .slider .track {
     -fx-background-color: #1C3A52;
-    -fx-background-radius: 5;
-    -fx-pref-height: 8;
+    -fx-background-radius: 0;
+    -fx-pref-height: 10;
 }
 
 .slider .thumb {
     -fx-background-color: #7FD4F0;
-    -fx-background-radius: 10;
-    -fx-pref-width: 18;
-    -fx-pref-height: 18;
-    -fx-effect: dropshadow(two-pass-box, rgba(0,0,0,0.5), 2, 0, 0, 0);
+    -fx-background-radius: 0;
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    -fx-effect: dropshadow(one-pass-box, black, 2, 2, 0, 0);
 }
 
 .slider .thumb:hover {
     -fx-background-color: #3AB5E6;
-    -fx-scale-x: 1.1;
-    -fx-scale-y: 1.1;
 }
 
 .slider .colored-track {
     -fx-background-color: #3AB5E6;
-    -fx-background-radius: 5;
+    -fx-background-radius: 0;
 }
