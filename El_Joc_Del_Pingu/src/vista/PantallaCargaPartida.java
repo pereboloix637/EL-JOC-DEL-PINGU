@@ -17,14 +17,15 @@ public class PantallaCargaPartida {
     @FXML private Label tipLabel;
 
     private String[] tips = {
-        "Los osos te hacen retroceder 3 casillas. ¡Evítalos a toda costa!",
-        "Las focas son hábiles competidoras. ¡No subestimes su estrategia!",
-        "El primer pingüino en llegar a la casilla 50 será el ganador de la expedición.",
-        "Los trineos son tus mejores amigos: ¡te permiten avanzar mucho más rápido!",
-        "¡Cuidado con los agujeros! Si caes en uno, podrías perder el turno o retroceder.",
-        "Puedes guardar tu partida en cualquier momento desde el menú superior del juego.",
-        "Cada casilla de evento es una sorpresa: ¡algunas te ayudan y otras te retan!",
-        "La nieve es traicionera, pero un buen pingüino siempre encuentra el camino."
+    		"Las bolas de nieve seria mejor usarlas para batallar que para atacar...",
+    		"¿Tienes peces? ¡Quizás querrías guardártelos para alimentar al oso!",
+    		"¡Las focas no tienen inventario! Pero te sorprenderá saber como actúan.",
+    		"A veces la estrategia gana a la fuerza, y los ítems lo saben perfectamente.",
+    		"Quizás te sorprenda saber que existe un Pingu y una Foca oculta...",
+    		"El dado lento te puede ayudar a caer en casillas lejanas.",
+    		"¡El dado rapido puede ayudarte a recorrer muchas casillas!",
+    		"Los trineos te hacen avanzar y los abujeros te hacen retroceder.",
+    		"¡Que no te peguen las focas! Puede ser la diferencia entre ganar y perder..."
     };
 
     @FXML

@@ -56,33 +56,37 @@ public class Pinguino extends Jugador {
 			int posJ2Abans = pingu.getPosicio();
 
 			int diferencia = bolesJ1 - bolesJ2;
-
+			System.out.println("¡La lucha empieza! Ambos lanzan sus bolas de nieve y...");
 			String resultMsg = "";
 			if (bolesJ1 > bolesJ2) {
 				// CAS 1: Guanya l'atacant
-				System.out.println(this.getNickname() + " guanya!");
+				System.out.println(this.getNickname() + " gana!");
 				pingu.mourePosicio(-diferencia); 
-				System.out.println("El rival retrocedirà " + diferencia + " caselles...");
-				resultMsg = this.getNickname() + " guanya! " + pingu.getNickname() + " retrocedeix.";
+				System.out.println("El rival retrocedera " + diferencia + " caselles...");
+				resultMsg = this.getNickname() + " guanya! " + pingu.getNickname() + " retrocede.";
+				this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
+				pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 			} else if (bolesJ1 < bolesJ2) {
 				// CAS 2: Guanya el contrincant
-				System.out.println(pingu.getNickname() + " guanya!");
+				System.out.println(pingu.getNickname() + " gana!");
 				this.mourePosicio(diferencia); 
-				System.out.println("L'atacant retrocedirà " + Math.abs(diferencia) + " caselles...");
-				resultMsg = pingu.getNickname() + " guanya! " + this.getNickname() + " retrocedeix.";
+				System.out.println("El atacante retrocedera " + Math.abs(diferencia) + " casillas...");
+				resultMsg = pingu.getNickname() + " guanya! " + this.getNickname() + " retrocede.";
+				this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
+				pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 			} else {
 				// CAS 3: Empat
 				System.out.println("Empat! Cap jugador retrocedeix, però perden les boles de neu.");
 				this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 				pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
-				resultMsg = "Empat! Ambdós perden totes les boles de neu.";
+				resultMsg = "Empate! Ambos pierden todas las bolas de nieve.";
 			}
 
 			// Mostrar resultat en un Alert (UI)
 			javafx.scene.control.Alert batallaAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
 			vista.PantallaJuego.estilarAlerta(batallaAlert);
-			batallaAlert.setTitle("Resultat de la Batalla");
-			batallaAlert.setHeaderText("¡Combat de boles de neu!");
+			batallaAlert.setTitle("Resultado de la Batalla");
+			batallaAlert.setHeaderText("¡Combate de bolas de nieve!");
 			batallaAlert.setContentText(resultMsg);
 			batallaAlert.showAndWait();
 
@@ -97,9 +101,9 @@ public class Pinguino extends Jugador {
 		} else {
 			// Gestió d'errors unificada
 			if (pingu == null) {
-				System.out.println("ERROR: OPERACIÓ INVÀLIDA (JUGADOR BUIT)");
+				System.out.println("ERROR: OPERACIÓN INVÀLIDA (JUGADOR VACIO)");
 			} else {
-				System.out.println("ERROR: OPERACIÓ INVÀLIDA AMB LES BOLES DE NEU");
+				System.out.println("ERROR: OPERACIÓN INVÀLIDA CON LAS BOLAS DE NIEVE");
 			}
 		}
 	}
