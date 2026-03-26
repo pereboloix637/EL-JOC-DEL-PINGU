@@ -13,10 +13,10 @@ public class Peix extends Item {
 	public boolean usar() {
 		if (getQuantitat() > 0) {
 			setQuantitat(getQuantitat() - 1);
-			System.out.println("Has usat un peix! Et queden " + getQuantitat() + " peixos.");
+			System.out.println("¡Has usado un pez! Te quedan " + getQuantitat() + " peces.");
 			return true;
 		}
-		System.out.println("No tens peixos!");
+		System.out.println("¡No tienes peces!");
 		return false;
 	}
 

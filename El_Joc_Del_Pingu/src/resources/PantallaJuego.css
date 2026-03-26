@@ -315,3 +315,27 @@
     -fx-border-color: #2E6B8A;
     -fx-border-width: 2;
 }
+
+/* ---- BOTÓN PAUSA ---- */
+.pause-button {
+    -fx-background-color: #1C3A52;
+    -fx-text-fill: white;
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 14px;
+    -fx-padding: 12 20;
+    -fx-border-color: #7FD4F0;
+    -fx-border-width: 3;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 5, 0, 4, 4);
+}
+
+.pause-button:hover {
+    -fx-background-color: #2E6B8A;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.pause-button:pressed {
+    -fx-translate-y: 2;
+    -fx-effect: none;
+}

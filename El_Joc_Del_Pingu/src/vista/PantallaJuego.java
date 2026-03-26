@@ -99,6 +99,8 @@ public class PantallaJuego {
 	private Button peces;
 	@FXML
 	private Button nieve;
+	@FXML
+	private Button btnPausa;
 
 	// Item count labels
 	@FXML
@@ -354,6 +356,7 @@ public class PantallaJuego {
 	    if (lento != null) lento.setDisable(bloquear);
 	    if (peces != null) peces.setDisable(bloquear);
 	    if (nieve != null) nieve.setDisable(bloquear);
+	    if (btnPausa != null) btnPausa.setDisable(bloquear);
 	}
 
 	/**
@@ -428,8 +431,8 @@ public class PantallaJuego {
 				inv.getStyleClass().add("player-inv-mini");
 				
 				Label peces = new Label("Peces: " + p.getInventari().getPeixos());
-				Label boles = new Label("Boles: " + p.getInventari().getBoles());
-				Label daus = new Label("Daus: " + p.getInventari().getDausEspecials());
+				Label boles = new Label("Bolas: " + p.getInventari().getBoles());
+				Label daus = new Label("Dados: " + p.getInventari().getDausEspecials());
 				
 				inv.getChildren().addAll(peces, boles, daus);
 				card.getChildren().add(inv);
@@ -763,20 +766,12 @@ public class PantallaJuego {
 		wheelStack.getChildren().addAll(wheelVisuals, itemsPane);
 		wheelStack.setMaxSize(300, 300);
 		
-		// Puntero (flecha blocky pixelart)
-		Polygon pointer = new Polygon(
-			-25, 0,
-			25, 0,
-			25, 20,
-			10, 20,
-			0, 45,
-			-10, 20,
-			-25, 20
-		);
-		pointer.setFill(Color.web("#ff0044"));
-		pointer.setStroke(Color.WHITE);
-		pointer.setStrokeWidth(3);
-		pointer.setTranslateY(-175);
+		// Puntero (flecha asset)
+		ImageView pointer = new ImageView(new Image(getClass().getResourceAsStream("/assets/Flecha ruleta.png")));
+		pointer.setFitWidth(60);
+		pointer.setPreserveRatio(true);
+		pointer.setSmooth(false); // Estilo pixelart
+		pointer.setTranslateY(-210);
 		
 		rouletteContainer.getChildren().addAll(title, wheelStack, pointer);
 		
@@ -1002,6 +997,36 @@ public class PantallaJuego {
 		}
 	}
 
+	@FXML
+	private void handleAutoRoll() {
+		// Eliminado a petición del usuario
+	}
+
+	@FXML
+	private void handlePausa() {
+		// Bloquear temporalmente para evitar clics mientras el diálogo está abierto
+		bloquearControles(true);
+
+		Alert pausaAlert = new Alert(AlertType.CONFIRMATION);
+		estilar(pausaAlert);
+		pausaAlert.setTitle("Pausa");
+		pausaAlert.setHeaderText("Juego en Pausa");
+		pausaAlert.setContentText("¿Qué deseas hacer?");
+
+		ButtonType btnContinuar = new ButtonType("Continuar");
+		ButtonType btnMenu = new ButtonType("Ir al Menú");
+		pausaAlert.getButtonTypes().setAll(btnContinuar, btnMenu);
+
+		pausaAlert.showAndWait().ifPresent(result -> {
+			if (result == btnMenu) {
+				handleGoToMenu();
+			} else {
+				// Al continuar, refrescamos la UI y los botones según el turno actual
+				actualizarUI();
+			}
+		});
+	}
+
 	/**
 	 * Executa la lògica d'un torn complet: tirada de dau i moviment.
 	 */
@@ -1010,14 +1035,14 @@ public class PantallaJuego {
 		Jugador actual = p.getJugadorActual();
 		
 		if (p.isFinalitzada()) {
-			registrarEvento("¡Partida acabada! Guanyador: " + p.getGuanyador().getNickname(), "log-warning");
+			registrarEvento("¡Partida finalizada! Ganador: " + p.getGuanyador().getNickname(), "log-warning");
 			return;
 		}
 
 		// Bloqueamos controles inmediatamente para evitar doble clic o interferencias
 		bloquearControles(true);
 
-		registrarEvento("Torn de: " + actual.getNickname(), "log-turn");
+		registrarEvento("Turno de: " + actual.getNickname(), "log-turn");
 
 		// Obtenir dau: prioritzar el seleccionat manualment per l'usuari
 		Dau d;
@@ -1031,7 +1056,7 @@ public class PantallaJuego {
 		}
 
 		int resultado = gestorPartida.tirarDau(actual, d);
-		dadoResultText.setText("Dau: " + resultado);
+		dadoResultText.setText("Dado: " + resultado);
 		
 		// Color del text del dau: Taronja (Ràpid), Verd (Lent), Blanc (Estàndard)
 		if (d.esEspecial()) {
@@ -1134,8 +1159,11 @@ public class PantallaJuego {
 	        pieza.setTranslateY(finalTY);
 	        
 	        Platform.runLater(() -> {
-		        // Actualitzar model
+		        // Actualitzar model i Sincronitzar UI (necessari per a que les animacions de forat s'executin en la posició correcta)
 		        j.setPosicio(newPos);
+		        actualizarUI();
+		        // Evitar que el jugador puga clicar mentre es processa la casella (per si és un forat o hi ha batalla)
+		        bloquearControles(true);
 		        
 		        boolean saltaAccioCasella = false;
 		        
@@ -1151,7 +1179,7 @@ public class PantallaJuego {
 		                        	break; 
 		                        }
 		                    	
-		                        registrarEvento("Col·lisió! Batalla entre " + pActual.getNickname() + " i " + pRival.getNickname(), "log-warning");
+		                        registrarEvento("¡Colisión! Batalla entre " + pActual.getNickname() + " y " + pRival.getNickname(), "log-warning");
 		                        
 		                        int bolesJ1Abans = pActual.getInventari().getBoles();
 		                        int bolesJ2Abans = pRival.getInventari().getBoles();
@@ -1163,16 +1191,16 @@ public class PantallaJuego {
 	
 		                            Alert batallaAlert = new Alert(AlertType.INFORMATION);
 		                            estilar(batallaAlert);
-		                            batallaAlert.setTitle("Resultat de la Batalla");
-		                            batallaAlert.setHeaderText("¡Combat de boles de neu!");
+		                            batallaAlert.setTitle("Resultado de la Batalla");
+		                            batallaAlert.setHeaderText("¡Combate de bolas de nieve!");
 		                            
 		                            String resultMsg = "";
 		                            if (pActual.getPosicio() < posJ1Abans) {
-		                                resultMsg = pRival.getNickname() + " guanya! " + pActual.getNickname() + " retrocedeix.";
+		                                resultMsg = pRival.getNickname() + " ¡gana! " + pActual.getNickname() + " retrocede.";
 		                            } else if (pRival.getPosicio() < posJ2Abans) {
-		                                resultMsg = pActual.getNickname() + " guanya! " + pRival.getNickname() + " retrocedeix.";
+		                                resultMsg = pActual.getNickname() + " ¡gana! " + pRival.getNickname() + " retrocede.";
 		                            } else {
-		                                resultMsg = "Empat! Ambdós perden totes les boles de neu.";
+		                                resultMsg = "¡Empate! Ambos pierden todas las bolas de nieve.";
 		                            }
 		                            batallaAlert.setContentText(resultMsg);
 		                            batallaAlert.showAndWait();
@@ -1187,7 +1215,7 @@ public class PantallaJuego {
 		                        
 		                        break; 
 		                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaNormal) {
-		                        registrarEvento(pActual.getNickname() + " ha topat amb la foca " + fRival.getNickname(), "log-warning");
+		                        registrarEvento(pActual.getNickname() + " ha chocado con la foca " + fRival.getNickname(), "log-warning");
 		                        int posAbans = pActual.getPosicio();
 		                        fRival.AccionesFoca(pActual, gestorPartida.getPartida());
 		                        
@@ -1205,19 +1233,19 @@ public class PantallaJuego {
 		        if (!saltaAccioCasella) {
 		        	Casella c = gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio());
 		        	if (c instanceof model.caselles.Event && j instanceof Pinguino) {
-		        		// Caso especial: La ruleta es asíncrona.
-		        		// Pasamos un callback a través de una variable estática o por el propio evento si fuera posible.
-		        		// Pero como ya modificamos Event para llamar a mostrarRuletaEstatico, 
-		        		// vamos a interceptar aquí el callback de finalización.
-		        		
-		        		// Usaremos un truco: Envolver la acción para que al terminar la ruleta se llame a finalizarTurno
 		        		((model.caselles.Event)c).setCallbackFinalizacion(() -> {
 		        			finalizarTurno(j);
 		        		});
 		        		gt.executarCasella(gestorPartida.getPartida(), j, c);
-		        		return; // No finalizamos turno aquí, esperamos a la ruleta
+		        		return;
 		        	} else {
 		        		gt.executarCasella(gestorPartida.getPartida(), j, c);
+		        		
+		        		// --- ANIMACIÓ DE FORAT (AGUJERO) ---
+		        		if (j.getPosicio() != newPos && c instanceof model.caselles.Forat) {
+		        			animarEfectoForat(j, newPos, j.getPosicio(), () -> finalizarTurno(j));
+		        			return; // No finalitzem el torn encara, esperem l'animació
+		        		}
 		        	}
 		        }
 		        
@@ -1359,6 +1387,62 @@ public class PantallaJuego {
 	    sequence.play();
 	}
 
+	/**
+	 * Anima l'efecte d'entrar i sortir per un forat (girar i encollir/créixer).
+	 */
+	private void animarEfectoForat(Jugador j, int posEntrada, int posSalida, Runnable onFinished) {
+		ImageView pieza = getPiezaParaJugador(j);
+		if (pieza == null) {
+			if (onFinished != null) onFinished.run();
+			return;
+		}
+
+		// 1. ANIMACIÓ D'ENTRADA (Girar i encollir)
+		RotateTransition rtIn = new RotateTransition(Duration.millis(800), pieza);
+		rtIn.setByAngle(360 * 3); // 3 vueltas rápidas
+		
+		ScaleTransition stIn = new ScaleTransition(Duration.millis(800), pieza);
+		stIn.setToX(0);
+		stIn.setToY(0);
+		
+		ParallelTransition ptIn = new ParallelTransition(pieza, rtIn, stIn);
+		
+		ptIn.setOnFinished(e -> {
+			// Cambiar posición lógica (ya está cambiada en el modelo, solo actualizamos UI)
+			actualizarUI();
+			// Nos aseguramos que los controles sigan bloqueados durante la segunda parte de la animación
+			bloquearControles(true);
+			
+			// 2. ANIMACIÓ DE SORTIDA (Girar al revés i créixer)
+			// Nos aseguramos que la pieza esté en escala 0 antes de empezar
+			pieza.setScaleX(0);
+			pieza.setScaleY(0);
+			
+			RotateTransition rtOut = new RotateTransition(Duration.millis(800), pieza);
+			rtOut.setByAngle(-360 * 3); // 3 vueltas en sentido contrario
+			
+			ScaleTransition stOut = new ScaleTransition(Duration.millis(800), pieza);
+			stOut.setToX(1.0);
+			stOut.setToY(1.0);
+			
+			// Si es una foca, el tamaño final es un poco mayor (visto en actualizarTamanyPeca)
+			if (j instanceof model.entitats.Foca) {
+				stOut.setToX(1.294); // 55.0 / 42.5 approx? No, mejor no hardcodear.
+				// actualitzarUI ya resetea el scale si lo manejamos bien, pero ScaleTransition sobreescribe.
+				// Vamos a usar 1.0 y dejar que actualizarTamanyPeca haga su trabajo en actualizarUI.
+				// Pero actualizarUI ya se llamó.
+			}
+
+			ParallelTransition ptOut = new ParallelTransition(pieza, rtOut, stOut);
+			ptOut.setOnFinished(e2 -> {
+				if (onFinished != null) onFinished.run();
+			});
+			ptOut.play();
+		});
+		
+		ptIn.play();
+	}
+
 	public static void animarRetrocesoEstatico(Jugador j, int oldPos, int newPos) {
 		if (instanciaActual != null) {
 			// Usamos Platform.runLater por si se llama desde un hilo no-UI, 
@@ -1378,8 +1462,8 @@ public class PantallaJuego {
 	        alert.setHeaderText("¡Tenemos un ganador!");
 	        alert.setContentText("Enhorabuena " + g.getNickname() + ", ¡has llegado a la meta!");
 
-	        ButtonType btnGuardar = new ButtonType("Guardar i Sortir");
-	        ButtonType btnSalir = new ButtonType("Sortir sense Guardar");
+	        ButtonType btnGuardar = new ButtonType("Guardar y Salir");
+	        ButtonType btnSalir = new ButtonType("Salir sin Guardar");
 	        alert.getButtonTypes().setAll(btnGuardar, btnSalir);
 
 	        alert.showAndWait().ifPresent(result -> {
