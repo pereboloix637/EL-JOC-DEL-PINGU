@@ -354,9 +354,11 @@
 /* Panel principal */
 .dialog-pane {
     -fx-background-color: #0D1B2A;
-    -fx-border-color: #2E6B8A;
-    -fx-border-width: 2;
+    -fx-border-color: #3AB5E6;
+    -fx-border-width: 3;
     -fx-padding: 0;
+    /* Efecto "chulo": brillo exterior cian */
+    -fx-effect: dropshadow(three-pass-box, rgba(58, 181, 230, 0.4), 15, 0, 0, 0);
 }
 
 /* Cabecera (zona superior con icono + texto de headerText) */
@@ -393,9 +395,26 @@
 /* Zona de botones */
 .dialog-pane .button-bar {
     -fx-background-color: #0D1B2A;
-    -fx-border-color: #2E6B8A transparent transparent transparent;
+    -fx-border-color: #3AB5E6 transparent transparent transparent;
     -fx-border-width: 2 0 0 0;
-    -fx-padding: 10 14;
+    -fx-padding: 20 25;
+}
+
+.dialog-pane .button-bar .container {
+    -fx-alignment: center;
+}
+
+/* Botones dentro del diálogo */
+.dialog-pane .button {
+    -fx-min-width: 140px;
+    -fx-padding: 8 12;
+    -fx-font-size: 11px;
+}
+
+.dialog-pane .button:hover {
+    -fx-background-color: #3AB5E6;
+    -fx-text-fill: #0D1B2A;
+    -fx-effect: dropshadow(three-pass-box, rgba(58, 181, 230, 0.8), 10, 0, 0, 0);
 }
 
 /* Separador interno */
