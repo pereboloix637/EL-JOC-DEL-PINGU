@@ -339,6 +339,12 @@ public class PantallaJuego {
 		}
 	}
 
+	public static void mostrarRuletaMalvadaEstatico(Jugador j, int actionIndex, Runnable onFinished) {
+		if (instanciaActual != null) {
+			Platform.runLater(() -> instanciaActual.mostrarRuletaMalvada(j, actionIndex, onFinished));
+		}
+	}
+
 	public static void actualizarUIEstatica() {
 		if (instanciaActual != null) {
 			Platform.runLater(() -> instanciaActual.actualizarUI());
@@ -832,6 +838,95 @@ public class PantallaJuego {
 		startWait.play();
 	}
 
+	/**
+	 * Mostra la Ruleta Malvada de la Foca amb 2 opcions.
+	 */
+	public void mostrarRuletaMalvada(Jugador j, int actionIndex, Runnable onFinished) {
+		StackPane rootOverlay = boardRoot;
+		
+		Pane dim = new Pane();
+		dim.setStyle("-fx-background-color: rgba(0,0,0,0.7);");
+		dim.setOpacity(0);
+		
+		VBox rouletteContainer = new VBox(25);
+		rouletteContainer.setAlignment(javafx.geometry.Pos.CENTER);
+		rouletteContainer.setMaxSize(600, 600);
+		
+		Label title = new Label("¡RULETA MALVADA!");
+		title.getStyleClass().add("big-text-mini");
+		title.setStyle("-fx-text-fill: #ff0044; -fx-font-size: 50px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
+		
+		StackPane wheelStack = new StackPane();
+		
+		ImageView wheelVisuals = new ImageView(new Image(getClass().getResourceAsStream("/assets/RULETA_ALEATORIA.png")));
+		wheelVisuals.setFitWidth(300);
+		wheelVisuals.setFitHeight(300);
+		wheelVisuals.setPreserveRatio(true);
+		wheelVisuals.setSmooth(false);
+		
+		Pane itemsPane = new Pane();
+		itemsPane.setPrefSize(300, 300);
+		
+		// Dues opcions: 0=Pegar, 1=Aplastar
+		for (int i = 0; i < 2; i++) {
+			Label lbl = new Label(i == 0 ? "PEGAR" : "APLASTAR");
+			lbl.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-color: rgba(0,0,0,0.5); -fx-padding: 5;");
+			
+			double angle = Math.toRadians(i * 180);
+			lbl.setLayoutX(150 + 90 * Math.cos(angle) - 40);
+			lbl.setLayoutY(150 + 90 * Math.sin(angle) - 15);
+			lbl.setRotate(i * 180);
+			itemsPane.getChildren().add(lbl);
+		}
+		
+		wheelStack.getChildren().addAll(wheelVisuals, itemsPane);
+		wheelStack.setMaxSize(300, 300);
+		
+		Polygon pointer = new Polygon(-25, 0, 25, 0, 25, 20, 10, 20, 0, 45, -10, 20, -25, 20);
+		pointer.setFill(Color.web("#ff0044"));
+		pointer.setStroke(Color.WHITE);
+		pointer.setStrokeWidth(3);
+		pointer.setTranslateY(-175);
+		
+		rouletteContainer.getChildren().addAll(title, wheelStack, pointer);
+		rootOverlay.getChildren().addAll(dim, rouletteContainer);
+		
+		FadeTransition fadeIn = new FadeTransition(Duration.millis(300), dim);
+		fadeIn.setToValue(1); fadeIn.play();
+		
+		ScaleTransition scaleIn = new ScaleTransition(Duration.millis(300), rouletteContainer);
+		scaleIn.setFromX(0); scaleIn.setFromY(0); scaleIn.setToX(1); scaleIn.setToY(1);
+		scaleIn.play();
+		
+		int rotations = 6 + new Random().nextInt(3);
+		double targetAngle = rotations * 360 - (actionIndex * 180) - 90;
+		
+		RotateTransition rotate = new RotateTransition(Duration.seconds(3), wheelStack);
+		rotate.setByAngle(targetAngle);
+		rotate.setInterpolator(Interpolator.SPLINE(0.1, 0.5, 0.2, 1));
+		
+		rotate.setOnFinished(e -> {
+			PauseTransition wait = new PauseTransition(Duration.seconds(2));
+			wait.setOnFinished(e2 -> {
+				FadeTransition fadeOut = new FadeTransition(Duration.millis(300), dim);
+				fadeOut.setToValue(0);
+				FadeTransition fadeOutC = new FadeTransition(Duration.millis(300), rouletteContainer);
+				fadeOutC.setToValue(0);
+				fadeOutC.setOnFinished(e3 -> {
+					rootOverlay.getChildren().removeAll(dim, rouletteContainer);
+					if (onFinished != null) onFinished.run();
+				});
+				fadeOut.play();
+				fadeOutC.play();
+			});
+			wait.play();
+		});
+		
+		PauseTransition startWait = new PauseTransition(Duration.seconds(0.5));
+		startWait.setOnFinished(e -> rotate.play());
+		startWait.play();
+	}
+
 	private void lanzarConfeti(StackPane parent) {
 		Pane confettiLayer = new Pane();
 		confettiLayer.setMouseTransparent(true);
@@ -1079,10 +1174,14 @@ public class PantallaJuego {
 
 	    if (totalEnDestino > 1) {
 		    switch (numEnNuevaCasilla) {
-		    	case 0: targetTX = -offsetSeparacion; targetTY = -offsetSeparacion; break;
-		    	case 1: targetTX =  offsetSeparacion; targetTY = -offsetSeparacion; break;
-		    	case 2: targetTX = -offsetSeparacion; targetTY =  offsetSeparacion; break;
-		    	case 3: targetTX =  offsetSeparacion; targetTY =  offsetSeparacion; break;
+		    	case 0: targetTX = -offsetSeparacion; targetTY = -offsetSeparacion;
+		    	break;
+		    	case 1: targetTX =  offsetSeparacion; targetTY = -offsetSeparacion;
+		    	break;
+		    	case 2: targetTX = -offsetSeparacion; targetTY =  offsetSeparacion;
+		    	break;
+		    	case 3: targetTX =  offsetSeparacion; targetTY =  offsetSeparacion;
+		    	break;
 		    }
 	    }
 
@@ -1139,10 +1238,16 @@ public class PantallaJuego {
 		        
 		        boolean saltaAccioCasella = false;
 		        
+		        // --- LÒGICA DE FINALITZACIÓ DE TORN ---
+		        final Runnable finishTurnCallback = () -> finalizarTurno(j);
+		        boolean interactionOccurred = false;
+
 		        // --- LÒGICA DE COL·LISIONS I BATALLA ---
 		        if (j instanceof Pinguino pActual) {
 		            Casella casellaDestino = gestorPartida.getPartida().getTaulell().getCaselles().get(newPos);
-		            boolean esCasellaNormal = casellaDestino instanceof model.caselles.Normal;
+		            boolean esCasellaSeguraParaColision = !(casellaDestino instanceof model.caselles.Trineu || 
+		                                                     casellaDestino instanceof model.caselles.Os || 
+		                                                     casellaDestino instanceof model.caselles.Forat);
 	
 		            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
 		                if (rival != pActual && rival.getPosicio() == newPos) {
@@ -1151,6 +1256,7 @@ public class PantallaJuego {
 		                        	break; 
 		                        }
 		                    	
+		                        interactionOccurred = true;
 		                        registrarEvento("Col·lisió! Batalla entre " + pActual.getNickname() + " i " + pRival.getNickname(), "log-warning");
 		                        
 		                        int bolesJ1Abans = pActual.getInventari().getBoles();
@@ -1177,51 +1283,82 @@ public class PantallaJuego {
 		                            batallaAlert.setContentText(resultMsg);
 		                            batallaAlert.showAndWait();
 	
+		                            // Encadenar animacions de retrocés si cal
 		                            if (pActual.getPosicio() != posJ1Abans) {
-		                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio());
-		                            }
-		                            if (pRival.getPosicio() != posJ2Abans) {
-		                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio());
+		                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), () -> {
+		                                    if (pRival.getPosicio() != posJ2Abans) {
+		                                        animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
+		                                    } else {
+		                                        finishTurnCallback.run();
+		                                    }
+		                                });
+		                            } else if (pRival.getPosicio() != posJ2Abans) {
+		                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
+		                            } else {
+		                                finishTurnCallback.run();
 		                            }
 		                        });
 		                        
 		                        break; 
-		                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaNormal) {
+		                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaSeguraParaColision) {
+		                        interactionOccurred = true;
 		                        registrarEvento(pActual.getNickname() + " ha topat amb la foca " + fRival.getNickname(), "log-warning");
 		                        int posAbans = pActual.getPosicio();
-		                        fRival.AccionesFoca(pActual, gestorPartida.getPartida());
 		                        
-		                        if (pActual.getPosicio() != posAbans) {
-		                            animarRetroceso(pActual, posAbans, pActual.getPosicio());
-		                            saltaAccioCasella = true; 
-		                        }
+		                        fRival.AccionesFoca(pActual, gestorPartida.getPartida(), () -> {
+		                            if (pActual.getPosicio() != posAbans) {
+		                                animarRetroceso(pActual, posAbans, pActual.getPosicio(), finishTurnCallback);
+		                            } else {
+		                                finishTurnCallback.run();
+		                            }
+		                        });
+		                        break;
+		                    }
+		                }
+		            }
+		        } else if (j instanceof Foca fActual) {
+		            // --- COL·LISIONS QUAN LA FOCA ES MOU ---
+		            Casella casellaDestinoF = gestorPartida.getPartida().getTaulell().getCaselles().get(newPos);
+		            boolean esCasellaSeguraParaColisionF = !(casellaDestinoF instanceof model.caselles.Trineu || 
+		                                                      casellaDestinoF instanceof model.caselles.Os || 
+		                                                      casellaDestinoF instanceof model.caselles.Forat);
+		            
+		            if (esCasellaSeguraParaColisionF) {
+		                for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
+		                    if (rival instanceof Pinguino pRival && rival.getPosicio() == newPos) {
+		                        interactionOccurred = true;
+		                        registrarEvento("La foca " + fActual.getNickname() + " ha caigut sobre " + pRival.getNickname(), "log-warning");
+		                        int posAbansP = pRival.getPosicio();
+		                        fActual.AccionesFoca(pRival, gestorPartida.getPartida(), () -> {
+		                            if (pRival.getPosicio() != posAbansP) {
+		                                animarRetroceso(pRival, posAbansP, pRival.getPosicio(), finishTurnCallback);
+		                            } else {
+		                                finishTurnCallback.run();
+		                            }
+		                        });
 		                        break;
 		                    }
 		                }
 		            }
 		        }
 		        
+		        if (interactionOccurred) return; // Esperem que acabi l'interacció asíncrona
+
 		        GestorTaulell gt = new GestorTaulell();
 		        if (!saltaAccioCasella) {
 		        	Casella c = gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio());
 		        	if (c instanceof model.caselles.Event && j instanceof Pinguino) {
-		        		// Caso especial: La ruleta es asíncrona.
-		        		// Pasamos un callback a través de una variable estática o por el propio evento si fuera posible.
-		        		// Pero como ya modificamos Event para llamar a mostrarRuletaEstatico, 
-		        		// vamos a interceptar aquí el callback de finalización.
-		        		
-		        		// Usaremos un truco: Envolver la acción para que al terminar la ruleta se llame a finalizarTurno
 		        		((model.caselles.Event)c).setCallbackFinalizacion(() -> {
-		        			finalizarTurno(j);
+		        			finishTurnCallback.run();
 		        		});
 		        		gt.executarCasella(gestorPartida.getPartida(), j, c);
-		        		return; // No finalizamos turno aquí, esperamos a la ruleta
+		        		return;
 		        	} else {
 		        		gt.executarCasella(gestorPartida.getPartida(), j, c);
 		        	}
 		        }
 		        
-		        finalizarTurno(j);
+		        finishTurnCallback.run();
 	        });
 	    }));
 
@@ -1302,11 +1439,15 @@ public class PantallaJuego {
 	/**
 	 * Anima el retroceso de un jugador a una nueva posición, moviéndose casilla a casilla.
 	 */
-	public void animarRetroceso(Jugador j, int oldPos, int newPos) {
+	public void animarRetroceso(Jugador j, int oldPos, int newPos, Runnable onComplete) {
 	    ImageView pieza = getPiezaParaJugador(j);
-	    if (pieza == null) return;
+	    if (pieza == null) {
+	        if (onComplete != null) onComplete.run();
+	        return;
+	    }
 	    if (oldPos <= newPos) {
 	        actualizarUI();
+	        if (onComplete != null) onComplete.run();
 	        return;
 	    }
 
@@ -1355,15 +1496,16 @@ public class PantallaJuego {
 	        pieza.setTranslateX(0);
 	        pieza.setTranslateY(0);
 	        actualizarUI();
+	        if (onComplete != null) onComplete.run();
 	    });
 	    sequence.play();
 	}
 
-	public static void animarRetrocesoEstatico(Jugador j, int oldPos, int newPos) {
+	public static void animarRetrocesoEstatico(Jugador j, int oldPos, int newPos, Runnable onComplete) {
 		if (instanciaActual != null) {
-			// Usamos Platform.runLater por si se llama desde un hilo no-UI, 
-			// aunque en este proyecto suele llamarse desde el hilo de aplicaciones
-			Platform.runLater(() -> instanciaActual.animarRetroceso(j, oldPos, newPos));
+			Platform.runLater(() -> instanciaActual.animarRetroceso(j, oldPos, newPos, onComplete));
+		} else if (onComplete != null) {
+			onComplete.run();
 		}
 	}
 

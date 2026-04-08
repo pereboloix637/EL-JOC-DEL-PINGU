@@ -8,26 +8,26 @@ import model.caselles.Forat;
 import model.core.Partida;
 
 public class Foca extends Jugador {
-/// ATRIBUTS
+/// ATRIBUTOS
 	private boolean soborno;
 	private int bloqueix;
 
 /// CONSTRUCTOR
-	// CONSTRUCTOR AMB TOTS ELS PARAMETRES
+	// CONSTRUCTOR CON TODOS LOS PARÁMETROS
 	public Foca(String nickname, String color, boolean soborno, int bloqueix) {
 		super(nickname, color); // LLAMADA OBLIGATORIA
 		this.soborno = soborno;
 		this.bloqueix = bloqueix;
 	}
 	
-	// CONSTRUCTOR QUE COLOCA LA FOCA SENSE SOBORNAR I BLOQUEJAR
+	// CONSTRUCTOR PARA PONER A LA FOCA SIN SOBORNOS NI BLOQUEOS
 	public Foca(String nickname, String color) {
 		super(nickname, color); // LLAMADA OBLIGATORIA
 		this.soborno = false;
 		this.bloqueix = 0;
 	}
 
-/// GETTERS I SETTERS
+/// GETTERS Y SETTERS
 	public boolean isSoborno() {
 		return soborno;
 	}
@@ -44,35 +44,37 @@ public class Foca extends Jugador {
 		this.bloqueix = bloqueix;
 	}
 
-/// METODES
-	public void aplastarPingu(Pinguino p) { // La Foca aplasta al Pingui elegit
+/// MÉTODOS
+	public void aplastarPingu(Pinguino p) { // La foca aplasta al pingüino que toque
 		// Si NO ha sido sobornada y NO está bloqueada, ataca
 		if (!this.soborno && this.bloqueix == 0) {
 			int itemB = p.getInventari().getBoles();
 			int itemP = p.getInventari().getPeixos();
 			int itemD = p.getInventari().getDausEspecials();
-			System.out.println(p.getNickname() + " serà aixafat/aixafada i perdrà els següents ítems:");
+			System.out.println("¡A " + p.getNickname() + " le van a dar un buen repaso y va a perder todo esto!");
 			
-			// Eliminem totes les boles del aplastat (pingu)
+			// Eliminamos todas las bolas del aplastado (pingu)
 			for (int i = 0; i < itemB; i++) {
 				p.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 			}
 
-			// Eliminem tots els peixos del aplastat (pingu)
+			// Eliminamos todos los peces del aplastado (pingu)
 			for (int i = 0; i < itemP; i++) {
 				p.getInventari().eliminarItemsPerTipus(Peix.class);
 			}
 
-			// Eliminem tots els daus especials del aplastat (pingu)
+			// Eliminamos todos los dados especiales del aplastado (pingu)
 			for (int i = 0; i < itemD; i++) {
-				p.getInventari().eliminarItemsPerTipus(Dau.class);
+				p.getInventari().eliminarItemsPerTipus(model.items.Dau.class);
 			}
 			
+			vista.PantallaJuego.registrarEventoEstatico("Foca: \"Veo que tienes muchas cosas... ¡Diles adios!\"", "log-warning");
+			vista.PantallaJuego.registrarEventoEstatico("¡" + p.getNickname() + " ha sido aplastado por la foca y ha perdido todos sus ítems!", "log-warning");
 			System.out.println("=====================================================");
 		}
 	}
 
-	public void pegarPingu(Pinguino jugador, Partida partida) { // La Foca atacara al Pingui elegit
+	public void pegarPingu(Pinguino jugador, Partida partida) { // La foca atacará al pingüino que toque
 		// Si ha sido sobornada o está bloqueada, no ataca
 		if (this.soborno || this.bloqueix > 0) {
 			System.out.println("La foca " + this.getNickname() + " está tranquila o bloqueada.");
@@ -80,17 +82,18 @@ public class Foca extends Jugador {
 		}
 
 		// Si no está tranquila, ataca directamente
+		vista.PantallaJuego.registrarEventoEstatico("Foca: \"Ja! Creiste que ibas a ganar. ¡pues no mientras este aqui!\"", "log-warning");
 		aplicarPegarPingu(jugador, partida);
 	}
 	
 	private void aplicarPegarPingu(Pinguino jugador, Partida partida) {
-	        // Si no te peixos, la Foca el pega, portant-lo a un forat anterior.
+	        // Si no tiene peces, la foca le pega y lo manda a un agujero anterior.
 	        int posActual = jugador.getPosicio();
 	        int foratAnterior = -1;
 	        Casella casellaDestino = null;
 
 	        for (Casella casella : partida.getTaulell().getCaselles()) {
-	            if (casella instanceof Forat && casella.getPosicio() < posActual) {
+	            if (casella instanceof model.caselles.Forat && casella.getPosicio() < posActual) {
 	                if (casella.getPosicio() > foratAnterior) {
 	                    foratAnterior = casella.getPosicio();
 	                    casellaDestino = casella;
@@ -99,14 +102,16 @@ public class Foca extends Jugador {
 	        }
 
 	        if (casellaDestino != null) {
-	            jugador.setPosicio(casellaDestino.getPosicio()); // Llavors movem al jugador on tingui que estar (posició absoluta)
-	            System.out.println("El jugador no tenia peixos, ha estat enviat al forat anterior.");
+	            jugador.setPosicio(casellaDestino.getPosicio()); // Movemos al jugador a su posición absoluta
+	            System.out.println("El jugador no tenía peces, ha sido enviado al agujero anterior.");
+	            vista.PantallaJuego.registrarEventoEstatico("¡" + jugador.getNickname() + " ha sido golpeado y enviado al agujero anterior!", "log-warning");
 	        } else {
-	            System.out.println("El jugador no tenia peixos, però no hi ha cap forat anterior.");
+	            System.out.println("El jugador no tenía peces, pero no hay ningún agujero anterior.");
+	            vista.PantallaJuego.registrarEventoEstatico("¡La foca ha golpeado a " + jugador.getNickname() + ", pero no hay agujeros donde caer!", "log-info");
 	        }
 	}
 	
-	public void sobornarFoca(Pinguino p) { // Permet sobornar a la Foca
+	public void sobornarFoca(Pinguino p) { // Permite sobornar a la foca
 		// Si ha sido alimentada recientemente, no volvemos a preguntar
 		if (this.bloqueix > 0 || this.soborno) return;
 
@@ -114,12 +119,12 @@ public class Foca extends Jugador {
 			// Preguntamos al usuario si quiere usar el pez para sobornar/alimentar
 			javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
 			vista.PantallaJuego.estilarAlerta(alert); // Aplicamos el estilo polar
-			alert.setTitle("Trobada amb la Foca!");
-			alert.setHeaderText("¡Una foca obstaculiza el camino!");
-			alert.setContentText("Tens un peix a l'inventari. Vols usar-lo para alimentar la foca?");
+			alert.setTitle("¡Encuentro con la foca!");
+			alert.setHeaderText("¡Una foca te corta el paso!");
+			alert.setContentText("Tienes un pez en el inventario. ¿Quieres usarlo para alimentar a la foca?");
 
-			javafx.scene.control.ButtonType btnYes = new javafx.scene.control.ButtonType("Sí, alimentar (2 torns)");
-			javafx.scene.control.ButtonType btnNo = new javafx.scene.control.ButtonType("No, arriscar-se");
+			javafx.scene.control.ButtonType btnYes = new javafx.scene.control.ButtonType("Sí, alimentar (2 turnos)");
+			javafx.scene.control.ButtonType btnNo = new javafx.scene.control.ButtonType("No, arriesgarse");
 			alert.getButtonTypes().setAll(btnYes, btnNo);
 
 			java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
@@ -128,47 +133,62 @@ public class Foca extends Jugador {
 				System.out.println(p.getNickname() + " ha alimentado a la foca " + this.getNickname());
 				this.soborno = true;
 				this.bloqueix = 2; // Queda bloqueada por 2 turnos
-				p.getInventari().eliminarItemsPerTipus(Peix.class); // Se li resta un peix
+				p.getInventari().eliminarItemsPerTipus(Peix.class); // Se le resta un peix
 			}
 		} else {
-			System.out.println("No tens peixos per alimentar la foca.");
+			System.out.println("No tienes peces para alimentar a la foca.");
 		}
 	}
 
-	/**
-	Mediante probabilidades y de tus acciones la Foca querra aplastarte o pegarte
-	 */
-	public void AccionesFoca(Pinguino p, Partida partida) {
-		if (this.soborno || this.bloqueix > 0) return;
+	// Mediante probabilidades y de tus acciones la foca querrá aplastarte o pegarte
+	public void AccionesFoca(Pinguino p, Partida partida, Runnable onComplete) {
+		if (this.soborno || this.bloqueix > 0) {
+			vista.PantallaJuego.registrarEventoEstatico("La foca " + this.getNickname() + " está tranquila o bloqueada y no atacará.", "log-info");
+			if (onComplete != null) onComplete.run();
+			return;
+		}
 
 		int totalItems = p.getInventari().getBoles() + p.getInventari().getPeixos() + p.getInventari().getDausEspecials();
-		boolean tieneItems = totalItems > 0;
 
 		java.util.Random rand = new java.util.Random();
 		
 		int chancePegar = 50;
 		int chanceAplastar = 50;
 
-		// Si està molt a prop del final (casella 40 o més, donat que el final és la 50)
+		// Determinar probabilidades según el contexto
 		if (p.getPosicio() >= 40) {
 			chancePegar = 75;
 			chanceAplastar = 25;
-		}
-		// Si té més de 3 ítems
-		else if (totalItems > 3) {
+		} else if (totalItems > 3) {
 			chancePegar = 25;
 			chanceAplastar = 75;
 		}
 
-		if (tieneItems) {
+		// Si las probabilidades son iguales (50/50), activamos la Ruleta Malvada
+		if (chancePegar == 50 && chanceAplastar == 50) {
+			int actionIndex = rand.nextInt(2); // 0 = Pegar, 1 = Aplastar
+			vista.PantallaJuego.mostrarRuletaMalvadaEstatico(p, actionIndex, () -> {
+				if (actionIndex == 0) {
+					pegarPingu(p, partida);
+				} else {
+					aplastarPingu(p);
+				}
+				vista.PantallaJuego.actualizarUIEstatica();
+				if (onComplete != null)
+				onComplete.run();
+			});
+		} else {
+			// Se hace la acción directamente con un mensaje siguiendo las probabilidades
 			int roll = rand.nextInt(100);
 			if (roll < chanceAplastar) {
+				vista.PantallaJuego.registrarEventoEstatico("¡La foca ha decidido APLASTAR a " + p.getNickname() + "!", "log-warning");
 				aplastarPingu(p);
 			} else {
+				vista.PantallaJuego.registrarEventoEstatico("¡La foca ha decidido PEGAR a " + p.getNickname() + "!", "log-warning");
 				pegarPingu(p, partida);
 			}
-		} else {
-			pegarPingu(p, partida);
+			if (onComplete != null)
+			onComplete.run();
 		}
 	}
 

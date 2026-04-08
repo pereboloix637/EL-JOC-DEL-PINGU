@@ -55,18 +55,11 @@ public class Os extends Casella {
 				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha estat atacat per un ós i torna a l'inici!", "log-warning");
 			}
 		} else if (jugador instanceof Foca) {
-			// Lògica per a les foces (CPU)
-			Random rand = new Random();
-			if (rand.nextInt(100) < 50) {
-				// Escapa (50%)
-				System.out.println("La foca " + jugador.getNickname() + " ha esquivat l'atac de l'ós!");
-				vista.PantallaJuego.registrarEventoEstatico("La foca " + jugador.getNickname() + " ha aconseguit escapar de l'os!", "log-info");
-			} else {
-				// No escapa (50%)
-				jugador.setPosicio(0);
-				System.out.println("La foca " + jugador.getNickname() + " ha estat caçada per l'ós i torna a l'inici.");
-				vista.PantallaJuego.registrarEventoEstatico("La foca " + jugador.getNickname() + " ha estat atacada per un os i torna a l'inici!", "log-warning");
-			}
+			// Nerfeig per a les foces: El "por" a l'os les fa tenir el moviment limitat el següent torn (1-3)
+			jugador.setNerfOs(true);
+			
+			System.out.println("La foca " + jugador.getNickname() + " ha estat espantada per l'os i tindrà el moviment limitat el proper torn.");
+			vista.PantallaJuego.registrarEventoEstatico("La foca " + jugador.getNickname() + " ha estat espantada per l'os i tindrà el moviment limitat el proper torn!", "log-warning");
 		}
 	}
 }
