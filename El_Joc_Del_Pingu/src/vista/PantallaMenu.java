@@ -10,6 +10,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.animation.PauseTransition;
 import javafx.animation.FadeTransition;
+import javafx.animation.TranslateTransition;
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Interpolator;
 import javafx.application.Platform;
 import javafx.util.Duration;
 import javafx.scene.control.Button;
@@ -73,6 +78,13 @@ public class PantallaMenu {
     @FXML private Slider musicSlider;
     @FXML private Slider sfxSlider;
     @FXML private javafx.scene.control.CheckBox fullScreenCheck;
+    
+    // Landing buttons for animation
+    @FXML private Button btnNewGame;
+    @FXML private Button btnLoadGame;
+    @FXML private Button btnRanking;
+    @FXML private Button btnQuit;
+    // btnSettings is already defined on line 71
 
     private ArrayList<Jugador> joinedPlayers = new ArrayList<>();
     private int cpuCount = 0;
@@ -236,6 +248,108 @@ public class PantallaMenu {
         }
 
         updateMuteUI();
+
+        // ── Preparar estado inicial para las animaciones (evitar parpadeo) ──
+        if (landingContainer != null) { landingContainer.setOpacity(0); landingContainer.setTranslateY(-400); }
+        if (rulesContainer != null) { rulesContainer.setOpacity(0); rulesContainer.setTranslateX(-800); }
+        Button[] buttons = {btnNewGame, btnLoadGame, btnRanking, btnSettings, btnQuit};
+        for (Button b : buttons) { if (b != null) { b.setOpacity(0); b.setTranslateX(800); } }
+
+        // ── Animaciones de entrada escalonadas para los botones ──
+        // Usamos un listener para detectar cuando el menú se muestra realmente en pantalla
+        // (ya que se pre-carga en segundo plano mientras está la pantalla de carga)
+        menuRoot.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                Platform.runLater(() -> {
+                    // Animación para el título (desde arriba)
+                    animarPanelArriba(landingContainer, 400);
+
+                    // Animación para el panel de reglas (desde la izquierda)
+                    animarPanelIzquierda(rulesContainer, 600);
+
+                    // Animación para los botones (desde la derecha)
+                    animarBotonEntrada(btnNewGame, 700);
+                    animarBotonEntrada(btnLoadGame, 850);
+                    animarBotonEntrada(btnRanking, 1000);
+                    animarBotonEntrada(btnSettings, 1150);
+                    animarBotonEntrada(btnQuit, 1300);
+                });
+            }
+        });
+    }
+
+    /**
+     * Aplica una animación de entrada (desplazamiento + fade) a un botón con un retraso.
+     */
+    private void animarBotonEntrada(Node node, int delayMillis) {
+        if (node == null) return;
+
+        // El estado inicial ya se ha configurado en initialize() para evitar parpadeos
+        
+        Timeline timeline = new Timeline();
+        timeline.setDelay(Duration.millis(delayMillis));
+
+        // KeyFrame 1: Movimiento rápido hacia la izquierda con un ligero overshoot (rebote)
+        KeyFrame kf1 = new KeyFrame(Duration.millis(600),
+            new KeyValue(node.translateXProperty(), -30, Interpolator.EASE_OUT),
+            new KeyValue(node.opacityProperty(), 1.0, Interpolator.EASE_OUT)
+        );
+
+        // KeyFrame 2: Volver a la posición final (0) suavemente
+        KeyFrame kf2 = new KeyFrame(Duration.millis(850),
+            new KeyValue(node.translateXProperty(), 0, Interpolator.EASE_IN)
+        );
+
+        timeline.getKeyFrames().addAll(kf1, kf2);
+        timeline.play();
+    }
+
+    /**
+     * Aplica una animación de entrada desde la izquierda con rebote.
+     */
+    private void animarPanelIzquierda(Node node, int delayMillis) {
+        if (node == null) return;
+
+        // El estado inicial ya se ha configurado en initialize() para evitar parpadeos
+
+        Timeline timeline = new Timeline();
+        timeline.setDelay(Duration.millis(delayMillis));
+
+        KeyFrame kf1 = new KeyFrame(Duration.millis(700),
+            new KeyValue(node.translateXProperty(), 30, Interpolator.EASE_OUT),
+            new KeyValue(node.opacityProperty(), 1.0, Interpolator.EASE_OUT)
+        );
+
+        KeyFrame kf2 = new KeyFrame(Duration.millis(950),
+            new KeyValue(node.translateXProperty(), 0, Interpolator.EASE_IN)
+        );
+
+        timeline.getKeyFrames().addAll(kf1, kf2);
+        timeline.play();
+    }
+
+    /**
+     * Aplica una animación de entrada desde arriba con rebote.
+     */
+    private void animarPanelArriba(Node node, int delayMillis) {
+        if (node == null) return;
+
+        // El estado inicial ya se ha configurado en initialize() para evitar parpadeos
+
+        Timeline timeline = new Timeline();
+        timeline.setDelay(Duration.millis(delayMillis));
+
+        KeyFrame kf1 = new KeyFrame(Duration.millis(700),
+            new KeyValue(node.translateYProperty(), 30, Interpolator.EASE_OUT),
+            new KeyValue(node.opacityProperty(), 1.0, Interpolator.EASE_OUT)
+        );
+
+        KeyFrame kf2 = new KeyFrame(Duration.millis(950),
+            new KeyValue(node.translateYProperty(), 0, Interpolator.EASE_IN)
+        );
+
+        timeline.getKeyFrames().addAll(kf1, kf2);
+        timeline.play();
     }
 /**
      * Registra recursivamente los sonidos de hover y click para todos los botones

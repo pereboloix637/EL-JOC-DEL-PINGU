@@ -1634,6 +1634,24 @@ public class PantallaJuego {
 			}
 
 			javafx.scene.control.DialogPane pane = d.getDialogPane();
+			
+			// Ajuste dinámico de ancho según cantidad de botones
+			int numButtons = d.getDialogPane().getButtonTypes().size();
+			if (numButtons > 2) {
+				pane.setMinWidth(1000); // Ensanchado extra para asegurar botones largos
+			} else {
+				pane.setMinWidth(500); 
+			}
+
+			// Forzar que los botones puedan crecer y no tengan tamaño uniforme (evita truncado)
+			pane.getButtonTypes().forEach(bt -> {
+				javafx.scene.Node node = pane.lookupButton(bt);
+				if (node instanceof javafx.scene.control.Button) {
+					javafx.scene.control.Button btn = (javafx.scene.control.Button) node;
+					btn.setMaxWidth(Double.MAX_VALUE);
+					javafx.scene.control.ButtonBar.setButtonUniformSize(btn, false);
+				}
+			});
 			String css = getClass().getResource("/resources/PantallaMenu.css").toExternalForm();
 			pane.getStylesheets().add(css);
 		} catch (Exception e) {
