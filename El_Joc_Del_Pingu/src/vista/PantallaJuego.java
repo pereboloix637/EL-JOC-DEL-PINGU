@@ -858,7 +858,7 @@ public class PantallaJuego {
 		
 		StackPane wheelStack = new StackPane();
 		
-		ImageView wheelVisuals = new ImageView(new Image(getClass().getResourceAsStream("/assets/RULETA_ALEATORIA.png")));
+		ImageView wheelVisuals = new ImageView(new Image(getClass().getResourceAsStream("/assets/Ruleta_Malvada.png")));
 		wheelVisuals.setFitWidth(300);
 		wheelVisuals.setFitHeight(300);
 		wheelVisuals.setPreserveRatio(true);
@@ -869,14 +869,25 @@ public class PantallaJuego {
 		
 		// Dues opcions: 0=Pegar, 1=Aplastar
 		for (int i = 0; i < 2; i++) {
-			Label lbl = new Label(i == 0 ? "PEGAR" : "APLASTAR");
-			lbl.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-color: rgba(0,0,0,0.5); -fx-padding: 5;");
-			
-			double angle = Math.toRadians(i * 180);
-			lbl.setLayoutX(150 + 90 * Math.cos(angle) - 40);
-			lbl.setLayoutY(150 + 90 * Math.sin(angle) - 15);
-			lbl.setRotate(i * 180);
-			itemsPane.getChildren().add(lbl);
+			String imgName = (i == 0) ? "PegarPingu.png" : "AplastarPingu.png";
+			try {
+				Image img = new Image(getClass().getResourceAsStream("/assets/" + imgName));
+				if (img != null && !img.isError()) {
+					ImageView iv = new ImageView(img);
+					iv.setFitWidth(120);
+					iv.setFitHeight(120);
+					iv.setPreserveRatio(true);
+					
+					// Las colocamos Arriba (270°) y Abajo (90°)
+					double angle = Math.toRadians(i == 0 ? 270 : 90);
+					iv.setLayoutX(150 + 80 * Math.cos(angle) - 60);
+					iv.setLayoutY(150 + 80 * Math.sin(angle) - 60);
+					iv.setRotate(i == 0 ? 0 : 180);
+					itemsPane.getChildren().add(iv);
+				}
+			} catch (Exception e) {
+				System.err.println("Error carregant icono ruleta: " + imgName);
+			}
 		}
 		
 		wheelStack.getChildren().addAll(wheelVisuals, itemsPane);
@@ -899,7 +910,8 @@ public class PantallaJuego {
 		scaleIn.play();
 		
 		int rotations = 6 + new Random().nextInt(3);
-		double targetAngle = rotations * 360 - (actionIndex * 180) - 90;
+		// Si actionIndex=0 (Pegar, Arriba), giro 0. Si actionIndex=1 (Aplastar, Abajo), giro 180.
+		double targetAngle = (rotations * 360) - (actionIndex * 180);
 		
 		RotateTransition rotate = new RotateTransition(Duration.seconds(3), wheelStack);
 		rotate.setByAngle(targetAngle);
@@ -1266,24 +1278,7 @@ public class PantallaJuego {
 		                        
 		                        mostrarOverlayBatalla(() -> {
 		                            pActual.gestionarBatalla(pRival);
-	
-		                            Alert batallaAlert = new Alert(AlertType.INFORMATION);
-		                            estilar(batallaAlert);
-		                            batallaAlert.setTitle("Resultat de la Batalla");
-		                            batallaAlert.setHeaderText("¡Combat de boles de neu!");
-		                            
-		                            String resultMsg = "";
-		                            if (pActual.getPosicio() < posJ1Abans) {
-		                                resultMsg = pRival.getNickname() + " guanya! " + pActual.getNickname() + " retrocedeix.";
-		                            } else if (pRival.getPosicio() < posJ2Abans) {
-		                                resultMsg = pActual.getNickname() + " guanya! " + pRival.getNickname() + " retrocedeix.";
-		                            } else {
-		                                resultMsg = "Empat! Ambdós perden totes les boles de neu.";
-		                            }
-		                            batallaAlert.setContentText(resultMsg);
-		                            batallaAlert.showAndWait();
-	
-		                            // Encadenar animacions de retrocés si cal
+		                            // Animación de retroceso si alguien se ha movido
 		                            if (pActual.getPosicio() != posJ1Abans) {
 		                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), () -> {
 		                                    if (pRival.getPosicio() != posJ2Abans) {
@@ -1439,6 +1434,10 @@ public class PantallaJuego {
 	/**
 	 * Anima el retroceso de un jugador a una nueva posición, moviéndose casilla a casilla.
 	 */
+	public void animarRetroceso(Jugador j, int oldPos, int newPos) {
+		animarRetroceso(j, oldPos, newPos, null);
+	}
+
 	public void animarRetroceso(Jugador j, int oldPos, int newPos, Runnable onComplete) {
 	    ImageView pieza = getPiezaParaJugador(j);
 	    if (pieza == null) {
@@ -1499,6 +1498,10 @@ public class PantallaJuego {
 	        if (onComplete != null) onComplete.run();
 	    });
 	    sequence.play();
+	}
+
+	public static void animarRetrocesoEstatico(Jugador j, int oldPos, int newPos) {
+		animarRetrocesoEstatico(j, oldPos, newPos, null);
 	}
 
 	public static void animarRetrocesoEstatico(Jugador j, int oldPos, int newPos, Runnable onComplete) {

@@ -68,7 +68,6 @@ public class Foca extends Jugador {
 				p.getInventari().eliminarItemsPerTipus(model.items.Dau.class);
 			}
 			
-			vista.PantallaJuego.registrarEventoEstatico("Foca: \"Veo que tienes muchas cosas... ¡Diles adios!\"", "log-warning");
 			vista.PantallaJuego.registrarEventoEstatico("¡" + p.getNickname() + " ha sido aplastado por la foca y ha perdido todos sus ítems!", "log-warning");
 			System.out.println("=====================================================");
 		}
@@ -82,7 +81,6 @@ public class Foca extends Jugador {
 		}
 
 		// Si no está tranquila, ataca directamente
-		vista.PantallaJuego.registrarEventoEstatico("Foca: \"Ja! Creiste que ibas a ganar. ¡pues no mientras este aqui!\"", "log-warning");
 		aplicarPegarPingu(jugador, partida);
 	}
 	
@@ -181,10 +179,18 @@ public class Foca extends Jugador {
 			// Se hace la acción directamente con un mensaje siguiendo las probabilidades
 			int roll = rand.nextInt(100);
 			if (roll < chanceAplastar) {
-				vista.PantallaJuego.registrarEventoEstatico("¡La foca ha decidido APLASTAR a " + p.getNickname() + "!", "log-warning");
+				if (totalItems > 3) {
+					vista.PantallaJuego.registrarEventoEstatico("Foca: \"Veo que tienes muchas cosas... ¡Diles adios!\"", "log-warning");
+				} else {
+					vista.PantallaJuego.registrarEventoEstatico("¡La foca ha decidido APLASTAR a " + p.getNickname() + "!", "log-warning");
+				}
 				aplastarPingu(p);
 			} else {
-				vista.PantallaJuego.registrarEventoEstatico("¡La foca ha decidido PEGAR a " + p.getNickname() + "!", "log-warning");
+				if (p.getPosicio() >= 40) {
+					vista.PantallaJuego.registrarEventoEstatico("Foca: \"Ja! Creiste que ibas a ganar. ¡pues no mientras este aqui!\"", "log-warning");
+				} else {
+					vista.PantallaJuego.registrarEventoEstatico("¡La foca ha decidido PEGAR a " + p.getNickname() + "!", "log-warning");
+				}
 				pegarPingu(p, partida);
 			}
 			if (onComplete != null)

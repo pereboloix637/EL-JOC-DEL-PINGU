@@ -90,13 +90,6 @@ public class Pinguino extends Jugador {
 			batallaAlert.setContentText(resultMsg);
 			batallaAlert.showAndWait();
 
-			// Animación de retroceso si alguien se ha movido
-			if (this.getPosicio() != posJ1Abans) {
-				vista.PantallaJuego.animarRetrocesoEstatico(this, posJ1Abans, this.getPosicio());
-			}
-			if (pingu.getPosicio() != posJ2Abans) {
-				vista.PantallaJuego.animarRetrocesoEstatico(pingu, posJ2Abans, pingu.getPosicio());
-			}
 
 		} else {
 			// Gestión de errores unificada
