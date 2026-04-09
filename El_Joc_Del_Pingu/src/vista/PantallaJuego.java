@@ -78,6 +78,8 @@ public class PantallaJuego {
 	@FXML
 	private MenuItem menuItem;
 	@FXML
+	private MenuItem copySeed;
+	@FXML
 	private MenuItem menuMute;
 	@FXML
 	private MenuItem menuMuteSfx;
@@ -876,23 +878,22 @@ public class PantallaJuego {
 			String imgPath = "/assets/" + options[i];
 			System.out.println("DEBUG: Cargando icono malvado " + i + ": " + imgPath);
 			java.io.InputStream iconStream = getClass().getResourceAsStream(imgPath);
-			if (iconStream == null) {
+			if (iconStream != null) {
+				ImageView iv = new ImageView(new Image(iconStream));
+				iv.setFitWidth(120);
+				iv.setFitHeight(120);
+				iv.setPreserveRatio(true);
+				
+				// Las colocamos Arriba (270°) y Abajo (90°)
+				double angle = Math.toRadians(i == 0 ? 270 : 90);
+				// Centro (150) + Radio (80) * cos/sin - mitad imagen (60)
+				iv.setLayoutX(150 + 80 * Math.cos(angle) - 60);
+				iv.setLayoutY(150 + 80 * Math.sin(angle) - 60);
+				iv.setRotate(i == 0 ? 0 : 180);
+				itemsPane.getChildren().add(iv);
+			} else {
 				System.err.println("ERROR: No se encontró " + imgPath);
-				continue;
 			}
-			
-			ImageView iv = new ImageView(new Image(iconStream));
-			iv.setFitWidth(120);
-			iv.setFitHeight(120);
-			iv.setPreserveRatio(true);
-			
-			// Las colocamos Arriba (270°) y Abajo (90°)
-			double angle = Math.toRadians(i == 0 ? 270 : 90);
-			// Centro (150) + Radio (80) * cos/sin - mitad imagen (60)
-			iv.setLayoutX(150 + 80 * Math.cos(angle) - 60);
-			iv.setLayoutY(150 + 80 * Math.sin(angle) - 60);
-			iv.setRotate(i == 0 ? 0 : 180);
-			itemsPane.getChildren().add(iv);
 		}
 		
 		wheelStack.getChildren().addAll(wheelVisuals, itemsPane);
@@ -1033,9 +1034,6 @@ public class PantallaJuego {
 			if (con != null) {
 				gestorPartida.guardarPartida(con);
 				registrarEvento("Partida guardada correctamente.", "log-info");
-				
-				// Mostrar la semilla al usuario para que pueda copiarla
-				mostrarVentanaSeed();
 			} else {
 				registrarEvento("No se pudo conectar a la base de datos para guardar.", "log-warning");
 			}
@@ -1043,6 +1041,11 @@ public class PantallaJuego {
 			e.printStackTrace();
 			registrarEvento("Error al guardar la partida.", "log-warning");
 		}
+	}
+
+	@FXML
+	private void handleCopySeed() {
+		mostrarVentanaSeed();
 	}
 
 	/**
@@ -1262,10 +1265,9 @@ public class PantallaJuego {
 	    double accumTX = currentTX;
 	    double accumTY = currentTY;
 
-	    for (int i = 1; i <= steps; i++) {
+	    for (int i = 1; i <= steps && (oldPos + i) <= newPos; i++) {
 	        int pA = oldPos + i - 1;
 	        int pB = oldPos + i;
-	        if (pB > newPos) break;
 
 	        int[] cA = getGridCoords(pA);
 	        int[] cB = getGridCoords(pB);
@@ -1313,62 +1315,63 @@ public class PantallaJuego {
 		        boolean interactionOccurred = false;
 
 		        // --- LÒGICA DE COL·LISIONS I BATALLA ---
+		        boolean collisionHandled = false;
 		        if (j instanceof Pinguino pActual) {
 		            Casella casellaDestino = gestorPartida.getPartida().getTaulell().getCaselles().get(newPos);
 		            boolean esCasellaSeguraParaColision = !(casellaDestino instanceof model.caselles.Trineu || 
 		                                                     casellaDestino instanceof model.caselles.Os || 
 		                                                     casellaDestino instanceof model.caselles.Forat);
 	
-		            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
+		            ArrayList<Jugador> jugadors = gestorPartida.getPartida().getJugadors();
+		            for (int i = 0; i < jugadors.size() && !collisionHandled; i++) {
+		                Jugador rival = jugadors.get(i);
 		                if (rival != pActual && rival.getPosicio() == newPos) {
 		                    if (rival instanceof Pinguino pRival) {
-		                        if (pActual.getInventari().getBoles() == 0 && pRival.getInventari().getBoles() == 0) {
-		                        	break; 
-		                        }
-		                    	
-		                        registrarEvento("¡Colisión! Batalla entre " + pActual.getNickname() + " y " + pRival.getNickname(), "log-warning");
-		                        
-		                        int bolesJ1Abans = pActual.getInventari().getBoles();
-		                        int bolesJ2Abans = pRival.getInventari().getBoles();
-		                        int posJ1Abans = pActual.getPosicio();
-		                        int posJ2Abans = pRival.getPosicio();
-		                        
-		                        mostrarOverlayBatalla(() -> {
-		                            pActual.gestionarBatalla(pRival);
-	
-		                            Alert batallaAlert = new Alert(AlertType.INFORMATION);
-		                            estilar(batallaAlert);
-		                            batallaAlert.setTitle("Resultado de la Batalla");
-		                            batallaAlert.setHeaderText("¡Combate de bolas de nieve!");
+		                        if (!(pActual.getInventari().getBoles() == 0 && pRival.getInventari().getBoles() == 0)) {
+		                            interactionOccurred = true;
+		                            collisionHandled = true;
+		                            registrarEvento("¡Colisión! Batalla entre " + pActual.getNickname() + " y " + pRival.getNickname(), "log-warning");
 		                            
-		                            String resultMsg = "";
-		                            if (pActual.getPosicio() < posJ1Abans) {
-		                                resultMsg = pRival.getNickname() + " ¡gana! " + pActual.getNickname() + " retrocede.";
-		                            } else if (pRival.getPosicio() < posJ2Abans) {
-		                                resultMsg = pActual.getNickname() + " ¡gana! " + pRival.getNickname() + " retrocede.";
-		                            } else {
-		                                resultMsg = "¡Empate! Ambos pierden todas las bolas de nieve.";
-		                            }
-		                            batallaAlert.setContentText(resultMsg);
-		                            batallaAlert.showAndWait();
-	
-		                            if (pActual.getPosicio() != posJ1Abans) {
-		                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), () -> {
-		                                    if (pRival.getPosicio() != posJ2Abans) {
-		                                        animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
-		                                    } else {
-		                                        finishTurnCallback.run();
-		                                    }
-		                                });
-		                            } else if (pRival.getPosicio() != posJ2Abans) {
-		                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
-		                            } else {
-		                                finishTurnCallback.run();
-		                            }
-		                        });
-		                        
-		                        break; 
-		                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaNormal) {
+		                            int posJ1Abans = pActual.getPosicio();
+		                            int posJ2Abans = pRival.getPosicio();
+		                            
+		                            mostrarOverlayBatalla(() -> {
+		                                pActual.gestionarBatalla(pRival);
+		                                
+		                                Alert batallaAlert = new Alert(AlertType.INFORMATION);
+		                                estilar(batallaAlert);
+		                                batallaAlert.setTitle("Resultado de la Batalla");
+		                                batallaAlert.setHeaderText("¡Combate de bolas de nieve!");
+		                                
+		                                String resultMsg = "";
+		                                if (pActual.getPosicio() < posJ1Abans) {
+		                                    resultMsg = pRival.getNickname() + " ¡gana! " + pActual.getNickname() + " retrocede.";
+		                                } else if (pRival.getPosicio() < posJ2Abans) {
+		                                    resultMsg = pActual.getNickname() + " ¡gana! " + pRival.getNickname() + " retrocede.";
+		                                } else {
+		                                    resultMsg = "¡Empate! Ambos pierden todas las bolas de nieve.";
+		                                }
+		                                batallaAlert.setContentText(resultMsg);
+		                                batallaAlert.showAndWait();
+		
+		                                if (pActual.getPosicio() != posJ1Abans) {
+		                                    animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), () -> {
+		                                        if (pRival.getPosicio() != posJ2Abans) {
+		                                            animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
+		                                        } else {
+		                                            finishTurnCallback.run();
+		                                        }
+		                                    });
+		                                } else if (pRival.getPosicio() != posJ2Abans) {
+		                                    animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
+		                                } else {
+		                                    finishTurnCallback.run();
+		                                }
+		                            });
+		                        }
+		                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaSeguraParaColision) {
+		                        interactionOccurred = true;
+		                        collisionHandled = true;
 		                        registrarEvento(pActual.getNickname() + " ha chocado con la foca " + fRival.getNickname(), "log-warning");
 		                        int posAbans = pActual.getPosicio();
 		                        
@@ -1379,7 +1382,6 @@ public class PantallaJuego {
 		                                finishTurnCallback.run();
 		                            }
 		                        });
-		                        break;
 		                    }
 		                }
 		            }
@@ -1391,9 +1393,12 @@ public class PantallaJuego {
 		                                                      casellaDestinoF instanceof model.caselles.Forat);
 		            
 		            if (esCasellaSeguraParaColisionF) {
-		                for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
+		                ArrayList<Jugador> jugadors = gestorPartida.getPartida().getJugadors();
+		                for (int i = 0; i < jugadors.size() && !collisionHandled; i++) {
+		                    Jugador rival = jugadors.get(i);
 		                    if (rival instanceof Pinguino pRival && rival.getPosicio() == newPos) {
 		                        interactionOccurred = true;
+		                        collisionHandled = true;
 		                        registrarEvento("La foca " + fActual.getNickname() + " ha caigut sobre " + pRival.getNickname(), "log-warning");
 		                        int posAbansP = pRival.getPosicio();
 		                        fActual.AccionesFoca(pRival, gestorPartida.getPartida(), () -> {
@@ -1403,13 +1408,13 @@ public class PantallaJuego {
 		                                finishTurnCallback.run();
 		                            }
 		                        });
-		                        break;
 		                    }
 		                }
 		            }
 		        }
 		        
-		        if (interactionOccurred) return; // Esperem que acabi l'interacció asíncrona
+		        if (interactionOccurred)
+		        return; // Esperem que acabi l'interacció asíncrona
 
 		        GestorTaulell gt = new GestorTaulell();
 		        if (!saltaAccioCasella) {
@@ -1658,15 +1663,18 @@ public class PantallaJuego {
 	        alert.setContentText("Enhorabuena " + g.getNickname() + ", ¡has llegado a la meta!");
 
 	        ButtonType btnGuardar = new ButtonType("Guardar y Salir");
+	        ButtonType btnCopiar = new ButtonType("Copiar semilla");
 	        ButtonType btnSalir = new ButtonType("Salir sin Guardar");
-	        alert.getButtonTypes().setAll(btnGuardar, btnSalir);
+	        alert.getButtonTypes().setAll(btnGuardar, btnCopiar, btnSalir);
 
 	        alert.showAndWait().ifPresent(result -> {
 	            if (result == btnGuardar) {
 	                handleSaveGame();
 	                goToMenu();
-	            } else if (result == btnSalir) {
+	            } else if (result == btnCopiar) {
 	                mostrarVentanaSeed();
+	                mostrarAlertaGanador(g); // Re-mostrar para que pueda guardar o salir
+	            } else if (result == btnSalir) {
 	                goToMenu();
 	            }
 	        });
@@ -1700,8 +1708,12 @@ public class PantallaJuego {
 
 		// Buscar dau ràpid (max > 6) a la llista real de l'inventari
 		Dau dRapid = null;
-		for (model.items.Item obj : pingu.getInventari().getLlista()) {
-			if (obj instanceof Dau d && d.getMax() > 6) { dRapid = d; break; }
+		ArrayList<model.items.Item> llista = pingu.getInventari().getLlista();
+		for (int i = 0; i < llista.size() && dRapid == null; i++) {
+			model.items.Item obj = llista.get(i);
+			if (obj instanceof Dau d && d.getMax() > 6) { 
+				dRapid = d; 
+			}
 		}
 
 		if (dRapid == null || dRapid.getQuantitat() <= 0) {
@@ -1723,8 +1735,12 @@ public class PantallaJuego {
 
 		// Buscar dau lent (max <= 3)
 		Dau dLent = null;
-		for (model.items.Item obj : pingu.getInventari().getLlista()) {
-			if (obj instanceof Dau d && d.getMax() <= 3) { dLent = d; break; }
+		ArrayList<model.items.Item> llistaLenta = pingu.getInventari().getLlista();
+		for (int i = 0; i < llistaLenta.size() && dLent == null; i++) {
+			model.items.Item obj = llistaLenta.get(i);
+			if (obj instanceof Dau d && d.getMax() <= 3) { 
+				dLent = d; 
+			}
 		}
 
 		if (dLent == null || dLent.getQuantitat() <= 0) {

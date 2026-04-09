@@ -608,43 +608,43 @@ public class PantallaMenu {
             if (partida != null) {
                 try (Connection con = GestorBBDD.conectarBaseDatos()) {
                     for (Jugador j : partida.getJugadors()) {
-                        if (!(j instanceof Pinguino)) continue; // Las CPUs no tienen contraseña
+                        if (j instanceof Pinguino) {
+                            // Diálogo con PasswordField para ocultar la contraseña
+                            javafx.scene.control.Dialog<String> dialog = new javafx.scene.control.Dialog<>();
+                            estilar(dialog);
+                            dialog.setTitle("Verificación de identidad");
+                            dialog.setHeaderText("Jugador: " + j.getNickname());
+                            dialog.setContentText("Introduce tu contraseña:");
 
-                        // Diálogo con PasswordField para ocultar la contraseña
-                        javafx.scene.control.Dialog<String> dialog = new javafx.scene.control.Dialog<>();
-                        estilar(dialog);
-                        dialog.setTitle("Verificación de identidad");
-                        dialog.setHeaderText("Jugador: " + j.getNickname());
-                        dialog.setContentText("Introduce tu contraseña:");
+                            ButtonType okBtn = new ButtonType("Aceptar", ButtonType.OK.getButtonData());
+                            dialog.getDialogPane().getButtonTypes().addAll(okBtn, ButtonType.CANCEL);
 
-                        ButtonType okBtn = new ButtonType("Aceptar", ButtonType.OK.getButtonData());
-                        dialog.getDialogPane().getButtonTypes().addAll(okBtn, ButtonType.CANCEL);
+                            PasswordField pwField = new PasswordField();
+                            pwField.setPromptText("Contraseña");
+                            dialog.getDialogPane().setContent(pwField);
 
-                        PasswordField pwField = new PasswordField();
-                        pwField.setPromptText("Contraseña");
-                        dialog.getDialogPane().setContent(pwField);
+                            // Convertir resultado al texto del campo
+                            dialog.setResultConverter(btn -> btn == okBtn ? pwField.getText() : null);
 
-                        // Convertir resultado al texto del campo
-                        dialog.setResultConverter(btn -> btn == okBtn ? pwField.getText() : null);
+                            Optional<String> result = dialog.showAndWait();
+                            if (!result.isPresent() || result.get() == null) {
+                                // El usuario canceló
+                                Alert alert = new Alert(AlertType.WARNING, "Carga cancelada.", ButtonType.OK);
+                                estilar(alert);
+                                alert.showAndWait();
+                                return;
+                            }
 
-                        Optional<String> result = dialog.showAndWait();
-                        if (!result.isPresent() || result.get() == null) {
-                            // El usuario canceló
-                            Alert alert = new Alert(AlertType.WARNING, "Carga cancelada.", ButtonType.OK);
-                            estilar(alert);
-                            alert.showAndWait();
-                            return;
-                        }
-
-                        String enteredPass = result.get().trim();
-                        boolean valid = dbManager.validarLogin(j.getNickname(), enteredPass, con);
-                        if (!valid) {
-                            Alert alert = new Alert(AlertType.ERROR,
-                                    "Contraseña incorrecta para el jugador: " + j.getNickname() + "\nNo se puede cargar la partida.",
-                                    ButtonType.OK);
-                            estilar(alert);
-                            alert.showAndWait();
-                            return;
+                            String enteredPass = result.get().trim();
+                            boolean valid = dbManager.validarLogin(j.getNickname(), enteredPass, con);
+                            if (!valid) {
+                                Alert alert = new Alert(AlertType.ERROR,
+                                        "Contraseña incorrecta para el jugador: " + j.getNickname() + "\nNo se puede cargar la partida.",
+                                        ButtonType.OK);
+                                estilar(alert);
+                                alert.showAndWait();
+                                return;
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -654,10 +654,9 @@ public class PantallaMenu {
             }
         } else { // Tab "Nueva Partida"
             boolean hasHuman = false;
-            for (Jugador j : joinedPlayers) {
-                if (j instanceof Pinguino) {
+            for (int i = 0; i < joinedPlayers.size() && !hasHuman; i++) {
+                if (joinedPlayers.get(i) instanceof Pinguino) {
                     hasHuman = true;
-                    break;
                 }
             }
 

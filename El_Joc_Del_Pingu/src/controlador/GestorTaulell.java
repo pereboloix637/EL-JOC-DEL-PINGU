@@ -205,38 +205,37 @@ public class GestorTaulell {
 	    for (int i = 0; i < 50; i++) {
 	        if (i < 4 || i >= 48) {
 	            seed.append('0');
-	            continue;
-	        }
+	        } else {
+	            boolean afegit = false;
+	            int intentsCasella = 0;
+	            while (!afegit && intentsCasella < 20) {
+	                intentsCasella++;
+	                // Probabilitats ajustades: 40% normal, 12% cadascun dels 5 especials (60% total especial)
+	                int roll = random.nextInt(100);
+	                int type;
+	                if (roll < 40) type = 0;
+	                else if (roll < 52) type = 1;
+	                else if (roll < 64) type = 2;
+	                else if (roll < 76) type = 3;
+	                else if (roll < 88) type = 4;
+	                else type = 5;
 
-	        boolean afegit = false;
-	        int intentsCasella = 0;
-	        while (!afegit && intentsCasella < 20) {
-	            intentsCasella++;
-	            // Probabilitats ajustades: 40% normal, 12% cadascun dels 5 especials (60% total especial)
-	            int roll = random.nextInt(100);
-	            int type;
-	            if (roll < 40) type = 0;
-	            else if (roll < 52) type = 1;
-	            else if (roll < 64) type = 2;
-	            else if (roll < 76) type = 3;
-	            else if (roll < 88) type = 4;
-	            else type = 5;
-
-	            if (type == 0) {
-	                seed.append('0');
-	                afegit = true;
-	            } else {
-	                // Comprovar límits (màxim 5) i separació
-	                if (comptadorsEspecial[type] < 5 && (i - ultimaPosicio[type]) >= separacioMinima) {
-	                    seed.append(type);
-	                    comptadorsEspecial[type]++;
-	                    ultimaPosicio[type] = i;
+	                if (type == 0) {
+	                    seed.append('0');
 	                    afegit = true;
+	                } else {
+	                    // Comprovar límits (màxim 5) i separació
+	                    if (comptadorsEspecial[type] < 5 && (i - ultimaPosicio[type]) >= separacioMinima) {
+	                        seed.append(type);
+	                        comptadorsEspecial[type]++;
+	                        ultimaPosicio[type] = i;
+	                        afegit = true;
+	                    }
 	                }
 	            }
+	            // Si no s'ha pogut afegir res després de molts intents (estrany), posem una normal
+	            if (!afegit) seed.append('0');
 	        }
-	        // Si no s'ha pogut afegir res després de molts intents (estrany), posem una normal
-	        if (!afegit) seed.append('0');
 	    }
 	    return seed.toString();
 	}

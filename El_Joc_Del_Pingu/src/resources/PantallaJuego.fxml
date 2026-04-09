@@ -29,6 +29,7 @@
                         <MenuItem fx:id="menuItem" mnemonicParsing="false" onAction="#handleGoToMenu" text="Menu" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem fx:id="saveGame" mnemonicParsing="false" onAction="#handleSaveGame" text="Guardar" />
+                        <MenuItem fx:id="copySeed" mnemonicParsing="false" onAction="#handleCopySeed" text="Copiar semilla" />
                         <MenuItem fx:id="menuMute" mnemonicParsing="false" onAction="#handleToggleMute" text="Música: ON" />
                         <MenuItem fx:id="menuMuteSfx" mnemonicParsing="false" onAction="#handleToggleSfxMute" text="Efectos: ON" />
                         <MenuItem fx:id="menuFullScreen" mnemonicParsing="false" onAction="#handleToggleFullScreen" text="Pantalla Completa: ON" />
