@@ -79,7 +79,7 @@ public class Pinguino extends Jugador {
 				System.out.println("¡Empate! Nadie retrocede, pero se pierden las bolas de nieve.");
 				this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 				pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
-				resultMsg = "Empate! Ambos pierden todas las bolas de nieve.";
+				resultMsg = "¡Empate! Ambos pierden todas las bolas de nieve.";
 			}
 
 			// Mostrar resultado en un Alert (UI)

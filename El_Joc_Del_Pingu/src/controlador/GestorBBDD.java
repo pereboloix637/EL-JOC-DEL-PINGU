@@ -356,7 +356,7 @@ public class GestorBBDD {
 					}
 				}
 			}
-			System.out.println("Partida guardada amb èxit.");
+			System.out.println("Partida guardada con éxito.");
 		} catch (Exception e) {
 			System.err.println("Error en guardarBBDD: " + e.getMessage());
 			e.printStackTrace();
@@ -372,7 +372,7 @@ public class GestorBBDD {
 			ArrayList<LinkedHashMap<String, String>> resPartida = select(con, sqlPartida);
 
 			if (resPartida.isEmpty()) {
-				System.out.println("No s'ha trobat cap partida amb ID: " + id);
+				System.out.println("No se ha encontrado ninguna partida con ID: " + id);
 				return null;
 			}
 
@@ -418,13 +418,13 @@ public class GestorBBDD {
 
 						// Afegim els ítems a l'inventari
 						for (int i = 0; i < daus; i++) {
-							inv.afegirItem(new model.items.Dau("Dau ràpid", 1, 5, 10));
+							inv.afegirItem(new model.items.Dau("Dado rápido", 1, 5, 10));
 						}
 						for (int i = 0; i < peixos; i++) {
-							inv.afegirItem(new model.items.Peix("Peix", 1));
+							inv.afegirItem(new model.items.Peix("Pez", 1));
 						}
 						for (int i = 0; i < boles; i++) {
-							inv.afegirItem(new model.items.BolaNeu("Bola de Neu", 1));
+							inv.afegirItem(new model.items.BolaNeu("Bola de Nieve", 1));
 						}
 					}
 					j = new Pinguino(nom, color, inv);
@@ -463,7 +463,7 @@ public class GestorBBDD {
 			partida.setFinalitzada(finalitzada);
 			partida.setGuanyador(guanyador);
 
-			System.out.println("Partida amb ID " + id + " carregada correctament.");
+			System.out.println("Partida con ID " + id + " cargada correctamente.");
 			return partida;
 
 		} catch (Exception e) {
@@ -488,8 +488,8 @@ public class GestorBBDD {
 			String id = row.get("ID");
 			String torn = row.get("TORN_ACTUAL");
 			String jugadors = row.get("JUGADORS") != null ? row.get("JUGADORS") : "SENSE JUGADORS";
-			String fin = "1".equals(row.get("FINALITZADA")) ? "Finalitzada" : "En curs";
-			llista.add("ID: " + id + " | " + jugadors + " | Torn: " + torn + " | " + fin);
+			String fin = "1".equals(row.get("FINALITZADA")) ? "Finalizada" : "En curso";
+			llista.add("ID: " + id + " | " + jugadors + " | Turno: " + torn + " | " + fin);
 		}
 		return llista;
 	}

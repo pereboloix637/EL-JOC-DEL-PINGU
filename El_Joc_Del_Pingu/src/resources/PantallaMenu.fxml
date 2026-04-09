@@ -69,11 +69,11 @@
 
                 <!-- MENU BUTTONS - Integrated Options & Enlarged -->
                 <VBox alignment="BOTTOM_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" spacing="20" AnchorPane.bottomAnchor="60.0" AnchorPane.rightAnchor="60.0">
-                    <Button minWidth="320" onAction="#handleOpenNewGame" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="NUEVA PARTIDA" />
-                    <Button minWidth="320" onAction="#handleOpenLoadGame" prefHeight="68.0" prefWidth="386.0" styleClass="landing-nav-button" text="CARGAR PARTIDA" />
-                    <Button minWidth="320" onAction="#handleOpenRanking" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="RANKING" />
-                    <Button minWidth="320" onAction="#handleToggleSettings" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="OPCIONES" />
-                    <Button minWidth="320" onAction="#handleQuitGame" styleClass="landing-nav-button, quit-button" text="SALIR DEL JUEGO" />
+                    <Button fx:id="btnNewGame" minWidth="320" onAction="#handleOpenNewGame" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="NUEVA PARTIDA" />
+                    <Button fx:id="btnLoadGame" minWidth="320" onAction="#handleOpenLoadGame" prefHeight="68.0" prefWidth="386.0" styleClass="landing-nav-button" text="CARGAR PARTIDA" />
+                    <Button fx:id="btnRanking" minWidth="320" onAction="#handleOpenRanking" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="RANKING" />
+                    <Button fx:id="btnSettings" minWidth="320" onAction="#handleToggleSettings" prefHeight="68.0" prefWidth="385.0" styleClass="landing-nav-button" text="OPCIONES" />
+                    <Button fx:id="btnQuit" minWidth="320" onAction="#handleQuitGame" styleClass="landing-nav-button, quit-button" text="SALIR DEL JUEGO" />
                 </VBox>
 
                 <!-- CONTENT AREA (Drill-down) -->

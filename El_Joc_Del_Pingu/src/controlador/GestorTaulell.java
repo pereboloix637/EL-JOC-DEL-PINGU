@@ -68,11 +68,11 @@ public class GestorTaulell {
 
 		// Validem el seed de forma estricta. Si no és vàlid, en generem un d'aleatori.
 		if (!esSeedValid(seed)) {
-			System.out.println("Error: El seed proporcionat no és vàlid. Es generarà un taulell aleatori.");
+			System.out.println("Error: El seed proporcionado no es válido. Se generará un tablero aleatorio.");
 			seed = generarSeedAleatori();
 		}
 
-		String[] nomsEvents = new String[]{"Peix", "Boles de Neu", "Dau Ràpid", "Dau Lent"};
+		String[] nomsEvents = new String[]{"Pez", "Bolas de Nieve", "Dado Rápido", "Dado Lento"};
 
 		for (int i = 0; i < 50; i++) {
 			char type = seed.charAt(i);

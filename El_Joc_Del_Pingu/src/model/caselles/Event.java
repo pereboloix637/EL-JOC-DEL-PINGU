@@ -79,23 +79,23 @@ public class Event extends Casella {
 			break;
 		case 2:
 			if (pingui.getInventari().getDausEspecials() < 3) {
-				pingui.getInventari().afegirItem(new Dau("Dau ràpid", 1, 5, 10));
+				pingui.getInventari().afegirItem(new Dau("Dado rápido", 1, 5, 10));
 			} else {
-				System.out.println(pingui.getNickname() + " ja té el màxim de daus especials (3).");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment però ja té el màxim de daus especials!", "log-info");
+				System.out.println(pingui.getNickname() + " ya tiene el máximo de dados especiales (3).");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caído en una casilla de evento, ¡pero ya tiene el máximo de dados especiales!", "log-info");
 			}
 			break;
 
 		case 3:
 			// EVENT 3: dau lent 1-3 caselles (màxim 3 daus especials)
 			if (pingui.getInventari().getDausEspecials() < 3) {
-				pingui.getInventari().afegirItem(new Dau("Dau lent", 1, new int[] { 1, 3 }));
-				System.out.println(pingui.getNickname() + " ha obtingut un dau lent! (1 o 3 caselles)");
+				pingui.getInventari().afegirItem(new Dau("Dado lento", 1, new int[] { 1, 3 }));
+				System.out.println(pingui.getNickname() + " ¡ha obtenido un dado lento! (1 o 3 casillas)");
 				vista.PantallaJuego.mostrarPopupItem(pingui, "Dado_Lento.png");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment i ha obtingut un dau lent!", "log-info");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ¡ha caído en una casilla de evento y ha obtenido un dado lento!", "log-info");
 			} else {
-				System.out.println(pingui.getNickname() + " ja té el màxim de daus especials (3).");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caigut en una casella d'esdeveniment però ja té el màxim de daus especials!", "log-info");
+				System.out.println(pingui.getNickname() + " ya tiene el máximo de dados especiales (3).");
+				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caído en una casilla de evento, ¡pero ya tiene el máximo de dados especiales!", "log-info");
 			}
 			break;
 		}

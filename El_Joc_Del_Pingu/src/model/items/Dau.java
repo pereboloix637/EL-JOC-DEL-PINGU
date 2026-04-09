@@ -39,7 +39,7 @@ public class Dau extends Item {
 
 	// Constructor dau normal (no ocupa inventari)
 	public Dau() {
-		super("Dau normal", 1);
+		super("Dado normal", 1);
 		this.min = 1;
 		this.max = 6;
 		this.valorsFixes = null;
@@ -79,10 +79,10 @@ public class Dau extends Item {
 		if (this.especial == true) { // Si es un dau especial, fer l'operacio
 			if (getQuantitat() > 0) { // Si dins de aquesta condicio, la quantitat es 0.
 				setQuantitat(getQuantitat() - 1);
-				System.out.println("Has usat el " + getNom() + "! Et queden " + getQuantitat() + " daus especials.");
+				System.out.println("¡Has usado el " + getNom() + "! Te quedan " + getQuantitat() + " dados especiales.");
 				return true;
 			} // Si tens 0 d'aquest.
-			System.out.println("No tens " + getNom() + "!");
+			System.out.println("¡No tienes " + getNom() + "!");
 			return false;
 		} else { // Pero si el Dau NO ES especial (es a dir, un Dau Normal
 			return true;
@@ -93,7 +93,7 @@ public class Dau extends Item {
 	public int tirarIUsar() {
 		if (usar()) {
 			int resultat = tirar();
-			System.out.println("Tirada amb " + getNom() + ": " + resultat);
+			System.out.println("Tirada con " + getNom() + ": " + resultat);
 			return resultat;
 		}
 		return -1;

@@ -21,7 +21,7 @@ public class GestorJugador {
 				return;
 			}
 		}
-		System.out.println(p.getNickname() + " no té \"" + nombreItem + "\" a l'inventari.");
+		System.out.println(p.getNickname() + " no tiene \"" + nombreItem + "\" en el inventario.");
 	}
 
 	
@@ -47,43 +47,43 @@ public class GestorJugador {
 
 		int novaPos = Math.min(j.getPosicio() + resultat, t.getCaselles().size() - 1);
 		j.setPosicio(novaPos);
-		System.out.println(j.getNickname() + " es mou " + resultat + " caselles → posicio " + novaPos + ".");
+		System.out.println(j.getNickname() + " se mueve " + resultat + " casillas → posición " + novaPos + ".");
 	}
 
 	
 	// Finalitza el torn del jugador
 	public void jugadorFinalitzaTorn(Jugador j) {
-		System.out.println(j.getNickname() + " ha finalitzat el seu torn.");
+		System.out.println(j.getNickname() + " ha finalizado su turno.");
 	}
 
 	
 	// El pingüí rep un event: guanya un peix si l'inventari no esta ple
 	public void pinguinoEvento(Pinguino p) {
-		Peix peixRecompensa = new Peix("Peix", 1);
+		Peix peixRecompensa = new Peix("Pez", 1);
 		int afegits = p.getInventari().afegirItem(peixRecompensa);
 		if (afegits > 0)
-			System.out.println("Event! " + p.getNickname() + " ha rebut un peix.");
+			System.out.println("¡Evento! " + p.getNickname() + " ha recibido un pez.");
 		else
-			System.out.println("Event! " + p.getNickname() + " no pot agafar més peixos.");
+			System.out.println("¡Evento! " + p.getNickname() + " no puede coger más peces.");
 	}
 
 	
 	// Inicia la batalla de boles de neu entre dos pingüins
 	public void pinguinoGuerra(Pinguino p1, Pinguino p2) {
-		System.out.println("Guerra entre " + p1.getNickname() + " i " + p2.getNickname() + "!");
+		System.out.println("¡Guerra entre " + p1.getNickname() + " y " + p2.getNickname() + "!");
 		p1.gestionarBatalla(p2);
 	}
 
 	// El pingüí interactua amb la foca: usa un peix per salvar-se o torna a l'inici
 	public void focaInteractua(Pinguino p, Foca f) {
 		if (f.isSoborno()) {
-			System.out.println("La foca deixa passar a " + p.getNickname() + " (sobornada).");
+			System.out.println("La foca deja pasar a " + p.getNickname() + " (sobornada).");
 		} else {
 			Peix peix = (Peix) p.getInventari().obtenirPrimer(Peix.class);
 			if (peix != null && p.getInventari().usarItem(peix)) {
-				System.out.println(p.getNickname() + " usa un peix i es salva de la foca!");
+				System.out.println(p.getNickname() + " ¡usa un pez y se salva de la foca!");
 			} else {
-				System.out.println("La foca ataca a " + p.getNickname() + "! Torna a la posició 0.");
+				System.out.println("¡La foca ataca a " + p.getNickname() + "! Vuelve a la posición 0.");
 				p.setPosicio(0);
 			}
 		}
