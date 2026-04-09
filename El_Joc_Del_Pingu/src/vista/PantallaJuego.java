@@ -1083,7 +1083,16 @@ public class PantallaJuego {
 	    if (pieza == null) return;
 
 	    int oldPos = j.getPosicio();
-	    int newPos = Math.min(oldPos + steps, gestorPartida.getPartida().getTaulell().getCaselles().size() - 1);
+	    int totalCaselles = gestorPartida.getPartida().getTaulell().getCaselles().size();
+	    int indexFinal = totalCaselles - 1;
+	    int newPos;
+	    
+	    if (oldPos + steps > indexFinal) {
+	        int sobrante = (oldPos + steps) - indexFinal;
+	        newPos = indexFinal - sobrante;
+	    } else {
+	        newPos = oldPos + steps;
+	    }
 
 	    // Pre-calcular cuántos jugadores habrá en la nueva posición para el offset final
 	    int numEnNuevaCasilla = 0;
@@ -1122,9 +1131,18 @@ public class PantallaJuego {
 	    double accumTY = currentTY;
 
 	    for (int i = 1; i <= steps; i++) {
-	        int pA = oldPos + i - 1;
-	        int pB = oldPos + i;
-	        if (pB > newPos) break;
+	        int pA, pB;
+	        
+	        if (oldPos + i <= indexFinal) {
+	            // Movimiento normal hacia adelante
+	            pA = oldPos + i - 1;
+	            pB = oldPos + i;
+	        } else {
+	            // Rebote: nos hemos pasado de la meta
+	            int sobrante = (oldPos + i) - indexFinal;
+	            pB = indexFinal - sobrante;
+	            pA = (sobrante == 1) ? indexFinal : indexFinal - (sobrante - 1);
+	        }
 
 	        int[] cA = getGridCoords(pA);
 	        int[] cB = getGridCoords(pB);
@@ -1206,10 +1224,10 @@ public class PantallaJuego {
 		                            batallaAlert.showAndWait();
 	
 		                            if (pActual.getPosicio() != posJ1Abans) {
-		                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio());
+		                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), true);
 		                            }
 		                            if (pRival.getPosicio() != posJ2Abans) {
-		                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio());
+		                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), true);
 		                            }
 		                        });
 		                        
@@ -1220,7 +1238,7 @@ public class PantallaJuego {
 		                        fRival.AccionesFoca(pActual, gestorPartida.getPartida());
 		                        
 		                        if (pActual.getPosicio() != posAbans) {
-		                            animarRetroceso(pActual, posAbans, pActual.getPosicio());
+		                            animarRetroceso(pActual, posAbans, pActual.getPosicio(), true);
 		                            saltaAccioCasella = true; 
 		                        }
 		                        break;
@@ -1330,7 +1348,7 @@ public class PantallaJuego {
 	/**
 	 * Anima el retroceso de un jugador a una nueva posición, moviéndose casilla a casilla.
 	 */
-	public void animarRetroceso(Jugador j, int oldPos, int newPos) {
+	public void animarRetroceso(Jugador j, int oldPos, int newPos, boolean processCell) {
 	    ImageView pieza = getPiezaParaJugador(j);
 	    if (pieza == null) return;
 	    if (oldPos <= newPos) {
@@ -1379,12 +1397,40 @@ public class PantallaJuego {
 	        accumTY += stepDy;
 	    }
 
-	    sequence.setOnFinished(e -> {
+	    sequence.setOnFinished(e -> Platform.runLater(() -> {
 	        pieza.setTranslateX(0);
 	        pieza.setTranslateY(0);
 	        actualizarUI();
-	    });
+	        
+	        if (processCell) {
+	            procesarEfectoCasella(j);
+	        }
+	    }));
 	    sequence.play();
+	}
+
+	/**
+	 * Helper para procesar el efecto de una casilla tras un retroceso (bola de nieve, etc.)
+	 */
+	private void procesarEfectoCasella(Jugador j) {
+	    int posActual = j.getPosicio();
+	    Casella c = gestorPartida.getPartida().getTaulell().getCaselles().get(posActual);
+	    
+	    // La casilla evento no debe funcionar si te tiran pa atras (según feedback usuario)
+	    if (!(c instanceof model.caselles.Event)) {
+	        new GestorTaulell().executarCasella(gestorPartida.getPartida(), j, c);
+	        
+	        // Si la acción movió al jugador (ej: Oso lo mandó a 0), animar ese movimiento
+	        if (j.getPosicio() != posActual) {
+	            int nuevaPos = j.getPosicio();
+	            if (nuevaPos < posActual) {
+	                animarRetroceso(j, posActual, nuevaPos, false); // No encadenar más para evitar bucles
+	            } else {
+	                // Podríamos animar avance si fuera Trineu, pero para simplificar sincronizamos UI
+	                actualizarUI();
+	            }
+	        }
+	    }
 	}
 
 	/**
@@ -1424,14 +1470,6 @@ public class PantallaJuego {
 			ScaleTransition stOut = new ScaleTransition(Duration.millis(800), pieza);
 			stOut.setToX(1.0);
 			stOut.setToY(1.0);
-			
-			// Si es una foca, el tamaño final es un poco mayor (visto en actualizarTamanyPeca)
-			if (j instanceof model.entitats.Foca) {
-				stOut.setToX(1.294); // 55.0 / 42.5 approx? No, mejor no hardcodear.
-				// actualitzarUI ya resetea el scale si lo manejamos bien, pero ScaleTransition sobreescribe.
-				// Vamos a usar 1.0 y dejar que actualizarTamanyPeca haga su trabajo en actualizarUI.
-				// Pero actualizarUI ya se llamó.
-			}
 
 			ParallelTransition ptOut = new ParallelTransition(pieza, rtOut, stOut);
 			ptOut.setOnFinished(e2 -> {
@@ -1445,9 +1483,8 @@ public class PantallaJuego {
 
 	public static void animarRetrocesoEstatico(Jugador j, int oldPos, int newPos) {
 		if (instanciaActual != null) {
-			// Usamos Platform.runLater por si se llama desde un hilo no-UI, 
-			// aunque en este proyecto suele llamarse desde el hilo de aplicaciones
-			Platform.runLater(() -> instanciaActual.animarRetroceso(j, oldPos, newPos));
+			// Por defecto procesamos casilla en retrocesos estáticos (suelen venir de Oso o similar en el modelo)
+			Platform.runLater(() -> instanciaActual.animarRetroceso(j, oldPos, newPos, true));
 		}
 	}
 
@@ -1582,8 +1619,14 @@ public class PantallaJuego {
 		ArrayList<Jugador> js = gestorPartida.getPartida().getJugadors();
 		int idxSeguent = (js.indexOf(pingu) + 1) % js.size();
 		Jugador seguent = js.get(idxSeguent);
-		seguent.setPosicio(Math.max(0, seguent.getPosicio() - 1));
-		actualizarUI();
+		
+		int posAnterior = seguent.getPosicio();
+		int nuevaPos = Math.max(0, posAnterior - 1);
+		
+		seguent.setPosicio(nuevaPos);
+		
+		// Animamos el retroceso y procesamos la casilla en la que caiga (si no es evento)
+		animarRetroceso(seguent, posAnterior, nuevaPos, true);
 	}
 
 
