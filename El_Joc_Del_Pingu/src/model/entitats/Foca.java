@@ -171,7 +171,6 @@ public class Foca extends Jugador {
 				} else {
 					aplastarPingu(p);
 				}
-				vista.PantallaJuego.actualizarUIEstatica();
 				if (onComplete != null)
 				onComplete.run();
 			});

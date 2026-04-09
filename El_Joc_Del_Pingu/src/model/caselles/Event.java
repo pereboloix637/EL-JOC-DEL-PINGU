@@ -62,6 +62,7 @@ public class Event extends Casella {
 		case 0:
 			if (pingui.getInventari().getPeixos() < 2) {
 				pingui.getInventari().afegirItem(new Peix("Peix", 1));
+				vista.PantallaJuego.mostrarPopupItem(pingui, "Pez.png");
 				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha obtenido 1 pez en la ruleta!", "log-info");
 			} else {
 				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ya tenía el máximo de peces.", "log-info");
@@ -72,6 +73,7 @@ public class Event extends Casella {
 			int bolesAfegir = Math.min(bolesNoves, 6 - pingui.getInventari().getBoles());
 			if (bolesAfegir > 0) {
 				pingui.getInventari().afegirItem(new BolaNeu("Bola de Neu", bolesAfegir));
+				vista.PantallaJuego.mostrarPopupItem(pingui, "BolasNieve.png");
 				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha obtenido " + bolesAfegir + " bolas de nieve!", "log-info");
 			} else {
 				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ya tenía el máximo de bolas de nieve.", "log-info");
@@ -80,6 +82,7 @@ public class Event extends Casella {
 		case 2:
 			if (pingui.getInventari().getDausEspecials() < 3) {
 				pingui.getInventari().afegirItem(new Dau("Dado rápido", 1, 5, 10));
+				vista.PantallaJuego.mostrarPopupItem(pingui, "Dado_Rapido.png");
 			} else {
 				System.out.println(pingui.getNickname() + " ya tiene el máximo de dados especiales (3).");
 				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caído en una casilla de evento, ¡pero ya tiene el máximo de dados especiales!", "log-info");
