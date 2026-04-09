@@ -34,6 +34,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextInputDialog;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -1037,6 +1038,9 @@ public class PantallaJuego {
 			if (con != null) {
 				gestorPartida.guardarPartida(con);
 				registrarEvento("Partida guardada correctamente.", "log-info");
+				
+				// Mostrar la semilla al usuario para que pueda copiarla
+				mostrarVentanaSeed();
 			} else {
 				registrarEvento("No se pudo conectar a la base de datos para guardar.", "log-warning");
 			}
@@ -1044,6 +1048,22 @@ public class PantallaJuego {
 			e.printStackTrace();
 			registrarEvento("Error al guardar la partida.", "log-warning");
 		}
+	}
+
+	/**
+	 * Muestra una ventana con la semilla actual del tablero para que el usuario la copie.
+	 */
+	private void mostrarVentanaSeed() {
+		GestorTaulell gt = new GestorTaulell();
+		String seed = gt.obtenirSeedTaulell(gestorPartida.getPartida().getTaulell());
+		
+		TextInputDialog dialog = new TextInputDialog(seed);
+		estilar(dialog);
+		dialog.setTitle("Semilla de la Partida");
+		dialog.setHeaderText("Copia esta semilla para volver a jugar en este tablero:");
+		dialog.setContentText("Semilla:");
+		
+		dialog.showAndWait();
 	}
 
 
@@ -1542,6 +1562,7 @@ public class PantallaJuego {
 	                handleSaveGame();
 	                goToMenu();
 	            } else if (result == btnSalir) {
+	                mostrarVentanaSeed();
 	                goToMenu();
 	            }
 	        });

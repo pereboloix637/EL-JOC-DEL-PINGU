@@ -111,6 +111,10 @@
                                                     <Button maxWidth="Infinity" onAction="#handleAddCPU" styleClass="secondary" text="+ CPU" HBox.hgrow="ALWAYS" />
                                                 </HBox>
                                             </VBox>
+                                            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="login-mini-card">
+                                                <Button onAction="#handleLoadSeed" styleClass="secondary" text="Cargar Semilla" />
+                                                <Label fx:id="seedStatusLabel" styleClass="hint" text="Semilla: Aleatoria" />
+                                            </HBox>
                                             <Region VBox.vgrow="ALWAYS" />
                                             <Button fx:id="startGameButton" maxWidth="Infinity" onAction="#handleStartGame" styleClass="primary-large" text="COMENZAR" />
                                         </VBox>
