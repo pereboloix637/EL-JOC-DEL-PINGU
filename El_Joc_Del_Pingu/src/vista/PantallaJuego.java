@@ -376,25 +376,34 @@ public class PantallaJuego {
 		bloquearControles(false);
 		Inventari inv = pingu.getInventari();
 
-		// Cercar daus especials: ràpid (max > 6) i lent (max <= 3)
-		Dau dRapid = null, dLent = null;
+		// Calcular totals de daus especials: ràpid (max > 6) i lent (max <= 3)
+		int totalRapido = 0;
+		int totalLento = 0;
+		Dau firstRapid = null;
+		Dau firstLento = null;
+
 		for (model.items.Item obj : inv.getLlista()) {
 			if (obj instanceof Dau d) {
-				if (d.getMax() > 6  && dRapid == null) dRapid = d;
-				if (d.getMax() <= 3 && dLent  == null) dLent  = d;
+				if (d.getMax() > 6) {
+					totalRapido += d.getQuantitat();
+					if (firstRapid == null && d.getQuantitat() > 0) firstRapid = d;
+				}
+				if (d.getMax() <= 3) {
+					totalLento += d.getQuantitat();
+					if (firstLento == null && d.getQuantitat() > 0) firstLento = d;
+				}
 			}
 		}
 
-
 		// Habilitar/deshabilitar botons (null-safe)
-		if (rapido != null) rapido.setDisable(dRapid == null || dRapid.getQuantitat() <= 0);
-		if (lento != null) lento.setDisable( dLent  == null || dLent.getQuantitat()  <= 0);
-		if (peces != null) peces.setDisable( inv.getPeixos() <= 0);
-		if (nieve != null) nieve.setDisable( inv.getBoles()  <= 0);
+		if (rapido != null) rapido.setDisable(totalRapido <= 0);
+		if (lento != null) lento.setDisable(totalLento <= 0);
+		if (peces != null) peces.setDisable(inv.getPeixos() <= 0);
+		if (nieve != null) nieve.setDisable(inv.getBoles() <= 0);
 
 		// Actualitzar comptadors sobre els botons
-		if (lblRapido != null) lblRapido.setText(String.valueOf(dRapid != null ? dRapid.getQuantitat() : 0));
-		if (lblLento != null) lblLento.setText(String.valueOf(dLent != null ? dLent.getQuantitat() : 0));
+		if (lblRapido != null) lblRapido.setText(String.valueOf(totalRapido));
+		if (lblLento != null) lblLento.setText(String.valueOf(totalLento));
 		if (lblPeces != null) lblPeces.setText(String.valueOf(inv.getPeixos()));
 		if (lblNieve != null) lblNieve.setText(String.valueOf(inv.getBoles()));
 	}
@@ -1264,10 +1273,6 @@ public class PantallaJuego {
 			actualizarUI();
 			Jugador guanyador = gestorPartida.getPartida().getGuanyador();
 
-			if (guanyador instanceof model.entitats.Pinguino p) {
-				p.setVictories(p.getVictories() + 1);
-			}
-
 			mostrarAlertaGanador(guanyador);
 			return;
 		}
@@ -1505,10 +1510,10 @@ public class PantallaJuego {
 		// Buscar dau ràpid (max > 6) a la llista real de l'inventari
 		Dau dRapid = null;
 		for (model.items.Item obj : pingu.getInventari().getLlista()) {
-			if (obj instanceof Dau d && d.getMax() > 6) { dRapid = d; break; }
+			if (obj instanceof Dau d && d.getMax() > 6 && d.getQuantitat() > 0) { dRapid = d; break; }
 		}
 
-		if (dRapid == null || dRapid.getQuantitat() <= 0) {
+		if (dRapid == null) {
 			registrarEvento("No tienes dado rápido.", "log-warning");
 			return;
 		}
@@ -1528,10 +1533,10 @@ public class PantallaJuego {
 		// Buscar dau lent (max <= 3)
 		Dau dLent = null;
 		for (model.items.Item obj : pingu.getInventari().getLlista()) {
-			if (obj instanceof Dau d && d.getMax() <= 3) { dLent = d; break; }
+			if (obj instanceof Dau d && d.getMax() <= 3 && d.getQuantitat() > 0) { dLent = d; break; }
 		}
 
-		if (dLent == null || dLent.getQuantitat() <= 0) {
+		if (dLent == null) {
 			registrarEvento("No tienes dado lento.", "log-warning");
 			return;
 		}

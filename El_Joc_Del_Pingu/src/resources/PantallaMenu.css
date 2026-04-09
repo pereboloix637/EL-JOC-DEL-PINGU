@@ -652,3 +652,35 @@
     -fx-background-color: rgba(58, 181, 230, 0.3);
     -fx-border-color: #7FD4F0;
 }
+
+/* ---- PROGRESS BAR (Shared with Loading Screens) ---- */
+.progress-bar {
+    -fx-pref-height: 40px;
+    -fx-min-height: 40px;
+    min-height: 40px;
+    -fx-background-radius: 0;
+    -fx-padding: 4;
+    padding: 4px;
+    -fx-background-color: rgba(13, 27, 42, 0.9);
+    background-color: rgba(13, 27, 42, 0.9);
+    -fx-border-color: #7FD4F0;
+    /* Cian helado del menú */
+    border-color: #7FD4F0;
+    -fx-border-width: 3;
+    border-width: 3px;
+    -fx-border-radius: 0;
+    border-radius: 0px;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 4, 4);
+}
+
+.progress-bar .track {
+    -fx-background-color: transparent;
+    background-color: transparent;
+}
+
+.progress-bar .bar {
+    -fx-background-color: linear-gradient(to right, #2E6B8A, #3AB5E6, #7FD4F0);
+    background-color: linear-gradient(to right, #2E6B8A, #3AB5E6, #7FD4F0);
+    -fx-background-radius: 0;
+    -fx-effect: dropshadow(three-pass-box, #3AB5E6, 10, 0.5, 0, 0);
+}
