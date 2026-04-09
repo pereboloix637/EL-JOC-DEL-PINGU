@@ -341,6 +341,7 @@ public class PantallaJuego {
 
 	public static void mostrarRuletaMalvadaEstatico(Jugador j, int actionIndex, Runnable onFinished) {
 		if (instanciaActual != null) {
+			System.out.println("DEBUG: Iniciando Ruleta Malvada para " + j.getNickname() + " con acción " + actionIndex);
 			Platform.runLater(() -> instanciaActual.mostrarRuletaMalvada(j, actionIndex, onFinished));
 		}
 	}
@@ -858,7 +859,13 @@ public class PantallaJuego {
 		
 		StackPane wheelStack = new StackPane();
 		
-		ImageView wheelVisuals = new ImageView(new Image(getClass().getResourceAsStream("/assets/Ruleta_Malvada.png")));
+		// Unificamos con la lógica de items
+		String wheelPath = "/assets/Ruleta_Malvada.png";
+		System.out.println("DEBUG: Cargando fondo ruleta malvada: " + wheelPath);
+		java.io.InputStream wheelStream = getClass().getResourceAsStream(wheelPath);
+		if (wheelStream == null) System.err.println("CRITICAL ERROR: No se encontró " + wheelPath);
+		
+		ImageView wheelVisuals = new ImageView(new Image(wheelStream));
 		wheelVisuals.setFitWidth(300);
 		wheelVisuals.setFitHeight(300);
 		wheelVisuals.setPreserveRatio(true);
@@ -868,26 +875,28 @@ public class PantallaJuego {
 		itemsPane.setPrefSize(300, 300);
 		
 		// Dues opcions: 0=Pegar, 1=Aplastar
-		for (int i = 0; i < 2; i++) {
-			String imgName = (i == 0) ? "PegarPingu.png" : "AplastarPingu.png";
-			try {
-				Image img = new Image(getClass().getResourceAsStream("/assets/" + imgName));
-				if (img != null && !img.isError()) {
-					ImageView iv = new ImageView(img);
-					iv.setFitWidth(120);
-					iv.setFitHeight(120);
-					iv.setPreserveRatio(true);
-					
-					// Las colocamos Arriba (270°) y Abajo (90°)
-					double angle = Math.toRadians(i == 0 ? 270 : 90);
-					iv.setLayoutX(150 + 80 * Math.cos(angle) - 60);
-					iv.setLayoutY(150 + 80 * Math.sin(angle) - 60);
-					iv.setRotate(i == 0 ? 0 : 180);
-					itemsPane.getChildren().add(iv);
-				}
-			} catch (Exception e) {
-				System.err.println("Error carregant icono ruleta: " + imgName);
+		String[] options = {"PegarPingu.png", "AplastarPingu.png"};
+		for (int i = 0; i < options.length; i++) {
+			String imgPath = "/assets/" + options[i];
+			System.out.println("DEBUG: Cargando icono malvado " + i + ": " + imgPath);
+			java.io.InputStream iconStream = getClass().getResourceAsStream(imgPath);
+			if (iconStream == null) {
+				System.err.println("ERROR: No se encontró " + imgPath);
+				continue;
 			}
+			
+			ImageView iv = new ImageView(new Image(iconStream));
+			iv.setFitWidth(120);
+			iv.setFitHeight(120);
+			iv.setPreserveRatio(true);
+			
+			// Las colocamos Arriba (270°) y Abajo (90°)
+			double angle = Math.toRadians(i == 0 ? 270 : 90);
+			// Centro (150) + Radio (80) * cos/sin - mitad imagen (60)
+			iv.setLayoutX(150 + 80 * Math.cos(angle) - 60);
+			iv.setLayoutY(150 + 80 * Math.sin(angle) - 60);
+			iv.setRotate(i == 0 ? 0 : 180);
+			itemsPane.getChildren().add(iv);
 		}
 		
 		wheelStack.getChildren().addAll(wheelVisuals, itemsPane);
@@ -910,7 +919,8 @@ public class PantallaJuego {
 		scaleIn.play();
 		
 		int rotations = 6 + new Random().nextInt(3);
-		// Si actionIndex=0 (Pegar, Arriba), giro 0. Si actionIndex=1 (Aplastar, Abajo), giro 180.
+		// Si actionIndex=0 (Pegar, Arriba), giro rotations*360.
+		// Si actionIndex=1 (Aplastar, Abajo), la pieza que está a 180° (abajo) debe subir al tope (0° o -180°).
 		double targetAngle = (rotations * 360) - (actionIndex * 180);
 		
 		RotateTransition rotate = new RotateTransition(Duration.seconds(3), wheelStack);
