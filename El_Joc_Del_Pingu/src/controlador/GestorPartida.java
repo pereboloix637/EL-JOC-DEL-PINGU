@@ -35,6 +35,16 @@ public class GestorPartida {
     }
 
     public int tirarDau(Jugador j, Dau dauOpcional) {
+        // Nerf del oso: movimiento limitado a 1-3
+        if (j.isNerfOs()) {
+            j.setNerfOs(false); // Consumir el efecto
+            int[] valorsLents = {1, 3}; // Simula el Dau lent (1 o 3) o range 1-3? 
+            // El usuario dijo "tirar del 1 al 3", así que usaremos un rango aleatorio 1-3
+            int result = new java.util.Random().nextInt(3) + 1;
+            vista.PantallaJuego.registrarEventoEstatico(j.getNickname() + " solo mueve " + result + " por el susto del oso.", "log-warning");
+            return result;
+        }
+
         if (dauOpcional != null && dauOpcional.esEspecial()) {
             int resultat = dauOpcional.tirarIUsar();
             if (resultat != -1) {

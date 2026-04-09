@@ -6,6 +6,7 @@ public abstract class Jugador {
 	private int posicio;
 	private String color;
 	private int tornsBloquejat;
+	private boolean nerfOs;
 	
 	public int getId() {
 		return id;
@@ -22,27 +23,37 @@ public abstract class Jugador {
 	public void setTornsBloquejat(int tornsBloquejat) {
 		this.tornsBloquejat = tornsBloquejat;
 	}
+
+	public boolean isNerfOs() {
+		return nerfOs;
+	}
+
+	public void setNerfOs(boolean nerfOs) {
+		this.nerfOs = nerfOs;
+	}
 	
-	/// CONSTRUCTORS
-	// AMB TOTS ELS PARAMETRES
+	/// CONSTRUCTORES
+	// CON TODOS LOS PARÁMETROS
 	public Jugador (String nickname, int posicio, String color) {
 		this.id = 0;
 		this.nickname = nickname;
 		this.posicio = posicio;
 		this.color = color;
 		this.tornsBloquejat = 0;
+		this.nerfOs = false;
 	}
 	
-	// AUTOMIZAT AMB NICKNAME I COLOR -> Esta pensat per ficar al jugador al inici del tabler
+	// AUTOMÁTICO CON NICKNAME Y COLOR -> Pensado para poner al jugador al inicio del tablero
 	public Jugador (String nickname, String color) {
 		this.id = 0;
 		this.nickname = nickname;
 		this.posicio = 0;
 		this.color = color;
 		this.tornsBloquejat = 0;
+		this.nerfOs = false;
 	}
 	
-	/// GETTERS I SETTERS
+	/// GETTERS Y SETTERS
 	public String getNickname() {
 		return nickname;
 	}
@@ -67,7 +78,7 @@ public abstract class Jugador {
 		this.color = color;
 	}
 	
-	/// METODES
+	/// MÉTODOS
 	public void mourePosicio(int p) {
     this.posicio = Math.max(0, this.posicio + p);
 	}

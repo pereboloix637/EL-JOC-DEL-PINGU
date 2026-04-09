@@ -34,6 +34,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextInputDialog;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -76,6 +77,8 @@ public class PantallaJuego {
 	private MenuItem saveGame;
 	@FXML
 	private MenuItem menuItem;
+	@FXML
+	private MenuItem copySeed;
 	@FXML
 	private MenuItem menuMute;
 	@FXML
@@ -341,6 +344,12 @@ public class PantallaJuego {
 		}
 	}
 
+	public static void mostrarRuletaMalvadaEstatico(Jugador j, int actionIndex, Runnable onFinished) {
+		if (instanciaActual != null) {
+			Platform.runLater(() -> instanciaActual.mostrarRuletaMalvada(j, actionIndex, onFinished));
+		}
+	}
+
 	public static void actualizarUIEstatica() {
 		if (instanciaActual != null) {
 			Platform.runLater(() -> instanciaActual.actualizarUI());
@@ -379,18 +388,14 @@ public class PantallaJuego {
 		// Calcular totals de daus especials: ràpid (max > 6) i lent (max <= 3)
 		int totalRapido = 0;
 		int totalLento = 0;
-		Dau firstRapid = null;
-		Dau firstLento = null;
 
 		for (model.items.Item obj : inv.getLlista()) {
 			if (obj instanceof Dau d) {
 				if (d.getMax() > 6) {
 					totalRapido += d.getQuantitat();
-					if (firstRapid == null && d.getQuantitat() > 0) firstRapid = d;
 				}
 				if (d.getMax() <= 3) {
 					totalLento += d.getQuantitat();
-					if (firstLento == null && d.getQuantitat() > 0) firstLento = d;
 				}
 			}
 		}
@@ -615,7 +620,7 @@ public class PantallaJuego {
                 try {
                     Thread.sleep(16); // Aproximadamente un frame para dejar respirar a la UI
                 } catch (InterruptedException e) {
-                    break;
+                    return;
                 }
             }
         }).start();
@@ -659,8 +664,7 @@ public class PantallaJuego {
 
 	private void mostrarPopupUI(Jugador j, String imagenNombre) {
 		ImageView pieza = getPiezaParaJugador(j);
-		if (pieza == null)
-		return;
+		if (pieza == null) return;
 
 		int pos = j.getPosicio();
 		int logicalRow = pos / COLUMNS;
@@ -797,14 +801,6 @@ public class PantallaJuego {
 		scaleIn.play();
 		
 		// Animación giro
-		// Calculamos el ángulo final para que caiga en itemIndex
-		// Los items están a 0, 90, 180, 270 grados. El puntero está fijo arriba (a las 12).
-		// Queremos que el item deseado llegue al puntero.
-		// Item 0 (Pez) está a 0 deg (derecha). Para llegar arriba (-90 deg), la rueda debe girar -90 o +270? 
-		// Vamos a simplificar: Angulo final = vueltas * 360 - (itemIndex * 90) - 90?
-		// Si itemIndex=0 (Pez), está a 0deg. Si giramos -90deg, el Pez llega arriba.
-		// Si itemIndex=1 (Nieve), está a 90deg (abajo). Si giramos -180deg, llega arriba.
-		
 		int rotations = 5 + new Random().nextInt(3);
 		double targetAngle = rotations * 360 - (itemIndex * 90) - 90;
 		
@@ -815,6 +811,102 @@ public class PantallaJuego {
 		rotate.setOnFinished(e -> {
 			lanzarConfeti(boardRoot);
 			
+			PauseTransition wait = new PauseTransition(Duration.seconds(2));
+			wait.setOnFinished(e2 -> {
+				FadeTransition fadeOut = new FadeTransition(Duration.millis(300), dim);
+				fadeOut.setToValue(0);
+				FadeTransition fadeOutC = new FadeTransition(Duration.millis(300), rouletteContainer);
+				fadeOutC.setToValue(0);
+				fadeOutC.setOnFinished(e3 -> {
+					rootOverlay.getChildren().removeAll(dim, rouletteContainer);
+					if (onFinished != null) onFinished.run();
+				});
+				fadeOut.play();
+				fadeOutC.play();
+			});
+			wait.play();
+		});
+		
+		PauseTransition startWait = new PauseTransition(Duration.seconds(0.5));
+		startWait.setOnFinished(e -> rotate.play());
+		startWait.play();
+	}
+
+	/**
+	 * Mostra la Ruleta Malvada de la Foca amb 2 opcions.
+	 */
+	public void mostrarRuletaMalvada(Jugador j, int actionIndex, Runnable onFinished) {
+		StackPane rootOverlay = boardRoot;
+		
+		Pane dim = new Pane();
+		dim.setStyle("-fx-background-color: rgba(0,0,0,0.7);");
+		dim.setOpacity(0);
+		
+		VBox rouletteContainer = new VBox(25);
+		rouletteContainer.setAlignment(javafx.geometry.Pos.CENTER);
+		rouletteContainer.setMaxSize(600, 600);
+		
+		Label title = new Label("¡RULETA MALVADA!");
+		title.getStyleClass().add("big-text-mini");
+		title.setStyle("-fx-text-fill: #ff0044; -fx-font-size: 50px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
+		
+		StackPane wheelStack = new StackPane();
+		
+		// Unificamos con la lógica de items
+		String wheelPath = "/assets/Ruleta_Malvada.png";
+		ImageView wheelVisuals = new ImageView(new Image(getClass().getResourceAsStream(wheelPath)));
+		wheelVisuals.setFitWidth(300);
+		wheelVisuals.setFitHeight(300);
+		wheelVisuals.setPreserveRatio(true);
+		wheelVisuals.setSmooth(false);
+		
+		Pane itemsPane = new Pane();
+		itemsPane.setPrefSize(300, 300);
+		
+		// Dues opcions: 0=Pegar, 1=Aplastar
+		String[] options = {"PegarPingu.png", "AplastarPingu.png"};
+		for (int i = 0; i < options.length; i++) {
+			ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/assets/" + options[i])));
+			iv.setFitWidth(100);
+			iv.setFitHeight(100);
+			iv.setPreserveRatio(true);
+			
+			// Colocamos en 0° (Derecha) y 180° (Izquierda) para seguir la lógica de la ruleta base
+			double angle = Math.toRadians(i * 180);
+			iv.setLayoutX(150 + 95 * Math.cos(angle) - 50);
+			iv.setLayoutY(150 + 95 * Math.sin(angle) - 50);
+			iv.setRotate(0); // Mantenemos los iconos rectos
+			itemsPane.getChildren().add(iv);
+		}
+		
+		wheelStack.getChildren().addAll(wheelVisuals, itemsPane);
+		wheelStack.setMaxSize(300, 300);
+		
+		// Puntero uniforme con la ruleta de items
+		ImageView pointer = new ImageView(new Image(getClass().getResourceAsStream("/assets/Flecha ruleta.png")));
+		pointer.setFitWidth(60);
+		pointer.setPreserveRatio(true);
+		pointer.setSmooth(false);
+		pointer.setTranslateY(-210);
+		
+		rouletteContainer.getChildren().addAll(title, wheelStack, pointer);
+		rootOverlay.getChildren().addAll(dim, rouletteContainer);
+		
+		FadeTransition fadeIn = new FadeTransition(Duration.millis(300), dim);
+		fadeIn.setToValue(1); fadeIn.play();
+		
+		ScaleTransition scaleIn = new ScaleTransition(Duration.millis(300), rouletteContainer);
+		scaleIn.setFromX(0); scaleIn.setFromY(0); scaleIn.setToX(1); scaleIn.setToY(1);
+		scaleIn.play();
+		
+		int rotations = 6 + new Random().nextInt(3);
+		double targetAngle = (rotations * 360) - (actionIndex * 180) - 90;
+		
+		RotateTransition rotate = new RotateTransition(Duration.seconds(3), wheelStack);
+		rotate.setByAngle(targetAngle);
+		rotate.setInterpolator(Interpolator.SPLINE(0.1, 0.5, 0.2, 1));
+		
+		rotate.setOnFinished(e -> {
 			PauseTransition wait = new PauseTransition(Duration.seconds(2));
 			wait.setOnFinished(e2 -> {
 				FadeTransition fadeOut = new FadeTransition(Duration.millis(300), dim);
@@ -913,13 +1005,11 @@ public class PantallaJuego {
 	// Menu actions
 
 	private Connection getBDConnection() {
-		// Patrón basado en PantallaMenu para entorno de desarrollo
 		return GestorBBDD.conectarBaseDatos();
 	}
 
 	@FXML
 	private void handleSaveGame() {
-		System.out.println("Saved game.");
 		try (Connection con = getBDConnection()) {
 			if (con != null) {
 				gestorPartida.guardarPartida(con);
@@ -931,6 +1021,24 @@ public class PantallaJuego {
 			e.printStackTrace();
 			registrarEvento("Error al guardar la partida.", "log-warning");
 		}
+	}
+
+	@FXML
+	private void handleCopySeed() {
+		mostrarVentanaSeed();
+	}
+
+	private void mostrarVentanaSeed() {
+		GestorTaulell gt = new GestorTaulell();
+		String seed = gt.obtenirSeedTaulell(gestorPartida.getPartida().getTaulell());
+		
+		TextInputDialog dialog = new TextInputDialog(seed);
+		estilar(dialog);
+		dialog.setTitle("Semilla de la Partida");
+		dialog.setHeaderText("Copia esta semilla para volver a jugar en este tablero:");
+		dialog.setContentText("Semilla:");
+		
+		dialog.showAndWait();
 	}
 
 
@@ -960,8 +1068,6 @@ public class PantallaJuego {
 
 	private void goToMenu() {
 		try {
-			// Usar el método centralizado para mantener resolución y estado
-			// Forzamos la recarga para que el menú no guarde caché (Joined players, etc.)
 			controlador.Main.cambiarEscena("/resources/PantallaMenu.fxml", true);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -997,23 +1103,13 @@ public class PantallaJuego {
 	// Button actions
 	@FXML
 	private void handleDado(ActionEvent event) {
-		System.out.println("DEBUG: Clic en BOTÓN DADO");
-	    // Solo permitimos el clic manual si es el turno del jugador humano
 	    if (gestorPartida.getPartida().getJugadorActual() instanceof Pinguino) {
 	        executartorn();
-	    } else {
-			System.out.println("DEBUG: Clic ignorado (no es turno humano)");
-		}
-	}
-
-	@FXML
-	private void handleAutoRoll() {
-		// Eliminado a petición del usuario
+	    }
 	}
 
 	@FXML
 	private void handlePausa() {
-		// Bloquear temporalmente para evitar clics mientras el diálogo está abierto
 		bloquearControles(true);
 
 		Alert pausaAlert = new Alert(AlertType.CONFIRMATION);
@@ -1030,15 +1126,11 @@ public class PantallaJuego {
 			if (result == btnMenu) {
 				handleGoToMenu();
 			} else {
-				// Al continuar, refrescamos la UI y los botones según el turno actual
 				actualizarUI();
 			}
 		});
 	}
 
-	/**
-	 * Executa la lògica d'un torn complet: tirada de dau i moviment.
-	 */
 	private void executartorn() {
 		Partida p = gestorPartida.getPartida();
 		Jugador actual = p.getJugadorActual();
@@ -1048,43 +1140,33 @@ public class PantallaJuego {
 			return;
 		}
 
-		// Bloqueamos controles inmediatamente para evitar doble clic o interferencias
 		bloquearControles(true);
-
 		registrarEvento("Turno de: " + actual.getNickname(), "log-turn");
 
-		// Obtenir dau: prioritzar el seleccionat manualment per l'usuari
 		Dau d;
 		if (dauSeleccionat != null) {
 			d = dauSeleccionat;
-			dauSeleccionat = null; // Consumir la selecció un cop usada
+			dauSeleccionat = null; 
 		} else {
-			// Els jugadors humans ARA SEMPRE usen un dau estàndard (1-6) per defecte
-			// encara que tinguin daus especials a l'inventari, a menys que hagin pitjat el botó.
 			d = new Dau();
 		}
 
 		int resultado = gestorPartida.tirarDau(actual, d);
 		dadoResultText.setText("Dado: " + resultado);
 		
-		// Color del text del dau: Taronja (Ràpid), Verd (Lent), Blanc (Estàndard)
 		if (d.esEspecial()) {
 		    if (d.getMax() > 6) {
-		        dadoResultText.setStyle("-fx-fill: #E67E22;"); // Naranja
+		        dadoResultText.setStyle("-fx-fill: #E67E22;"); 
 		    } else if (d.getMax() <= 3) {
-		        dadoResultText.setStyle("-fx-fill: #27AE60;"); // Verde
+		        dadoResultText.setStyle("-fx-fill: #27AE60;"); 
 		    }
 		} else {
 		    dadoResultText.setStyle("-fx-fill: white;");
 		}
 		
-		// Animació a la UI abans de canviar el torn al model
 		moverPieza(actual, resultado);
 	}
 
-	/**
-	 * Mou una peça amb una animació de saltets de casilla en casilla.
-	 */
 	private void moverPieza(Jugador j, int steps) {
 	    if (steps <= 0) return;
 	    bloquearControles(true);
@@ -1103,7 +1185,6 @@ public class PantallaJuego {
 	        newPos = oldPos + steps;
 	    }
 
-	    // Pre-calcular cuántos jugadores habrá en la nueva posición para el offset final
 	    int numEnNuevaCasilla = 0;
 	    ArrayList<Jugador> js = gestorPartida.getPartida().getJugadors();
 	    for (int i = 0; i < js.indexOf(j); i++) {
@@ -1141,13 +1222,10 @@ public class PantallaJuego {
 
 	    for (int i = 1; i <= steps; i++) {
 	        int pA, pB;
-	        
 	        if (oldPos + i <= indexFinal) {
-	            // Movimiento normal hacia adelante
 	            pA = oldPos + i - 1;
 	            pB = oldPos + i;
 	        } else {
-	            // Rebote: nos hemos pasado de la meta
 	            int sobrante = (oldPos + i) - indexFinal;
 	            pB = indexFinal - sobrante;
 	            pA = (sobrante == 1) ? indexFinal : indexFinal - (sobrante - 1);
@@ -1166,14 +1244,12 @@ public class PantallaJuego {
 	            @Override protected void interpolate(double frac) {
 	                double curX = startX + stepDx * frac;
 	                double curY = startY + stepDy * frac;
-	                double hopY = -45 * Math.sin(Math.PI * frac); // Trayectoria ovalada
+	                double hopY = -45 * Math.sin(Math.PI * frac);
 	                pieza.setTranslateX(curX);
 	                pieza.setTranslateY(curY + hopY);
 	            }
 	        };
-
 	        sequence.getChildren().add(jump);
-
 	        accumTX += stepDx;
 	        accumTY += stepDy;
 	    }
@@ -1186,100 +1262,114 @@ public class PantallaJuego {
 	        pieza.setTranslateY(finalTY);
 	        
 	        Platform.runLater(() -> {
-		        // Actualitzar model i Sincronitzar UI (necessari per a que les animacions de forat s'executin en la posició correcta)
-		        j.setPosicio(newPos);
-		        actualizarUI();
-		        // Evitar que el jugador puga clicar mentre es processa la casella (per si és un forat o hi ha batalla)
-		        bloquearControles(true);
-		        
-		        boolean saltaAccioCasella = false;
-		        
-		        // --- LÒGICA DE COL·LISIONS I BATALLA ---
-		        if (j instanceof Pinguino pActual) {
-		            Casella casellaDestino = gestorPartida.getPartida().getTaulell().getCaselles().get(newPos);
-		            boolean esCasellaNormal = casellaDestino instanceof model.caselles.Normal;
-	
-		            for (Jugador rival : gestorPartida.getPartida().getJugadors()) {
-		                if (rival != pActual && rival.getPosicio() == newPos) {
-		                    if (rival instanceof Pinguino pRival) {
-		                        if (pActual.getInventari().getBoles() == 0 && pRival.getInventari().getBoles() == 0) {
-		                        	break; 
-		                        }
-		                    	
-		                        registrarEvento("¡Colisión! Batalla entre " + pActual.getNickname() + " y " + pRival.getNickname(), "log-warning");
-		                        
-		                        int bolesJ1Abans = pActual.getInventari().getBoles();
-		                        int bolesJ2Abans = pRival.getInventari().getBoles();
-		                        int posJ1Abans = pActual.getPosicio();
-		                        int posJ2Abans = pRival.getPosicio();
-		                        
-		                        mostrarOverlayBatalla(() -> {
-		                            pActual.gestionarBatalla(pRival);
-	
-		                            Alert batallaAlert = new Alert(AlertType.INFORMATION);
-		                            estilar(batallaAlert);
-		                            batallaAlert.setTitle("Resultado de la Batalla");
-		                            batallaAlert.setHeaderText("¡Combate de bolas de nieve!");
-		                            
-		                            String resultMsg = "";
-		                            if (pActual.getPosicio() < posJ1Abans) {
-		                                resultMsg = pRival.getNickname() + " ¡gana! " + pActual.getNickname() + " retrocede.";
-		                            } else if (pRival.getPosicio() < posJ2Abans) {
-		                                resultMsg = pActual.getNickname() + " ¡gana! " + pRival.getNickname() + " retrocede.";
-		                            } else {
-		                                resultMsg = "¡Empate! Ambos pierden todas las bolas de nieve.";
-		                            }
-		                            batallaAlert.setContentText(resultMsg);
-		                            batallaAlert.showAndWait();
-	
-		                            if (pActual.getPosicio() != posJ1Abans) {
-		                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), true);
-		                            }
-		                            if (pRival.getPosicio() != posJ2Abans) {
-		                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), true);
-		                            }
-		                        });
-		                        
-		                        break; 
-		                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaNormal) {
-		                        registrarEvento(pActual.getNickname() + " ha chocado con la foca " + fRival.getNickname(), "log-warning");
-		                        int posAbans = pActual.getPosicio();
-		                        fRival.AccionesFoca(pActual, gestorPartida.getPartida());
-		                        
-		                        if (pActual.getPosicio() != posAbans) {
-		                            animarRetroceso(pActual, posAbans, pActual.getPosicio(), true);
-		                            saltaAccioCasella = true; 
-		                        }
-		                        break;
-		                    }
-		                }
-		            }
-		        }
-		        
-		        GestorTaulell gt = new GestorTaulell();
-		        if (!saltaAccioCasella) {
-		        	Casella c = gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio());
-		        	if (c instanceof model.caselles.Event && j instanceof Pinguino) {
-		        		((model.caselles.Event)c).setCallbackFinalizacion(() -> {
-		        			finalizarTurno(j);
-		        		});
-		        		gt.executarCasella(gestorPartida.getPartida(), j, c);
-		        		return;
-		        	} else {
-		        		gt.executarCasella(gestorPartida.getPartida(), j, c);
-		        		
-		        		// --- ANIMACIÓ DE FORAT (AGUJERO) ---
-		        		if (j.getPosicio() != newPos && c instanceof model.caselles.Forat) {
-		        			animarEfectoForat(j, newPos, j.getPosicio(), () -> finalizarTurno(j));
-		        			return; // No finalitzem el torn encara, esperem l'animació
-		        		}
-		        	}
-		        }
-		        
-		        finalizarTurno(j);
+	            j.setPosicio(newPos);
+	            actualizarUI();
+	            bloquearControles(true);
+	            
+	            final Runnable finishTurnCallback = () -> finalizarTurno(j);
+	            boolean interactionOccurred = false;
+	            boolean collisionHandled = false;
+
+	            if (j instanceof Pinguino pActual) {
+	                ArrayList<Jugador> jugadors = gestorPartida.getPartida().getJugadors();
+	                for (int i = 0; i < jugadors.size() && !collisionHandled; i++) {
+	                    Jugador rival = jugadors.get(i);
+	                    if (rival != pActual && rival.getPosicio() == newPos) {
+	                        if (rival instanceof Pinguino pRival) {
+	                            if (!(pActual.getInventari().getBoles() == 0 && pRival.getInventari().getBoles() == 0)) {
+	                                interactionOccurred = true;
+	                                collisionHandled = true;
+	                                registrarEvento("¡Colisión! Batalla entre " + pActual.getNickname() + " y " + pRival.getNickname(), "log-warning");
+	                                
+	                                int posJ1Abans = pActual.getPosicio();
+	                                int posJ2Abans = pRival.getPosicio();
+	                                
+	                                mostrarOverlayBatalla(() -> {
+	                                    pActual.gestionarBatalla(pRival);
+	                                    Alert batallaAlert = new Alert(AlertType.INFORMATION);
+	                                    estilar(batallaAlert);
+	                                    batallaAlert.setTitle("Resultado de la Batalla");
+	                                    batallaAlert.setHeaderText("¡Combate de bolas de nieve!");
+	                                    
+	                                    String resultMsg = "";
+	                                    if (pActual.getPosicio() < posJ1Abans) {
+	                                        resultMsg = pRival.getNickname() + " ¡gana! " + pActual.getNickname() + " retrocede.";
+	                                    } else if (pRival.getPosicio() < posJ2Abans) {
+	                                        resultMsg = pActual.getNickname() + " ¡gana! " + pRival.getNickname() + " retrocede.";
+	                                    } else {
+	                                        resultMsg = "¡Empate! Ambos pierden todas las bolas de nieve.";
+	                                    }
+	                                    batallaAlert.setContentText(resultMsg);
+	                                    batallaAlert.showAndWait();
+
+	                                    if (pActual.getPosicio() != posJ1Abans) {
+	                                        animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), () -> {
+	                                            if (pRival.getPosicio() != posJ2Abans) {
+	                                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
+	                                            } else {
+	                                                finishTurnCallback.run();
+	                                            }
+	                                        });
+	                                    } else if (pRival.getPosicio() != posJ2Abans) {
+	                                        animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
+	                                    } else {
+	                                        finishTurnCallback.run();
+	                                    }
+	                                });
+	                            }
+	                        } else if (rival instanceof model.entitats.Foca fRival) {
+	                            interactionOccurred = true;
+	                            collisionHandled = true;
+	                            registrarEvento(pActual.getNickname() + " ha chocado con la foca " + fRival.getNickname(), "log-warning");
+	                            int posPinguAbans = pActual.getPosicio();
+	                            fRival.AccionesFoca(pActual, gestorPartida.getPartida(), () -> {
+	                                if (pActual.getPosicio() != posPinguAbans) {
+	                                    animarRetroceso(pActual, posPinguAbans, pActual.getPosicio(), finishTurnCallback);
+	                                } else {
+	                                    finishTurnCallback.run();
+	                                }
+	                            });
+	                        }
+	                    }
+	                }
+	            } else if (j instanceof model.entitats.Foca fActual) {
+	                ArrayList<Jugador> jugadorsF = gestorPartida.getPartida().getJugadors();
+	                for (int i = 0; i < jugadorsF.size() && !collisionHandled; i++) {
+	                    Jugador rival = jugadorsF.get(i);
+	                    if (rival instanceof Pinguino pRival && rival.getPosicio() == newPos) {
+	                        interactionOccurred = true;
+	                        collisionHandled = true;
+	                        registrarEvento("La foca " + fActual.getNickname() + " ha caído sobre " + pRival.getNickname(), "log-warning");
+	                        int posPAbans = pRival.getPosicio();
+	                        fActual.AccionesFoca(pRival, gestorPartida.getPartida(), () -> {
+	                            if (pRival.getPosicio() != posPAbans) {
+	                                animarRetroceso(pRival, posPAbans, pRival.getPosicio(), finishTurnCallback);
+	                            } else {
+	                                finishTurnCallback.run();
+	                            }
+	                        });
+	                    }
+	                }
+	            }
+	            
+	            if (interactionOccurred) return;
+
+	            GestorTaulell gt = new GestorTaulell();
+	            Casella c = gestorPartida.getPartida().getTaulell().getCaselles().get(j.getPosicio());
+	            if (c instanceof model.caselles.Event && j instanceof Pinguino) {
+	                ((model.caselles.Event)c).setCallbackFinalizacion(finishTurnCallback);
+	                gt.executarCasella(gestorPartida.getPartida(), j, c);
+	                return;
+	            } else {
+	                gt.executarCasella(gestorPartida.getPartida(), j, c);
+	                if (j.getPosicio() != newPos && c instanceof model.caselles.Forat) {
+	                    animarEfectoForat(j, newPos, j.getPosicio(), finishTurnCallback);
+	                    return;
+	                }
+	            }
+	            finishTurnCallback.run();
 	        });
 	    }));
-
 	    sequence.play();
 	}
 
@@ -1326,7 +1416,6 @@ public class PantallaJuego {
 			overlay.setMouseTransparent(true);
 
 			Platform.runLater(() -> {
-				// Usamos un StackPane para centrar automáticamente el ImageView
 				StackPane wrapper = new StackPane(overlay);
 				wrapper.setMouseTransparent(true);
 				wrapper.setPrefSize(1920, 1080); // Resolucion base
@@ -1350,14 +1439,15 @@ public class PantallaJuego {
 		}
 	}
 
-	/**
-	 * Anima el retroceso de un jugador a una nueva posición, moviéndose casilla a casilla.
-	 */
-	public void animarRetroceso(Jugador j, int oldPos, int newPos, boolean processCell) {
+	public void animarRetroceso(Jugador j, int oldPos, int newPos, Runnable onComplete) {
 	    ImageView pieza = getPiezaParaJugador(j);
-	    if (pieza == null) return;
+	    if (pieza == null) {
+	        if (onComplete != null) onComplete.run();
+	        return;
+	    }
 	    if (oldPos <= newPos) {
 	        actualizarUI();
+	        if (onComplete != null) onComplete.run();
 	        return;
 	    }
 
@@ -1390,14 +1480,13 @@ public class PantallaJuego {
 	            @Override protected void interpolate(double frac) {
 	                double curX = startX + stepDx * frac;
 	                double curY = startY + stepDy * frac;
-	                double hopY = -45 * Math.sin(Math.PI * frac); // Trayectoria ovalada
+	                double hopY = -45 * Math.sin(Math.PI * frac);
 	                pieza.setTranslateX(curX);
 	                pieza.setTranslateY(curY + hopY);
 	            }
 	        };
 
 	        sequence.getChildren().add(jump);
-
 	        accumTX += stepDx;
 	        accumTY += stepDy;
 	    }
@@ -1406,41 +1495,37 @@ public class PantallaJuego {
 	        pieza.setTranslateX(0);
 	        pieza.setTranslateY(0);
 	        actualizarUI();
-	        
-	        if (processCell) {
-	            procesarEfectoCasella(j);
-	        }
+	        if (onComplete != null) onComplete.run();
 	    }));
 	    sequence.play();
 	}
 
-	/**
-	 * Helper para procesar el efecto de una casilla tras un retroceso (bola de nieve, etc.)
-	 */
+	private void animarRetroceso(Jugador j, int oldPos, int newPos, boolean processCell) {
+	    animarRetroceso(j, oldPos, newPos, () -> {
+	        if (processCell) {
+	            procesarEfectoCasella(j);
+	        }
+	    });
+	}
+
 	private void procesarEfectoCasella(Jugador j) {
 	    int posActual = j.getPosicio();
 	    Casella c = gestorPartida.getPartida().getTaulell().getCaselles().get(posActual);
 	    
-	    // La casilla evento no debe funcionar si te tiran pa atras (según feedback usuario)
 	    if (!(c instanceof model.caselles.Event)) {
 	        new GestorTaulell().executarCasella(gestorPartida.getPartida(), j, c);
 	        
-	        // Si la acción movió al jugador (ej: Oso lo mandó a 0), animar ese movimiento
 	        if (j.getPosicio() != posActual) {
 	            int nuevaPos = j.getPosicio();
 	            if (nuevaPos < posActual) {
-	                animarRetroceso(j, posActual, nuevaPos, false); // No encadenar más para evitar bucles
+	                animarRetroceso(j, posActual, nuevaPos, false);
 	            } else {
-	                // Podríamos animar avance si fuera Trineu, pero para simplificar sincronizamos UI
 	                actualizarUI();
 	            }
 	        }
 	    }
 	}
 
-	/**
-	 * Anima l'efecte d'entrar i sortir per un forat (girar i encollir/créixer).
-	 */
 	private void animarEfectoForat(Jugador j, int posEntrada, int posSalida, Runnable onFinished) {
 		ImageView pieza = getPiezaParaJugador(j);
 		if (pieza == null) {
@@ -1448,9 +1533,8 @@ public class PantallaJuego {
 			return;
 		}
 
-		// 1. ANIMACIÓ D'ENTRADA (Girar i encollir)
 		RotateTransition rtIn = new RotateTransition(Duration.millis(800), pieza);
-		rtIn.setByAngle(360 * 3); // 3 vueltas rápidas
+		rtIn.setByAngle(360 * 3); 
 		
 		ScaleTransition stIn = new ScaleTransition(Duration.millis(800), pieza);
 		stIn.setToX(0);
@@ -1459,18 +1543,14 @@ public class PantallaJuego {
 		ParallelTransition ptIn = new ParallelTransition(pieza, rtIn, stIn);
 		
 		ptIn.setOnFinished(e -> {
-			// Cambiar posición lógica (ya está cambiada en el modelo, solo actualizamos UI)
 			actualizarUI();
-			// Nos aseguramos que los controles sigan bloqueados durante la segunda parte de la animación
 			bloquearControles(true);
 			
-			// 2. ANIMACIÓ DE SORTIDA (Girar al revés i créixer)
-			// Nos aseguramos que la pieza esté en escala 0 antes de empezar
 			pieza.setScaleX(0);
 			pieza.setScaleY(0);
 			
 			RotateTransition rtOut = new RotateTransition(Duration.millis(800), pieza);
-			rtOut.setByAngle(-360 * 3); // 3 vueltas en sentido contrario
+			rtOut.setByAngle(-360 * 3);
 			
 			ScaleTransition stOut = new ScaleTransition(Duration.millis(800), pieza);
 			stOut.setToX(1.0);
@@ -1487,15 +1567,15 @@ public class PantallaJuego {
 	}
 
 	public static void animarRetrocesoEstatico(Jugador j, int oldPos, int newPos) {
+		animarRetrocesoEstatico(j, oldPos, newPos, null);
+	}
+
+	public static void animarRetrocesoEstatico(Jugador j, int oldPos, int newPos, Runnable onComplete) {
 		if (instanciaActual != null) {
-			// Por defecto procesamos casilla en retrocesos estáticos (suelen venir de Oso o similar en el modelo)
 			Platform.runLater(() -> instanciaActual.animarRetroceso(j, oldPos, newPos, true));
 		}
 	}
 
-	/**
-	 * Muestra un diálogo de victoria y ofrece opciones al usuario.
-	 */
 	private void mostrarAlertaGanador(Jugador g) {
 	    Platform.runLater(() -> {
 	        Alert alert = new Alert(AlertType.INFORMATION);
@@ -1505,13 +1585,17 @@ public class PantallaJuego {
 	        alert.setContentText("Enhorabuena " + g.getNickname() + ", ¡has llegado a la meta!");
 
 	        ButtonType btnGuardar = new ButtonType("Guardar y Salir");
+	        ButtonType btnCopiar = new ButtonType("Copiar semilla");
 	        ButtonType btnSalir = new ButtonType("Salir sin Guardar");
-	        alert.getButtonTypes().setAll(btnGuardar, btnSalir);
+	        alert.getButtonTypes().setAll(btnGuardar, btnCopiar, btnSalir);
 
 	        alert.showAndWait().ifPresent(result -> {
 	            if (result == btnGuardar) {
 	                handleSaveGame();
 	                goToMenu();
+	            } else if (result == btnCopiar) {
+	                mostrarVentanaSeed();
+	                mostrarAlertaGanador(g); 
 	            } else if (result == btnSalir) {
 	                goToMenu();
 	            }
@@ -1519,16 +1603,10 @@ public class PantallaJuego {
 	    });
 	}
 
-	
-
-	/**
-	 * Comprova si el següent torn l'ha de fer la CPU i l'executa automàticament.
-	 */
 	private void checkTurnoCPU() {
 		if (gestorPartida.getPartida().isFinalitzada()) return;
 
 		Jugador proximo = gestorPartida.getPartida().getJugadorActual();
-		// En aquest model, les Foques sempre són CPU
 		if (proximo instanceof model.entitats.Foca) {
 		    bloquearControles(true);
 			new Thread(() -> {
@@ -1540,14 +1618,16 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleRapido() {
-		System.out.println("DEBUG: Clic en BOTÓN DADO RÁPIDO");
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 		if (!(actual instanceof Pinguino pingu)) return;
 
-		// Buscar dau ràpid (max > 6) a la llista real de l'inventari
 		Dau dRapid = null;
-		for (model.items.Item obj : pingu.getInventari().getLlista()) {
-			if (obj instanceof Dau d && d.getMax() > 6 && d.getQuantitat() > 0) { dRapid = d; break; }
+		java.util.List<model.items.Item> items = pingu.getInventari().getLlista();
+		for (int i = 0; i < items.size() && dRapid == null; i++) {
+			model.items.Item obj = items.get(i);
+			if (obj instanceof Dau d && d.getMax() > 6 && d.getQuantitat() > 0) {
+				dRapid = d;
+			}
 		}
 
 		if (dRapid == null) {
@@ -1555,7 +1635,6 @@ public class PantallaJuego {
 			return;
 		}
 
-		// El consum real es farà a gestorPartida.tirarDau -> dau.tirarIUsar()
 		dauSeleccionat = dRapid;
 		registrarEvento(pingu.getNickname() + " usa dado rápido (" + dRapid.getMin() + "-" + dRapid.getMax() + ")", "log-info");
 		executartorn();
@@ -1563,14 +1642,16 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleLento() {
-		System.out.println("DEBUG: Clic en BOTÓN DADO LENTO");
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 		if (!(actual instanceof Pinguino pingu)) return;
 
-		// Buscar dau lent (max <= 3)
 		Dau dLent = null;
-		for (model.items.Item obj : pingu.getInventari().getLlista()) {
-			if (obj instanceof Dau d && d.getMax() <= 3 && d.getQuantitat() > 0) { dLent = d; break; }
+		java.util.List<model.items.Item> itemsL = pingu.getInventari().getLlista();
+		for (int i = 0; i < itemsL.size() && dLent == null; i++) {
+			model.items.Item obj = itemsL.get(i);
+			if (obj instanceof Dau d && d.getMax() <= 3 && d.getQuantitat() > 0) {
+				dLent = d;
+			}
 		}
 
 		if (dLent == null) {
@@ -1580,7 +1661,6 @@ public class PantallaJuego {
 
 		dauSeleccionat = dLent;
 		String range = (dLent.getMin() == dLent.getMax()) ? String.valueOf(dLent.getMin()) : dLent.getMin() + "-" + dLent.getMax();
-		// Si és el dau lent amb valors 1 i 3, el log pot ser més precís
 		if (dLent.getNom().equals("Dau lent")) range = "1 o 3";
 		
 		registrarEvento(pingu.getNickname() + " usa dado lento (" + range + ")", "log-info");
@@ -1589,11 +1669,9 @@ public class PantallaJuego {
 
 	@FXML
 	private void handlePeces() {
-		System.out.println("DEBUG: Clic en BOTÓN USAR PEZ");
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 		if (!(actual instanceof Pinguino pingu)) return;
 
-		// usarPrimer busca el primer Peix disponible, el usa y lo elimina si llega a 0
 		boolean usat = pingu.getInventari().usarPrimer(Peix.class);
 		if (!usat) {
 			registrarEvento("No tienes peces.", "log-warning");
@@ -1608,7 +1686,6 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleNieve() {
-		System.out.println("DEBUG: Clic en BOTÓN BOLA NIEVE");
 		Jugador actual = gestorPartida.getPartida().getJugadorActual();
 		if (!(actual instanceof Pinguino pingu)) return;
 
@@ -1620,7 +1697,6 @@ public class PantallaJuego {
 
 		registrarEvento(pingu.getNickname() + " lanza una bola de nieve: el siguiente jugador retrocede 1 casilla.", "log-info");
 
-		// El jugador següent retrocedeix 1 casella
 		ArrayList<Jugador> js = gestorPartida.getPartida().getJugadors();
 		int idxSeguent = (js.indexOf(pingu) + 1) % js.size();
 		Jugador seguent = js.get(idxSeguent);
@@ -1629,16 +1705,10 @@ public class PantallaJuego {
 		int nuevaPos = Math.max(0, posAnterior - 1);
 		
 		seguent.setPosicio(nuevaPos);
-		
-		// Animamos el retroceso y procesamos la casilla en la que caiga (si no es evento)
 		animarRetroceso(seguent, posAnterior, nuevaPos, true);
 	}
 
 
-	/**
-	 * Aplica un offset visual para evitar que los pingüinos se solapen completamente
-	 * cuando están en la misma casilla.
-	 */
 	private void aplicarOffsetDeSeparacion(ImageView pieza, int index, int total) {
 		if (total <= 1) {
 			pieza.setTranslateX(0);
@@ -1646,21 +1716,21 @@ public class PantallaJuego {
 			return;
 		}
 		
-		double offset = 15.0; // Píxeles de separación
+		double offset = 15.0; 
 		switch (index) {
-			case 0: // Arriba-Izquierda
+			case 0: 
 				pieza.setTranslateX(-offset);
 				pieza.setTranslateY(-offset);
 				break;
-			case 1: // Arriba-Derecha
+			case 1: 
 				pieza.setTranslateX(offset);
 				pieza.setTranslateY(-offset);
 				break;
-			case 2: // Abajo-Izquierda
+			case 2: 
 				pieza.setTranslateX(-offset);
 				pieza.setTranslateY(offset);
 				break;
-			case 3: // Abajo-Derecha
+			case 3: 
 				pieza.setTranslateX(offset);
 				pieza.setTranslateY(offset);
 				break;
@@ -1671,27 +1741,21 @@ public class PantallaJuego {
 		}
 	}
 
-	/**
-	 * Aplica el stylesheet polar del menú a cualquier Alert o Dialog.
-	 */
 	public void estilar(javafx.scene.control.Dialog<?> d) {
 		try {
-			// Establecer el owner para intentar que no se salga de pantalla completa
 			if (boardContainer != null && boardContainer.getScene() != null) {
 				d.initOwner(boardContainer.getScene().getWindow());
 			}
 
 			javafx.scene.control.DialogPane pane = d.getDialogPane();
 			
-			// Ajuste dinámico de ancho según cantidad de botones
 			int numButtons = d.getDialogPane().getButtonTypes().size();
 			if (numButtons > 2) {
-				pane.setMinWidth(1000); // Ensanchado extra para asegurar botones largos
+				pane.setMinWidth(1000); 
 			} else {
 				pane.setMinWidth(500); 
 			}
 
-			// Forzar que los botones puedan crecer y no tengan tamaño uniforme (evita truncado)
 			pane.getButtonTypes().forEach(bt -> {
 				javafx.scene.Node node = pane.lookupButton(bt);
 				if (node instanceof javafx.scene.control.Button) {
