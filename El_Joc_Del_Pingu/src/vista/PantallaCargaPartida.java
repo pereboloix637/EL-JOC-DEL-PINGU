@@ -63,7 +63,7 @@ public class PantallaCargaPartida {
         ft.setOnFinished(event -> {
             try {
                 // Forzamos la recarga para evitar pantallas negras y asegurar inicialización limpia
-                Main.cambiarEscena("/resources/PantallaJuego.fxml", true);
+                Main.cambiarEscenaConCircleWipe("/resources/PantallaJuego.fxml", true);
             } catch (Exception e) {
                 e.printStackTrace();
             }
