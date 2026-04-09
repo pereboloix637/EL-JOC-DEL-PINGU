@@ -172,4 +172,22 @@ public class Foca extends Jugador {
 		}
 	}
 
+	/**
+	 * Lógica de reacción cuando la foca cae en una casilla de Oso.
+	 * Tiene un 50% de probabilidades de escapar o volver al inicio.
+	 */
+	public void reaccionarAOs(Partida partida) {
+		java.util.Random rand = new java.util.Random();
+		if (rand.nextInt(100) < 50) {
+			// Escapa (50%)
+			System.out.println("La foca " + this.getNickname() + " ha esquivado el ataque del oso!");
+			vista.PantallaJuego.registrarEventoEstatico("La foca " + this.getNickname() + " ha conseguido escapar del oso!", "log-info");
+		} else {
+			// No escapa (50%)
+			this.setPosicio(0);
+			System.out.println("La foca " + this.getNickname() + " ha sido cazada por el oso y vuelve al inicio.");
+			vista.PantallaJuego.registrarEventoEstatico("La foca " + this.getNickname() + " ha sido atacada por un oso y vuelve al inicio!", "log-warning");
+		}
+	}
+
 }

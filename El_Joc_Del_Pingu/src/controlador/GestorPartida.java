@@ -37,7 +37,16 @@ public class GestorPartida {
     public int tirarDau(Jugador j, Dau dauOpcional) {
         if (dauOpcional != null && dauOpcional.esEspecial()) {
             int resultat = dauOpcional.tirarIUsar();
-            if (resultat != -1) return resultat;
+            if (resultat != -1) {
+                // Si el jugador es un Pingüino, asegurar que se elimine del inventario si se ha agotado
+                if (j instanceof Pinguino) {
+                    Pinguino p = (Pinguino) j;
+                    if (dauOpcional.getQuantitat() <= 0) {
+                        p.getInventari().eliminarItem(dauOpcional);
+                    }
+                }
+                return resultat;
+            }
         }
         Dau dauNormal = new Dau();
         return dauNormal.tirar();

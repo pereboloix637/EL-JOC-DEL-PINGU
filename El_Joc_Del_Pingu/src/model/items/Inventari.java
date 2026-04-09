@@ -70,12 +70,38 @@ public class Inventari {
 			System.out.println("Aquest ítem no es pot guardar a l'inventari.");
 			return 0;
 		}
-		int disponibles = max - contarTipus(item.getClass());
+		
+		int totalActual = contarTipus(item.getClass());
+		int disponibles = max - totalActual;
+		
 		if (disponibles <= 0) {
 			System.out.println("Inventari ple per a " + item.getNom() + " (màxim " + max + ").");
 			return 0;
 		}
+		
 		int afegir = Math.min(item.getQuantitat(), disponibles);
+		
+		// Cercar si ja existeix un ítem idèntic per sumar la quantitat
+		for (Item existent : llista) {
+			if (existent.getClass().equals(item.getClass())) {
+				boolean mateixItem = true;
+				if (item instanceof Dau) {
+					Dau d1 = (Dau) item;
+					Dau d2 = (Dau) existent;
+					if (d1.getMin() != d2.getMin() || d1.getMax() != d2.getMax()) {
+						mateixItem = false;
+					}
+				}
+				
+				if (mateixItem) {
+					existent.setQuantitat(existent.getQuantitat() + afegir);
+					System.out.println("S'ha incrementat: " + existent.getNom() + " ara té x" + existent.getQuantitat());
+					return afegir;
+				}
+			}
+		}
+
+		// Si no s'ha trobat un de mateix, l'afegim nou
 		item.setQuantitat(afegir);
 		llista.add(item);
 		System.out.println("S'ha afegit: " + item.getNom() + " x" + afegir);

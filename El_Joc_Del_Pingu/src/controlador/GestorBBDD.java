@@ -288,7 +288,7 @@ public class GestorBBDD {
 					if (!resCheck.isEmpty()) {
 						j.setId(Integer.parseInt(resCheck.get(0).get("ID")));
 						if (j instanceof Pinguino pingu) {
-							update(con, "UPDATE jugador SET color = '" + j.getColor() + "', victories = " + pingu.getVictories() + " WHERE id = " + j.getId());
+							update(con, "UPDATE jugador SET color = '" + j.getColor() + "' WHERE id = " + j.getId());
 						} else {
 							update(con, "UPDATE jugador SET color = '" + j.getColor() + "' WHERE id = " + j.getId());
 						}
@@ -305,11 +305,15 @@ public class GestorBBDD {
                         int vic = 0;
                         if (j instanceof Pinguino pingu) {
                             pass = pingu.getContrasenya() != null ? pingu.getContrasenya() : "";
-                            vic = pingu.getVictories();
                         }
 						String sqlInsJ = "INSERT INTO jugador (id, nom, color, es_cpu, contrasenya, victories) VALUES (" + nouIdJ + ", '" + nomJ
 								+ "', '" + colorJ + "', " + esCpu + ", '" + pass + "', " + vic + ")";
 						insert(con, sqlInsJ);
+					}
+				} else {
+					// El jugador ya tiene ID asignado → actualizar color
+					if (j instanceof Pinguino) {
+						update(con, "UPDATE jugador SET color = '" + j.getColor() + "' WHERE id = " + j.getId());
 					}
 				}
 
@@ -356,6 +360,16 @@ public class GestorBBDD {
 					}
 				}
 			}
+
+			// 3. Si la partida está finalizada y hay un ganador, sumar +1 victoria en la BD
+			if (partida.isFinalitzada() && partida.getGuanyador() != null) {
+				Jugador guanyador = partida.getGuanyador();
+				if (guanyador instanceof Pinguino && guanyador.getId() != 0) {
+					update(con, "UPDATE jugador SET victories = victories + 1 WHERE id = " + guanyador.getId());
+					System.out.println("Victoria registrada para: " + guanyador.getNickname());
+				}
+			}
+
 			System.out.println("Partida guardada con éxito.");
 		} catch (Exception e) {
 			System.err.println("Error en guardarBBDD: " + e.getMessage());
