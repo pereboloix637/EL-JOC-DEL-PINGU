@@ -28,7 +28,7 @@ public class GestorTaulell {
 		int posicio = jugadorActual.getPosicio();
 		int totalCaselles = taulell.getCaselles().size();
 
-		if (posicio >= totalCaselles - 1) {
+		if (posicio == totalCaselles - 1) {
 			partida.setFinalitzada(true);
 			partida.setGuanyador(jugadorActual);
 		}

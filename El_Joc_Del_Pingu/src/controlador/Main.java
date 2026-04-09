@@ -10,6 +10,12 @@ import javafx.scene.image.Image; // Importación necesaria
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.scene.shape.Circle;
+import javafx.util.Duration;
+import javafx.animation.Interpolator;
 
 public class Main extends Application {
 
@@ -73,6 +79,58 @@ public class Main extends Application {
         if (fullScreenEnabled && !stage.isFullScreen()) {
             stage.setFullScreen(true);
         }
+    }
+
+    public static void cambiarEscenaConCircleWipe(String fxmlPath, boolean forceReload) throws Exception {
+        if (forceReload) {
+            sceneCache.remove(fxmlPath);
+        }
+
+        Parent root;
+        if (sceneCache.containsKey(fxmlPath)) {
+            root = sceneCache.get(fxmlPath);
+        } else {
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource(fxmlPath));
+            root = loader.load();
+            sceneCache.put(fxmlPath, root);
+        }
+
+        // Asegurarse de que el root sea visible y no tenga clips previos
+        root.setClip(null);
+        root.setOpacity(1.0);
+
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        double width = screenBounds.getWidth();
+        double height = screenBounds.getHeight();
+
+        Circle circle = new Circle();
+        circle.setCenterX(width / 2);
+        circle.setCenterY(height / 2);
+        circle.setRadius(0);
+
+        root.setClip(circle);
+
+        if (stage.getScene() == null) {
+            Scene scene = new Scene(root, width, height);
+            scene.setFill(Color.BLACK);
+            stage.setScene(scene);
+        } else {
+            stage.getScene().setRoot(root);
+        }
+
+        if (fullScreenEnabled && !stage.isFullScreen()) {
+            stage.setFullScreen(true);
+        }
+
+        // Calcular el radio final (para cubrir la pantalla desde el centro)
+        double maxRadius = Math.sqrt(Math.pow(width/2, 2) + Math.pow(height/2, 2)) * 1.1;
+
+        Timeline timeline = new Timeline(
+            new KeyFrame(Duration.ZERO, new KeyValue(circle.radiusProperty(), 0)),
+            new KeyFrame(Duration.seconds(1.2), new KeyValue(circle.radiusProperty(), maxRadius, Interpolator.EASE_IN))
+        );
+        timeline.setOnFinished(e -> root.setClip(null));
+        timeline.play();
     }
 
     @Override

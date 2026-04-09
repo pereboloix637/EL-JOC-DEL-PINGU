@@ -386,25 +386,34 @@ public class PantallaJuego {
 		bloquearControles(false);
 		Inventari inv = pingu.getInventari();
 
-		// Cercar daus especials: ràpid (max > 6) i lent (max <= 3)
-		Dau dRapid = null, dLent = null;
+		// Calcular totals de daus especials: ràpid (max > 6) i lent (max <= 3)
+		int totalRapido = 0;
+		int totalLento = 0;
+		Dau firstRapid = null;
+		Dau firstLento = null;
+
 		for (model.items.Item obj : inv.getLlista()) {
 			if (obj instanceof Dau d) {
-				if (d.getMax() > 6  && dRapid == null) dRapid = d;
-				if (d.getMax() <= 3 && dLent  == null) dLent  = d;
+				if (d.getMax() > 6) {
+					totalRapido += d.getQuantitat();
+					if (firstRapid == null && d.getQuantitat() > 0) firstRapid = d;
+				}
+				if (d.getMax() <= 3) {
+					totalLento += d.getQuantitat();
+					if (firstLento == null && d.getQuantitat() > 0) firstLento = d;
+				}
 			}
 		}
 
-
 		// Habilitar/deshabilitar botons (null-safe)
-		if (rapido != null) rapido.setDisable(dRapid == null || dRapid.getQuantitat() <= 0);
-		if (lento != null) lento.setDisable( dLent  == null || dLent.getQuantitat()  <= 0);
-		if (peces != null) peces.setDisable( inv.getPeixos() <= 0);
-		if (nieve != null) nieve.setDisable( inv.getBoles()  <= 0);
+		if (rapido != null) rapido.setDisable(totalRapido <= 0);
+		if (lento != null) lento.setDisable(totalLento <= 0);
+		if (peces != null) peces.setDisable(inv.getPeixos() <= 0);
+		if (nieve != null) nieve.setDisable(inv.getBoles() <= 0);
 
 		// Actualitzar comptadors sobre els botons
-		if (lblRapido != null) lblRapido.setText(String.valueOf(dRapid != null ? dRapid.getQuantitat() : 0));
-		if (lblLento != null) lblLento.setText(String.valueOf(dLent != null ? dLent.getQuantitat() : 0));
+		if (lblRapido != null) lblRapido.setText(String.valueOf(totalRapido));
+		if (lblLento != null) lblLento.setText(String.valueOf(totalLento));
 		if (lblPeces != null) lblPeces.setText(String.valueOf(inv.getPeixos()));
 		if (lblNieve != null) lblNieve.setText(String.valueOf(inv.getBoles()));
 	}
@@ -1223,7 +1232,16 @@ public class PantallaJuego {
 	    if (pieza == null) return;
 
 	    int oldPos = j.getPosicio();
-	    int newPos = Math.min(oldPos + steps, gestorPartida.getPartida().getTaulell().getCaselles().size() - 1);
+	    int totalCaselles = gestorPartida.getPartida().getTaulell().getCaselles().size();
+	    int indexFinal = totalCaselles - 1;
+	    int newPos;
+	    
+	    if (oldPos + steps > indexFinal) {
+	        int sobrante = (oldPos + steps) - indexFinal;
+	        newPos = indexFinal - sobrante;
+	    } else {
+	        newPos = oldPos + steps;
+	    }
 
 	    // Pre-calcular cuántos jugadores habrá en la nueva posición para el offset final
 	    int numEnNuevaCasilla = 0;
@@ -1265,9 +1283,19 @@ public class PantallaJuego {
 	    double accumTX = currentTX;
 	    double accumTY = currentTY;
 
-	    for (int i = 1; i <= steps && (oldPos + i) <= newPos; i++) {
-	        int pA = oldPos + i - 1;
-	        int pB = oldPos + i;
+	    for (int i = 1; i <= steps; i++) {
+	        int pA, pB;
+	        
+	        if (oldPos + i <= indexFinal) {
+	            // Movimiento normal hacia adelante
+	            pA = oldPos + i - 1;
+	            pB = oldPos + i;
+	        } else {
+	            // Rebote: nos hemos pasado de la meta
+	            int sobrante = (oldPos + i) - indexFinal;
+	            pB = indexFinal - sobrante;
+	            pA = (sobrante == 1) ? indexFinal : indexFinal - (sobrante - 1);
+	        }
 
 	        int[] cA = getGridCoords(pA);
 	        int[] cB = getGridCoords(pB);
@@ -1332,82 +1360,35 @@ public class PantallaJuego {
 		                            collisionHandled = true;
 		                            registrarEvento("¡Colisión! Batalla entre " + pActual.getNickname() + " y " + pRival.getNickname(), "log-warning");
 		                            
-		                            int posJ1Abans = pActual.getPosicio();
-		                            int posJ2Abans = pRival.getPosicio();
-		                            
-		                            mostrarOverlayBatalla(() -> {
-		                                pActual.gestionarBatalla(pRival);
-		                                
-		                                Alert batallaAlert = new Alert(AlertType.INFORMATION);
-		                                estilar(batallaAlert);
-		                                batallaAlert.setTitle("Resultado de la Batalla");
-		                                batallaAlert.setHeaderText("¡Combate de bolas de nieve!");
-		                                
-		                                String resultMsg = "";
-		                                if (pActual.getPosicio() < posJ1Abans) {
-		                                    resultMsg = pRival.getNickname() + " ¡gana! " + pActual.getNickname() + " retrocede.";
-		                                } else if (pRival.getPosicio() < posJ2Abans) {
-		                                    resultMsg = pActual.getNickname() + " ¡gana! " + pRival.getNickname() + " retrocede.";
-		                                } else {
-		                                    resultMsg = "¡Empate! Ambos pierden todas las bolas de nieve.";
-		                                }
-		                                batallaAlert.setContentText(resultMsg);
-		                                batallaAlert.showAndWait();
-		
-		                                if (pActual.getPosicio() != posJ1Abans) {
-		                                    animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), () -> {
-		                                        if (pRival.getPosicio() != posJ2Abans) {
-		                                            animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
-		                                        } else {
-		                                            finishTurnCallback.run();
-		                                        }
-		                                    });
-		                                } else if (pRival.getPosicio() != posJ2Abans) {
-		                                    animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
-		                                } else {
-		                                    finishTurnCallback.run();
-		                                }
-		                            });
-		                        }
-		                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaSeguraParaColision) {
-		                        interactionOccurred = true;
-		                        collisionHandled = true;
+		                            String resultMsg = "";
+		                            if (pActual.getPosicio() < posJ1Abans) {
+		                                resultMsg = pRival.getNickname() + " ¡gana! " + pActual.getNickname() + " retrocede.";
+		                            } else if (pRival.getPosicio() < posJ2Abans) {
+		                                resultMsg = pActual.getNickname() + " ¡gana! " + pRival.getNickname() + " retrocede.";
+		                            } else {
+		                                resultMsg = "¡Empate! Ambos pierden todas las bolas de nieve.";
+		                            }
+		                            batallaAlert.setContentText(resultMsg);
+		                            batallaAlert.showAndWait();
+	
+		                            if (pActual.getPosicio() != posJ1Abans) {
+		                                animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), true);
+		                            }
+		                            if (pRival.getPosicio() != posJ2Abans) {
+		                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), true);
+		                            }
+		                        });
+		                        
+		                        break; 
+		                    } else if (rival instanceof model.entitats.Foca fRival && esCasellaNormal) {
 		                        registrarEvento(pActual.getNickname() + " ha chocado con la foca " + fRival.getNickname(), "log-warning");
 		                        int posAbans = pActual.getPosicio();
 		                        
-		                        fRival.AccionesFoca(pActual, gestorPartida.getPartida(), () -> {
-		                            if (pActual.getPosicio() != posAbans) {
-		                                animarRetroceso(pActual, posAbans, pActual.getPosicio(), finishTurnCallback);
-		                            } else {
-		                                finishTurnCallback.run();
-		                            }
-		                        });
-		                    }
-		                }
-		            }
-		        } else if (j instanceof Foca fActual) {
-		            // --- COL·LISIONS QUAN LA FOCA ES MOU ---
-		            Casella casellaDestinoF = gestorPartida.getPartida().getTaulell().getCaselles().get(newPos);
-		            boolean esCasellaSeguraParaColisionF = !(casellaDestinoF instanceof model.caselles.Trineu || 
-		                                                      casellaDestinoF instanceof model.caselles.Os || 
-		                                                      casellaDestinoF instanceof model.caselles.Forat);
-		            
-		            if (esCasellaSeguraParaColisionF) {
-		                ArrayList<Jugador> jugadors = gestorPartida.getPartida().getJugadors();
-		                for (int i = 0; i < jugadors.size() && !collisionHandled; i++) {
-		                    Jugador rival = jugadors.get(i);
-		                    if (rival instanceof Pinguino pRival && rival.getPosicio() == newPos) {
-		                        interactionOccurred = true;
-		                        collisionHandled = true;
-		                        registrarEvento("La foca " + fActual.getNickname() + " ha caigut sobre " + pRival.getNickname(), "log-warning");
-		                        int posAbansP = pRival.getPosicio();
-		                        fActual.AccionesFoca(pRival, gestorPartida.getPartida(), () -> {
-		                            if (pRival.getPosicio() != posAbansP) {
-		                                animarRetroceso(pRival, posAbansP, pRival.getPosicio(), finishTurnCallback);
-		                            } else {
-		                                finishTurnCallback.run();
-		                            }
-		                        });
+		                        if (pActual.getPosicio() != posAbans) {
+		                            animarRetroceso(pActual, posAbans, pActual.getPosicio(), true);
+		                            saltaAccioCasella = true; 
+		                        }
+		                        break;
 		                    }
 		                }
 		            }
@@ -1450,10 +1431,6 @@ public class PantallaJuego {
 		if (gestorPartida.getPartida().isFinalitzada()) {
 			actualizarUI();
 			Jugador guanyador = gestorPartida.getPartida().getGuanyador();
-
-			if (guanyador instanceof model.entitats.Pinguino p) {
-				p.setVictories(p.getVictories() + 1);
-			}
 
 			mostrarAlertaGanador(guanyador);
 			return;
@@ -1517,11 +1494,7 @@ public class PantallaJuego {
 	/**
 	 * Anima el retroceso de un jugador a una nueva posición, moviéndose casilla a casilla.
 	 */
-	public void animarRetroceso(Jugador j, int oldPos, int newPos) {
-		animarRetroceso(j, oldPos, newPos, null);
-	}
-
-	public void animarRetroceso(Jugador j, int oldPos, int newPos, Runnable onComplete) {
+	public void animarRetroceso(Jugador j, int oldPos, int newPos, boolean processCell) {
 	    ImageView pieza = getPiezaParaJugador(j);
 	    if (pieza == null) {
 	        if (onComplete != null) onComplete.run();
@@ -1574,13 +1547,40 @@ public class PantallaJuego {
 	        accumTY += stepDy;
 	    }
 
-	    sequence.setOnFinished(e -> {
+	    sequence.setOnFinished(e -> Platform.runLater(() -> {
 	        pieza.setTranslateX(0);
 	        pieza.setTranslateY(0);
 	        actualizarUI();
-	        if (onComplete != null) onComplete.run();
-	    });
+	        
+	        if (processCell) {
+	            procesarEfectoCasella(j);
+	        }
+	    }));
 	    sequence.play();
+	}
+
+	/**
+	 * Helper para procesar el efecto de una casilla tras un retroceso (bola de nieve, etc.)
+	 */
+	private void procesarEfectoCasella(Jugador j) {
+	    int posActual = j.getPosicio();
+	    Casella c = gestorPartida.getPartida().getTaulell().getCaselles().get(posActual);
+	    
+	    // La casilla evento no debe funcionar si te tiran pa atras (según feedback usuario)
+	    if (!(c instanceof model.caselles.Event)) {
+	        new GestorTaulell().executarCasella(gestorPartida.getPartida(), j, c);
+	        
+	        // Si la acción movió al jugador (ej: Oso lo mandó a 0), animar ese movimiento
+	        if (j.getPosicio() != posActual) {
+	            int nuevaPos = j.getPosicio();
+	            if (nuevaPos < posActual) {
+	                animarRetroceso(j, posActual, nuevaPos, false); // No encadenar más para evitar bucles
+	            } else {
+	                // Podríamos animar avance si fuera Trineu, pero para simplificar sincronizamos UI
+	                actualizarUI();
+	            }
+	        }
+	    }
 	}
 
 	/**
@@ -1620,14 +1620,6 @@ public class PantallaJuego {
 			ScaleTransition stOut = new ScaleTransition(Duration.millis(800), pieza);
 			stOut.setToX(1.0);
 			stOut.setToY(1.0);
-			
-			// Si es una foca, el tamaño final es un poco mayor (visto en actualizarTamanyPeca)
-			if (j instanceof model.entitats.Foca) {
-				stOut.setToX(1.294); // 55.0 / 42.5 approx? No, mejor no hardcodear.
-				// actualitzarUI ya resetea el scale si lo manejamos bien, pero ScaleTransition sobreescribe.
-				// Vamos a usar 1.0 y dejar que actualizarTamanyPeca haga su trabajo en actualizarUI.
-				// Pero actualizarUI ya se llamó.
-			}
 
 			ParallelTransition ptOut = new ParallelTransition(pieza, rtOut, stOut);
 			ptOut.setOnFinished(e2 -> {
@@ -1645,9 +1637,8 @@ public class PantallaJuego {
 
 	public static void animarRetrocesoEstatico(Jugador j, int oldPos, int newPos, Runnable onComplete) {
 		if (instanciaActual != null) {
-			Platform.runLater(() -> instanciaActual.animarRetroceso(j, oldPos, newPos, onComplete));
-		} else if (onComplete != null) {
-			onComplete.run();
+			// Por defecto procesamos casilla en retrocesos estáticos (suelen venir de Oso o similar en el modelo)
+			Platform.runLater(() -> instanciaActual.animarRetroceso(j, oldPos, newPos, true));
 		}
 	}
 
@@ -1708,15 +1699,11 @@ public class PantallaJuego {
 
 		// Buscar dau ràpid (max > 6) a la llista real de l'inventari
 		Dau dRapid = null;
-		ArrayList<model.items.Item> llista = pingu.getInventari().getLlista();
-		for (int i = 0; i < llista.size() && dRapid == null; i++) {
-			model.items.Item obj = llista.get(i);
-			if (obj instanceof Dau d && d.getMax() > 6) { 
-				dRapid = d; 
-			}
+		for (model.items.Item obj : pingu.getInventari().getLlista()) {
+			if (obj instanceof Dau d && d.getMax() > 6 && d.getQuantitat() > 0) { dRapid = d; break; }
 		}
 
-		if (dRapid == null || dRapid.getQuantitat() <= 0) {
+		if (dRapid == null) {
 			registrarEvento("No tienes dado rápido.", "log-warning");
 			return;
 		}
@@ -1735,15 +1722,11 @@ public class PantallaJuego {
 
 		// Buscar dau lent (max <= 3)
 		Dau dLent = null;
-		ArrayList<model.items.Item> llistaLenta = pingu.getInventari().getLlista();
-		for (int i = 0; i < llistaLenta.size() && dLent == null; i++) {
-			model.items.Item obj = llistaLenta.get(i);
-			if (obj instanceof Dau d && d.getMax() <= 3) { 
-				dLent = d; 
-			}
+		for (model.items.Item obj : pingu.getInventari().getLlista()) {
+			if (obj instanceof Dau d && d.getMax() <= 3 && d.getQuantitat() > 0) { dLent = d; break; }
 		}
 
-		if (dLent == null || dLent.getQuantitat() <= 0) {
+		if (dLent == null) {
 			registrarEvento("No tienes dado lento.", "log-warning");
 			return;
 		}
@@ -1794,8 +1777,14 @@ public class PantallaJuego {
 		ArrayList<Jugador> js = gestorPartida.getPartida().getJugadors();
 		int idxSeguent = (js.indexOf(pingu) + 1) % js.size();
 		Jugador seguent = js.get(idxSeguent);
-		seguent.setPosicio(Math.max(0, seguent.getPosicio() - 1));
-		actualizarUI();
+		
+		int posAnterior = seguent.getPosicio();
+		int nuevaPos = Math.max(0, posAnterior - 1);
+		
+		seguent.setPosicio(nuevaPos);
+		
+		// Animamos el retroceso y procesamos la casilla en la que caiga (si no es evento)
+		animarRetroceso(seguent, posAnterior, nuevaPos, true);
 	}
 
 
