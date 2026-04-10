@@ -106,13 +106,13 @@
                                             <VBox spacing="8" styleClass="login-mini-card">
                                                 <TextField fx:id="userField" promptText="Nombre de usuario..." />
                                                 <PasswordField fx:id="passField" promptText="Contraseña..." />
-                                                <HBox alignment="CENTER_LEFT" spacing="10">
-                                                    <Button onAction="#handleLoadSeed" styleClass="secondary" text="Cargar Semilla" />
-                                                    <Label fx:id="seedStatusLabel" styleClass="hint" text="Semilla: Aleatoria" />
-                                                </HBox>
                                                 <HBox spacing="10">
                                                     <Button maxWidth="Infinity" onAction="#handleLogin" styleClass="secondary" text="+ Humano" HBox.hgrow="ALWAYS" />
                                                     <Button maxWidth="Infinity" onAction="#handleAddCPU" styleClass="secondary" text="+ CPU" HBox.hgrow="ALWAYS" />
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                                    <Button onAction="#handleLoadSeed" styleClass="secondary" text="Cargar Semilla" />
+                                                    <Label fx:id="seedStatusLabel" styleClass="hint" text="Semilla: Aleatoria" />
                                                 </HBox>
                                             </VBox>
                                             <Region VBox.vgrow="ALWAYS" />

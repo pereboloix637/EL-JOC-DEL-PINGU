@@ -16,6 +16,8 @@ import javafx.animation.Timeline;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import javafx.animation.Interpolator;
+import javafx.animation.PauseTransition;
+import javafx.scene.CacheHint;
 
 public class Main extends Application {
 
@@ -122,15 +124,28 @@ public class Main extends Application {
             stage.setFullScreen(true);
         }
 
+        // Optimización: Activar caché de hardware durante la animación
+        root.setCache(true);
+        root.setCacheHint(CacheHint.SPEED);
+
         // Calcular el radio final (para cubrir la pantalla desde el centro)
         double maxRadius = Math.sqrt(Math.pow(width/2, 2) + Math.pow(height/2, 2)) * 1.1;
 
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.ZERO, new KeyValue(circle.radiusProperty(), 0)),
-            new KeyFrame(Duration.seconds(1.2), new KeyValue(circle.radiusProperty(), maxRadius, Interpolator.EASE_IN))
+            new KeyFrame(Duration.seconds(1.2), new KeyValue(circle.radiusProperty(), maxRadius, Interpolator.EASE_OUT))
         );
-        timeline.setOnFinished(e -> root.setClip(null));
-        timeline.play();
+        
+        timeline.setOnFinished(e -> {
+            root.setClip(null);
+            root.setCache(false);
+            root.setCacheHint(CacheHint.DEFAULT);
+        });
+
+        // Retraso muy breve para permitir que el hilo de la UI se estabilice tras la carga
+        PauseTransition delay = new PauseTransition(Duration.millis(150));
+        delay.setOnFinished(e -> timeline.play());
+        delay.play();
     }
 
     @Override

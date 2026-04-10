@@ -279,6 +279,8 @@ public class GestorBBDD {
 
 			// 2. Gestionar cada Jugador
 			for (Jugador j : partida.getJugadors()) {
+				System.out.println("Procesando jugador para guardar: " + j.getNickname() + " (ID actual: " + j.getId() + ")");
+				
 				// ── 2.1 Garantir que el jugador existeix a la taula 'jugador' (global) ──
 				if (j.getId() == 0) {
 					String nomJ = j.getNickname();
@@ -286,35 +288,44 @@ public class GestorBBDD {
 					ArrayList<LinkedHashMap<String, String>> resCheck = select(con, sqlCheck);
 
 					if (!resCheck.isEmpty()) {
-						j.setId(Integer.parseInt(resCheck.get(0).get("ID")));
-						if (j instanceof Pinguino pingu) {
-							update(con, "UPDATE jugador SET color = '" + j.getColor() + "' WHERE id = " + j.getId());
-						} else {
-							update(con, "UPDATE jugador SET color = '" + j.getColor() + "' WHERE id = " + j.getId());
+						// Recuperar ID de forma robusta (Oracle suele devolver mayúsculas)
+						String dbIdStr = resCheck.get(0).get("ID");
+						if (dbIdStr == null) dbIdStr = resCheck.get(0).get("id"); // Intento en minúsculas por si acaso
+						
+						if (dbIdStr != null) {
+							j.setId(Integer.parseInt(dbIdStr));
+							System.out.println("  -> Jugador encontrado en DB. Asignando ID: " + j.getId());
+							
+							// Actualizar color y asegurar que es_cpu sea correcto (por si acaso)
+							int esCpu = (j instanceof Foca ? 1 : 0);
+							update(con, "UPDATE jugador SET color = '" + j.getColor() + "', es_cpu = " + esCpu + " WHERE id = " + j.getId());
 						}
 					} else {
 						ArrayList<LinkedHashMap<String, String>> resMax = select(con,
 								"SELECT MAX(id) AS MAX_ID FROM jugador");
-						int nouIdJ = (resMax.isEmpty() || resMax.get(0).get("MAX_ID") == null) ? 1
-								: Integer.parseInt(resMax.get(0).get("MAX_ID")) + 1;
+						String maxIdStr = resMax.get(0).get("MAX_ID");
+						if (maxIdStr == null) maxIdStr = resMax.get(0).get("max_id");
+						
+						int nouIdJ = (maxIdStr == null) ? 1 : Integer.parseInt(maxIdStr) + 1;
 						j.setId(nouIdJ);
+						System.out.println("  -> Jugador nuevo. Generando ID: " + j.getId());
 
 						String colorJ = j.getColor();
 						int esCpu = (j instanceof Foca ? 1 : 0);
                         String pass = "";
-                        int vic = 0;
-                        if (j instanceof Pinguino pingu) {
-                            pass = pingu.getContrasenya() != null ? pingu.getContrasenya() : "";
-                        }
-						String sqlInsJ = "INSERT INTO jugador (id, nom, color, es_cpu, contrasenya, victories) VALUES (" + nouIdJ + ", '" + nomJ
-								+ "', '" + colorJ + "', " + esCpu + ", '" + pass + "', " + vic + ")";
+						int vic = 0;
+						if (j instanceof Pinguino pingu) {
+							pass = pingu.getContrasenya() != null ? pingu.getContrasenya() : "";
+						}
+						// Insertamos usando UTL_RAW.CAST_TO_RAW para los nuevos campos RAW(64) y RAW(16)
+						String sqlInsJ = "INSERT INTO jugador (id, nom, color, es_cpu, contrasenya, salt, victories) VALUES (" 
+						        + nouIdJ + ", '" + nomJ + "', '" + colorJ + "', " + esCpu + ", "
+								+ "UTL_RAW.CAST_TO_RAW('" + pass + "'), UTL_RAW.CAST_TO_RAW(''), " + vic + ")";
 						insert(con, sqlInsJ);
 					}
 				} else {
-					// El jugador ya tiene ID asignado → actualizar color
-					if (j instanceof Pinguino) {
-						update(con, "UPDATE jugador SET color = '" + j.getColor() + "' WHERE id = " + j.getId());
-					}
+					System.out.println("  -> El jugador ya tenía ID " + j.getId() + ". Actualizando color.");
+					update(con, "UPDATE jugador SET color = '" + j.getColor() + "' WHERE id = " + j.getId());
 				}
 
 				// ── 2.2 Upsert a 'jugador_partida' (estat del jugador en aquesta partida) ──
@@ -529,18 +540,20 @@ public class GestorBBDD {
 	}
 
 	public boolean validarLogin(String username, String password, Connection con) {
-		String sql = "SELECT contrasenya FROM jugador WHERE nom = '" + username + "'";
+		// Al ser una columna RAW, debemos convertirla a VARCHAR2 en la consulta para comparar el texto
+		String sql = "SELECT UTL_RAW.CAST_TO_VARCHAR2(contrasenya) AS CONTRASENYA FROM jugador WHERE nom = '" + username + "'";
 		ArrayList<LinkedHashMap<String, String>> result = select(con, sql);
 
 		if (!result.isEmpty()) {
 			String dbPassword = result.get(0).get("CONTRASENYA");
+			// Comparamos el texto recuperado con la contraseña introducida
 			if (dbPassword != null && dbPassword.equals(password)) {
 				return true; 
 			} else {
 				return false;
 			}
 		} else {
-			return true; // Si no existeix a la BD, és un usuari nou i pot entrar (es crearà automàticament)
+			return true; // Si no existe, permitimos el paso (se creará al guardar)
 		}
 	}
 
@@ -561,8 +574,8 @@ public class GestorBBDD {
 			int nouId = (resMax.isEmpty() || resMax.get(0).get("MAX_ID") == null) ? 1 
 						: Integer.parseInt(resMax.get(0).get("MAX_ID")) + 1;
 			
-			String sqlIns = "INSERT INTO jugador (id, nom, color, es_cpu, contrasenya, victories) VALUES (" 
-							+ nouId + ", '" + nickname + "', 'Azul', 0, '', 1)";
+			String sqlIns = "INSERT INTO jugador (id, nom, color, es_cpu, contrasenya, salt, victories) VALUES (" 
+							+ nouId + ", '" + nickname + "', 'Azul', 0, UTL_RAW.CAST_TO_RAW(''), UTL_RAW.CAST_TO_RAW(''), 1)";
 			insert(con, sqlIns);
 		}
 	}

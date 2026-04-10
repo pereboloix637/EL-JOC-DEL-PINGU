@@ -29,7 +29,10 @@ public class PantallaCargaPartida {
     		"¡El primero en llegar a la meta gana! Sea un Pingu o una Foca...",
     		"PCI Studios mantiene a flote este juego, desde un barco claro.",
     		"¿Los Pingus y las Focas se pintan? Me gustaria saber si les gustaria tener unas gafas.",
-    		"Hay hasta 7 Pingus y 7 Focas, si no me crees prueba a poner hasta 6 jugadores y ten mucha paciencia."
+    		"Con capacidad para hasta 6 jugadores, dispones de un total de 12 figuras (6 Pingus y 6 Focas)",
+    		"El oso polar normalmente atacara a los pingüinos, pero es probable que a las focas tanbien sean afectadas",
+    		"Las bolas de nieve hacen retrodecer al mas cercano",
+    		"PCI Studios no se responsabiliza de los conflictos o desacuerdos que surjan durante el transcurso del juego."
     };
 
     @FXML
