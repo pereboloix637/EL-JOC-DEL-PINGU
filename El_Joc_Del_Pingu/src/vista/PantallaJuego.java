@@ -927,7 +927,7 @@ public class PantallaJuego {
 			double angle = Math.toRadians(i * 180);
 			iv.setLayoutX(150 + 95 * Math.cos(angle) - 50);
 			iv.setLayoutY(150 + 95 * Math.sin(angle) - 50);
-			iv.setRotate(0); // Mantenemos los iconos rectos
+			iv.setRotate(i * 180 + 90); // Mantenemos los iconos rectos al llegar arriba
 			itemsPane.getChildren().add(iv);
 		}
 		
