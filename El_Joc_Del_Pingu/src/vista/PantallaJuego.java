@@ -543,7 +543,7 @@ public class PantallaJuego {
 			}
 		} else {
 			// Fallback por defecto (Pingüinos)
-			P1.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_ROJO.png")));
+			P1.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_ROJO.png"))); // P1.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_ROJO.png"))); | P1.setImage(new Image(getClass().getResourceAsStream("/assets/PenguinPyce_2D.png")));
 			P2.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_AZUL.png")));
 			P3.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_VERDE.png")));
 			P4.setImage(new Image(getClass().getResourceAsStream("/assets/PINGUINO_AMARILLO.png")));
