@@ -141,6 +141,8 @@ public class PantallaJuego {
 	private ImageView P5;
 	@FXML
 	private ImageView P6;
+	
+	private ImageView[] sombras;
 
 	private GestorPartida gestorPartida;
 	private static Partida partidaInicial;
@@ -187,6 +189,28 @@ public class PantallaJuego {
 		} catch (Exception e) {
 			System.err.println("Error cargando imágenes de pingüinos: " + e.getMessage());
 		}
+		
+		// --- Inicializar Sombras ---
+		try {
+			sombras = new ImageView[6];
+			Image imgSombra = new Image(getClass().getResourceAsStream("/assets/sombra.png"));
+			for (int i = 0; i < 6; i++) {
+				ImageView s = new ImageView(imgSombra);
+				s.setFitWidth(50);
+				s.setFitHeight(20);
+				s.setOpacity(0.6);
+				s.setMouseTransparent(true);
+				s.setVisible(false);
+				sombras[i] = s;
+				// Añadir al tablero al principio para que queden detrás (índice 0)
+				tablero.getChildren().add(0, s);
+				GridPane.setHalignment(s, HPos.CENTER);
+				GridPane.setValignment(s, VPos.CENTER);
+			}
+		} catch (Exception e) {
+			System.err.println("Error cargando sombras: " + e.getMessage());
+		}
+		// --------------------------
 		// ── Escalado dinámico PERFECTO para Laptops sin romper la config base ──
 		boardRoot.getChildren().clear();
 		boardRoot.setMinSize(0, 0);
@@ -235,9 +259,13 @@ public class PantallaJuego {
 			gestorPartida.novaPartida(jugadors, taulell);
 		}
 
-		// Mostrar info del tablero
-		mostrarTiposDeCasillasEnTablero(gestorPartida.getPartida().getTaulell());
-		actualizarUI();
+		// Mostrar info del tablero con un pequeño retraso para no bloquear la animación inicial
+		PauseTransition boardDelay = new PauseTransition(Duration.millis(500));
+		boardDelay.setOnFinished(e -> {
+			mostrarTiposDeCasillasEnTablero(gestorPartida.getPartida().getTaulell());
+			actualizarUI();
+		});
+		boardDelay.play();
 		
 		// Verificar si el primer turno es de la CPU
 		checkTurnoCPU();
@@ -293,6 +321,19 @@ public class PantallaJuego {
 				
 				// Aplicar offset solo si hay más de uno
 				aplicarOffsetDeSeparacion(pieza, numEnCasilla, recuento.get(pos));
+				// Subir la pieza usando margen (no translateY, para no interferir con animaciones)
+				GridPane.setMargin(pieza, new javafx.geometry.Insets(0, 0, 40, 0));
+
+				// Sincronizar sombra
+				ImageView sombra = getSombraParaJugador(j);
+				if (sombra != null) {
+					sombra.setVisible(pieza.isVisible());
+					GridPane.setRowIndex(sombra, row);
+					GridPane.setColumnIndex(sombra, col);
+					aplicarOffsetDeSeparacion(sombra, numEnCasilla, recuento.get(pos));
+					// La sombra queda en el suelo (un poco debajo del personaje)
+					GridPane.setMargin(sombra, new javafx.geometry.Insets(0, 0, 10, 0));
+				}
 			}
 		}
 		
@@ -478,6 +519,17 @@ public class PantallaJuego {
 			case 5: return P6;
 			default: return null;
 		}
+	}
+
+	/**
+	 * Retorna l'element visual (ImageView) de la sombra associat a un jugador.
+	 */
+	private ImageView getSombraParaJugador(Jugador j) {
+		int idx = gestorPartida.getPartida().getJugadors().indexOf(j);
+		if (idx >= 0 && idx < 6 && sombras != null) {
+			return sombras[idx];
+		}
+		return null;
 	}
 
 	/**
@@ -1161,6 +1213,10 @@ public class PantallaJuego {
 	        final double startX = accumTX;
 	        final double startY = accumTY;
 
+	        final ImageView sombraFwd = getSombraParaJugador(j);
+	        // Girar el personaje según la dirección horizontal
+	        if (stepDx > 0) pieza.setScaleX(1.0);
+	        else if (stepDx < 0) pieza.setScaleX(-1.0);
 	        Transition jump = new Transition() {
 	            { setCycleDuration(Duration.millis(450)); }
 	            @Override protected void interpolate(double frac) {
@@ -1169,6 +1225,11 @@ public class PantallaJuego {
 	                double hopY = -45 * Math.sin(Math.PI * frac); // Trayectoria ovalada
 	                pieza.setTranslateX(curX);
 	                pieza.setTranslateY(curY + hopY);
+	                // La sombra se desliza por el suelo (sin salto)
+	                if (sombraFwd != null) {
+	                    sombraFwd.setTranslateX(curX);
+	                    sombraFwd.setTranslateY(curY);
+	                }
 	            }
 	        };
 
@@ -1385,6 +1446,10 @@ public class PantallaJuego {
 	        final double startX = accumTX;
 	        final double startY = accumTY;
 
+	        final ImageView sombraBack = getSombraParaJugador(j);
+	        // Girar el personaje según la dirección horizontal del retroceso
+	        if (stepDx > 0) pieza.setScaleX(1.0);
+	        else if (stepDx < 0) pieza.setScaleX(-1.0);
 	        Transition jump = new Transition() {
 	            { setCycleDuration(Duration.millis(450)); }
 	            @Override protected void interpolate(double frac) {
@@ -1393,6 +1458,11 @@ public class PantallaJuego {
 	                double hopY = -45 * Math.sin(Math.PI * frac); // Trayectoria ovalada
 	                pieza.setTranslateX(curX);
 	                pieza.setTranslateY(curY + hopY);
+	                // La sombra se desliza por el suelo (sin salto)
+	                if (sombraBack != null) {
+	                    sombraBack.setTranslateX(curX);
+	                    sombraBack.setTranslateY(curY);
+	                }
 	            }
 	        };
 
