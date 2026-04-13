@@ -122,7 +122,24 @@ public class Inventari {
 	    llista.removeIf(item -> tipus.isInstance(item));
 
 	    System.out.println("S'han eliminat tots els ítems de tipus: " + tipus.getSimpleName());
-	}	
+	}
+	
+	// Elimina una quantitat concreta d'un tipus d'item
+	public void retirarQuantitat(Class<? extends Item> tipus, int quantitatATreure) {
+		int pendent = quantitatATreure;
+		for (int i = llista.size() - 1; i >= 0 && pendent > 0; i--) {
+			Item item = llista.get(i);
+			if (tipus.isInstance(item)) {
+				if (item.getQuantitat() <= pendent) {
+					pendent -= item.getQuantitat();
+					llista.remove(i);
+				} else {
+					item.setQuantitat(item.getQuantitat() - pendent);
+					pendent = 0;
+				}
+			}
+		}
+	}
 
 	// Retorna l'ítem si existeix, null altrament
 	public Item obtenirItem(Item item) {
