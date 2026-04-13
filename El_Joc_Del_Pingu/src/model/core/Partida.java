@@ -24,6 +24,13 @@ public class Partida {
         this.jugadorActual = 0;
         this.finalitzada = false;
         this.guanyador = null;
+
+        // Asignar IDs lógicos para usar en arrays
+        if (jugadors != null) {
+            for (int i = 0; i < jugadors.size(); i++) {
+                jugadors.get(i).setIdPartida(i);
+            }
+        }
     }
 
 	// Getters

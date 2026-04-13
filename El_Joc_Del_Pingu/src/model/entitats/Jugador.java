@@ -7,6 +7,7 @@ public abstract class Jugador {
 	private String color;
 	private int tornsBloquejat;
 	private boolean nerfOs;
+	private int idPartida; // ID lógico para usar como índice en arrays
 	
 	public int getId() {
 		return id;
@@ -14,6 +15,14 @@ public abstract class Jugador {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public int getIdPartida() {
+		return idPartida;
+	}
+
+	public void setIdPartida(int idPartida) {
+		this.idPartida = idPartida;
 	}
 
 	public int getTornsBloquejat() {

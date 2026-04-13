@@ -1192,6 +1192,22 @@ public class PantallaJuego {
 			return;
 		}
 
+		// ── Lógica de Salto de Turno (Bloqueo) ──
+		if (actual instanceof model.entitats.Foca f && f.getBloqueix() > 0) {
+			int restan = f.getBloqueix() - 1;
+			f.setBloqueix(restan);
+			// El soborno ahora se gestiona internamente por tiempo independiente
+			registrarEvento(f.getNickname() + " está bloqueada y no se mueve. Turnos restantes: " + restan, "log-info");
+			finalizarTurno(f);
+			return;
+		} else if (actual instanceof Pinguino && actual.getTornsBloquejat() > 0) {
+			int restan = actual.getTornsBloquejat() - 1;
+			actual.setTornsBloquejat(restan);
+			registrarEvento(actual.getNickname() + " está bloqueado y no puede moverse. Turnos restantes: " + restan, "log-warning");
+			finalizarTurno(actual);
+			return;
+		}
+
 		bloquearControles(true);
 		registrarEvento("Turno de: " + actual.getNickname(), "log-turn");
 
@@ -1383,6 +1399,10 @@ public class PantallaJuego {
 	                            collisionHandled = true;
 	                            registrarEvento(pActual.getNickname() + " ha chocado con la foca " + fRival.getNickname(), "log-warning");
 	                            int posPinguAbans = pActual.getPosicio();
+	                            
+	                            // Opción de alimentar a la foca si se tienen peces
+	                            fRival.sobornarFoca(pActual);
+	                            
 	                            fRival.AccionesFoca(pActual, gestorPartida.getPartida(), () -> {
 	                                if (pActual.getPosicio() != posPinguAbans) {
 	                                    animarRetroceso(pActual, posPinguAbans, pActual.getPosicio(), finishTurnCallback);
@@ -1402,6 +1422,10 @@ public class PantallaJuego {
 	                        collisionHandled = true;
 	                        registrarEvento("La foca " + fActual.getNickname() + " ha caído sobre " + pRival.getNickname(), "log-warning");
 	                        int posPAbans = pRival.getPosicio();
+	                        
+	                        // Opción de alimentar a la foca para evitar el ataque
+	                        fActual.sobornarFoca(pRival);
+	                        
 	                        fActual.AccionesFoca(pRival, gestorPartida.getPartida(), () -> {
 	                            if (pRival.getPosicio() != posPAbans) {
 	                                animarRetroceso(pRival, posPAbans, pRival.getPosicio(), finishTurnCallback);
@@ -1435,6 +1459,11 @@ public class PantallaJuego {
 	}
 
 	private void finalizarTurno(Jugador j) {
+		// Al finalizar el turno, si es una foca, decrementamos sus sobornos
+		if (j instanceof model.entitats.Foca f) {
+			f.actualizarSobornos();
+		}
+		
 		GestorTaulell gt = new GestorTaulell();
 		gt.comprovarFiTorn(gestorPartida.getPartida());
 		
