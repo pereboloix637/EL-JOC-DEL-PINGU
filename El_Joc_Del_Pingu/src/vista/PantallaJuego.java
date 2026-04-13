@@ -491,16 +491,27 @@ public class PantallaJuego {
 				
 				inv.getChildren().addAll(peces, boles, daus);
 				card.getChildren().add(inv);
-			} else {
+			} else if (j instanceof Foca f) {
 				// Mostrar nombre como Foca 1, Foca 2, etc.
 				int focaNum = 0;
 				for (int k = 0; k <= i; k++) {
 					if (js.get(k) instanceof Foca) focaNum++;
 				}
 				name.setText("Foca " + focaNum);
+				
+				// AHORA TAMBIÉN MOSTRAR EL INVENTARIO DE LA FOCA
+				VBox inv = new VBox(2);
+				inv.getStyleClass().add("player-inv-mini");
+				
+				Label peces = new Label("Peces: " + f.getInventari().getPeixos());
+				Label boles = new Label("Bolas: " + f.getInventari().getBoles());
+				Label daus = new Label("Dados: " + f.getInventari().getDausEspecials());
+				
 				Label cpuLabel = new Label("(CPU)");
 				cpuLabel.getStyleClass().add("cpu-label");
-				card.getChildren().add(cpuLabel);
+				
+				inv.getChildren().addAll(peces, boles, daus, cpuLabel);
+				card.getChildren().add(inv);
 			}
 
 			// Posicionar en la cuadrícula 2x3
@@ -1192,14 +1203,24 @@ public class PantallaJuego {
 			return;
 		}
 
-		// ── Lógica de Salto de Turno (Bloqueo) ──
-		if (actual instanceof model.entitats.Foca f && f.getBloqueix() > 0) {
-			int restan = f.getBloqueix() - 1;
-			f.setBloqueix(restan);
-			// El soborno ahora se gestiona internamente por tiempo independiente
-			registrarEvento(f.getNickname() + " está bloqueada y no se mueve. Turnos restantes: " + restan, "log-info");
-			finalizarTurno(f);
-			return;
+		// ── INICIO TOMA DE DECISIONES DE LA FOCA (IA) Y SALTO DE TURNO ──
+		if (actual instanceof model.entitats.Foca f) {
+			
+			// 1. La foca analiza el tablero y decide si usar algún objeto (Dados/Bolas) táctico.
+			Dau dIa = f.jugarTurnoTactico(p);
+			if (dIa != null) {
+				dauSeleccionat = dIa; // Se vincula el dado inteligente para que sea tirado después.
+			}
+			
+			// 2. Si después de todo la foca estuviese bajo efecto de hielo u oso (bloqueada), se detiene aquí.
+			if (f.getBloqueix() > 0) {
+				int restan = f.getBloqueix() - 1;
+				f.setBloqueix(restan);
+				registrarEvento(f.getNickname() + " está bloqueada y no se mueve. Turnos restantes: " + restan, "log-info");
+				finalizarTurno(f);
+				return;
+			}
+		// ── FIN LÓGICA IA FOCA ──
 		} else if (actual instanceof Pinguino && actual.getTornsBloquejat() > 0) {
 			int restan = actual.getTornsBloquejat() - 1;
 			actual.setTornsBloquejat(restan);
@@ -1311,6 +1332,23 @@ public class PantallaJuego {
 	        // Girar el personaje según la dirección horizontal
 	        if (stepDx > 0) pieza.setScaleX(1.0);
 	        else if (stepDx < 0) pieza.setScaleX(-1.0);
+	        
+	        // -------------------------------------------------------------------------
+	        // --- Detección de colisiones en ruta EXCLUSIVA para la Foca ---
+	        // Mientras la foca hace la animación de moverse X espacios, cada vez que llegue "virtualmente"
+	        // a una casilla de transición (pB != newPos), comprueba si ese espacio intercepta a un jugador.
+	        // Si lo intercepta (Paso por encima) -> Aplasta al pingüino y le roba la mitad de los items.
+	        if (j instanceof model.entitats.Foca fActual && pB != newPos) {
+	        	for (Jugador evalRival : js) {
+	        		if (evalRival instanceof Pinguino pingRival && evalRival.getPosicio() == pB) {
+	        			// Si está en la misma casilla y NO es la casilla final (newPos), es un pase por encima.
+	        			// La Foca detecta al pingüino y usa "aplastar" para fastidiarle su equipo instantáneamente.
+	        			fActual.aplastarPingu(pingRival);
+	        		}
+	        	}
+	        }
+	        // -------------------------------------------------------------------------
+
 	        Transition jump = new Transition() {
 	            { setCycleDuration(Duration.millis(450)); }
 	            @Override protected void interpolate(double frac) {
@@ -1403,13 +1441,16 @@ public class PantallaJuego {
 	                            // Opción de alimentar a la foca si se tienen peces
 	                            fRival.sobornarFoca(pActual);
 	                            
-	                            fRival.AccionesFoca(pActual, gestorPartida.getPartida(), () -> {
-	                                if (pActual.getPosicio() != posPinguAbans) {
-	                                    animarRetroceso(pActual, posPinguAbans, pActual.getPosicio(), finishTurnCallback);
-	                                } else {
-	                                    finishTurnCallback.run();
-	                                }
-	                            });
+                                // Aplicamos directamente el ataque de "pegar" de la Foca si no fue sobornada previamente.
+                                // Esto enviará al Pingüino al agujero anterior.
+	                            fRival.pegarPingu(pActual, gestorPartida.getPartida());
+                                
+                                // Si "pegarPingu" alteró la posición del jugador atacado, animamos visualmente su retroceso.
+                                if (pActual.getPosicio() != posPinguAbans) {
+                                    animarRetroceso(pActual, posPinguAbans, pActual.getPosicio(), finishTurnCallback);
+                                } else {
+                                    finishTurnCallback.run();
+                                }
 	                        }
 	                    }
 	                }
@@ -1426,13 +1467,15 @@ public class PantallaJuego {
 	                        // Opción de alimentar a la foca para evitar el ataque
 	                        fActual.sobornarFoca(pRival);
 	                        
-	                        fActual.AccionesFoca(pRival, gestorPartida.getPartida(), () -> {
-	                            if (pRival.getPosicio() != posPAbans) {
-	                                animarRetroceso(pRival, posPAbans, pRival.getPosicio(), finishTurnCallback);
-	                            } else {
-	                                finishTurnCallback.run();
-	                            }
-	                        });
+	                        // Aplicamos el ataque en el que la foca le pega al Pingüino con la cola
+	                        fActual.pegarPingu(pRival, gestorPartida.getPartida());
+	                        
+	                        // Si el ataque ha movido al Pingüino (lo ha mandado al agujero), ejecutamos la animación de retroceso.
+                            if (pRival.getPosicio() != posPAbans) {
+                                animarRetroceso(pRival, posPAbans, pRival.getPosicio(), finishTurnCallback);
+                            } else {
+                                finishTurnCallback.run();
+                            }
 	                    }
 	                }
 	            }
