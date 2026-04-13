@@ -10,314 +10,110 @@ import model.core.Partida;
 import java.util.Iterator;
 
 public class Foca extends Jugador {
-<<<<<<< Updated upstream
-=======
-/// ATRIBUTOS
+
 	private boolean soborno;
-	// Usamos 'tornsBloquejat' heredado de Jugador para el bloqueo
 	private int[] sobornosJugadores = new int[10]; // Turnos de seguridad para cada ID del 0 al 9
->>>>>>> Stashed changes
+	private model.items.Inventari inventari;
 
-    /// ATRIBUTOS
-	private boolean soborno;
-    private int bloqueix;
-
-    /// CONSTRUCTOR
-	// CONSTRUCTOR CON TODOS LOS PARÁMETROS
 	public Foca(String nickname, String color, boolean soborno, int bloqueix) {
-<<<<<<< Updated upstream
-        super(nickname, color); // LLAMADA OBLIGATORIA
-        this.soborno = soborno;
-        this.bloqueix = bloqueix;
-    }
-=======
-		super(nickname, color); // LLAMADA OBLIGATORIA
+		super(nickname, color); 
 		this.soborno = soborno;
 		this.setTornsBloquejat(bloqueix);
+		this.inventari = new model.items.Inventari();
 	}
 	
-	// CONSTRUCTOR PARA PONER A LA FOCA SIN SOBORNOS NI BLOQUEOS
 	public Foca(String nickname, String color) {
-		super(nickname, color); // LLAMADA OBLIGATORIA
+		super(nickname, color);
 		this.soborno = false;
 		this.setTornsBloquejat(0);
-	}
->>>>>>> Stashed changes
-
-    // CONSTRUCTOR PARA PONER A LA FOCA SIN SOBORNOS NI BLOQUEOS
-    public Foca(String nickname, String color) {
-        super(nickname, color); // LLAMADA OBLIGATORIA
-        this.soborno = false;
-        this.bloqueix = 0;
-    }
-
-    /// GETTERS Y SETTERS
-	public boolean isSoborno() {
-        return soborno;
-    }
-
-    public void setSoborno(boolean soborno) {
-        this.soborno = soborno;
-    }
-
-<<<<<<< Updated upstream
-    public int getBloqueix() {
-        return bloqueix;
-    }
-
-    public void setBloqueix(int bloqueix) {
-        this.bloqueix = bloqueix;
-    }
-=======
-	public int getBloqueix() {
-		return this.getTornsBloquejat();
+		this.inventari = new model.items.Inventari();
 	}
 
-	public void setBloqueix(int bloqueix) {
-		this.setTornsBloquejat(bloqueix);
-	}
->>>>>>> Stashed changes
+	public boolean isSoborno() { return soborno; }
+	public void setSoborno(boolean soborno) { this.soborno = soborno; }
+	public int getBloqueix() { return this.getTornsBloquejat(); }
+	public void setBloqueix(int bloqueix) { this.setTornsBloquejat(bloqueix); }
+	public model.items.Inventari getInventari() { return inventari; }
 
-    /// MÉTODOS
-	public void aplastarPingu(Pinguino p) { // La foca aplasta al pingüino que toque
-<<<<<<< Updated upstream
-        // Si NO ha sido sobornada y NO está bloqueada, ataca
-        if (!this.soborno && this.bloqueix == 0) {
-            int deleteBoles = p.getInventari().getBoles() / 2;
-            int deletePeixos = p.getInventari().getPeixos() / 2;
-            int deleteDaus = p.getInventari().getDausEspecials() / 2;
-            
-            System.out.println("¡A " + p.getNickname() + " le van a dar un buen repaso y va a perder la mitad de su inventario!");
-=======
-		// Comprobamos si este pingüino tiene protección activa en nuestro array
+	// Gestión temporal de objetos análoga a la del Pingüino
+	public void usarItem(model.items.Item i) { inventari.usarItem(i); }
+	public void agregarItem(model.items.Item i) { inventari.afegirItem(i); }
+	public void retirarItem(model.items.Item i) { inventari.tirarItem(i); }
+
+	public void aplastarPingu(Pinguino p) {
 		if (p.getIdPartida() < sobornosJugadores.length && sobornosJugadores[p.getIdPartida()] <= 0 && getBloqueix() == 0) {
-			int itemB = p.getInventari().getBoles();
-			int itemP = p.getInventari().getPeixos();
-			int itemD = p.getInventari().getDausEspecials();
-			System.out.println("¡A " + p.getNickname() + " le van a dar un buen repaso y va a perder todo esto!");
+			int deleteBoles = p.getInventari().getBoles() / 2;
+			int deletePeixos = p.getInventari().getPeixos() / 2;
+			int deleteDaus = p.getInventari().getDausEspecials() / 2;
 			
-			// Eliminamos todas las bolas del aplastado (pingu)
-			for (int i = 0; i < itemB; i++) {
-				p.getInventari().eliminarItemsPerTipus(BolaNeu.class);
-			}
->>>>>>> Stashed changes
+			System.out.println("¡A " + p.getNickname() + " le van a quitar la mitad del inventario!");
+			if (deleteBoles > 0) p.getInventari().retirarQuantitat(BolaNeu.class, deleteBoles);
+			if (deletePeixos > 0) p.getInventari().retirarQuantitat(Peix.class, deletePeixos);
+			if (deleteDaus > 0) p.getInventari().retirarQuantitat(model.items.Dau.class, deleteDaus);
 
-            if (deleteBoles > 0) p.getInventari().retirarQuantitat(BolaNeu.class, deleteBoles);
-            if (deletePeixos > 0) p.getInventari().retirarQuantitat(Peix.class, deletePeixos);
-            if (deleteDaus > 0) p.getInventari().retirarQuantitat(model.items.Dau.class, deleteDaus);
+			vista.PantallaJuego.registrarEventoEstatico("¡Foca aplasta a " + p.getNickname() + " y le roba la mitad de los ítems!", "log-warning");
+		}
+	}
 
-            vista.PantallaJuego.registrarEventoEstatico("¡" + p.getNickname() + " ha sido aplastado por la foca y ha perdido la mitad de sus ítems!", "log-warning");
-            System.out.println("=====================================================");
-        }
-    }
-
-<<<<<<< Updated upstream
-    public void pegarPingu(Pinguino jugador, Partida partida) { // La foca atacará al pingüino que toque
-        // Si ha sido sobornada o está bloqueada, no ataca
-        if (this.soborno || this.bloqueix > 0) {
-            System.out.println("La foca " + this.getNickname() + " está tranquila o bloqueada.");
-            return;
-        }
-=======
-	public void pegarPingu(Pinguino jugador, Partida partida) { // La foca atacará al pingüino que toque
-		// Comprobamos si este pingüino tiene protección activa en nuestro array
+	public void pegarPingu(Pinguino jugador, Partida partida) {
 		if ((jugador.getIdPartida() < sobornosJugadores.length && sobornosJugadores[jugador.getIdPartida()] > 0) || getBloqueix() > 0) {
-			System.out.println("La foca " + this.getNickname() + " está tranquila o bloqueada para " + jugador.getNickname());
+			System.out.println("La foca " + this.getNickname() + " está tranquila para " + jugador.getNickname());
 			return;
 		}
->>>>>>> Stashed changes
 
-        // Si no está tranquila, ataca directamente
-        aplicarPegarPingu(jugador, partida);
-    }
-
-    private void aplicarPegarPingu(Pinguino jugador, Partida partida) {
-        // Si no tiene peces, la foca le pega y lo manda a un agujero anterior.
-        int posActual = jugador.getPosicio();
-        int foratAnterior = -1;
-        Casella casellaDestino = null;
-
-<<<<<<< Updated upstream
-        for (Casella casella : partida.getTaulell().getCaselles()) {
-            if (casella instanceof model.caselles.Forat && casella.getPosicio() < posActual) {
-                if (casella.getPosicio() > foratAnterior) {
-                    foratAnterior = casella.getPosicio();
-                    casellaDestino = casella;
-                }
-            }
-        }
-=======
-	        if (casellaDestino != null) {
-	            jugador.setPosicio(casellaDestino.getPosicio()); // Movemos al jugador a su posición absoluta
-	            System.out.println("El jugador no tenía peces, ha sido enviado al agujero anterior.");
-	            vista.PantallaJuego.registrarEventoEstatico("¡" + jugador.getNickname() + " ha sido golpeado y enviado al agujero anterior!", "log-warning");
-	        } else {
-	            System.out.println("El jugador no tenía peces, pero no hay ningún agujero anterior.");
-	            vista.PantallaJuego.registrarEventoEstatico("¡La foca ha golpeado a " + jugador.getNickname() + ", pero no hay agujeros donde caer!", "log-info");
-	        }
+		aplicarPegarPingu(jugador, partida);
 	}
-	
-	public void sobornarFoca(Pinguino p) { // Permite sobornar a la foca
-		// Las focas no se pueden sobornar entre ellas (por seguridad, aunque el parámetro sea Pinguino)
+
+	private void aplicarPegarPingu(Pinguino jugador, Partida partida) {
+		int posActual = jugador.getPosicio();
+		int foratAnterior = -1;
+		Casella casellaDestino = null;
+
+		for (Casella casella : partida.getTaulell().getCaselles()) {
+			if (casella instanceof Forat && casella.getPosicio() < posActual) {
+				if (casella.getPosicio() > foratAnterior) {
+					foratAnterior = casella.getPosicio();
+					casellaDestino = casella;
+				}
+			}
+		}
+
+		if (casellaDestino != null) {
+			jugador.setPosicio(casellaDestino.getPosicio()); 
+			vista.PantallaJuego.registrarEventoEstatico("¡" + jugador.getNickname() + " ha sido golpeado por Foca y enviado al agujero anterior!", "log-warning");
+		} else {
+			vista.PantallaJuego.registrarEventoEstatico("¡La foca golpeó a " + jugador.getNickname() + " pero no hay agujero donde caer!", "log-info");
+		}
+	}
+
+	public void sobornarFoca(Pinguino p) {
 		if ((Object)p instanceof Foca) return;
->>>>>>> Stashed changes
+		if (this.getBloqueix() > 0) return;
 
-        if (casellaDestino != null) {
-            jugador.setPosicio(casellaDestino.getPosicio()); // Movemos al jugador a su posición absoluta
-            System.out.println("El jugador no tenía peces, ha sido enviado al agujero anterior.");
-            vista.PantallaJuego.registrarEventoEstatico("¡" + jugador.getNickname() + " ha sido golpeado y enviado al agujero anterior!", "log-warning");
-        } else {
-            System.out.println("El jugador no tenía peces, pero no hay ningún agujero anterior.");
-            vista.PantallaJuego.registrarEventoEstatico("¡La foca ha golpeado a " + jugador.getNickname() + ", pero no hay agujeros donde caer!", "log-info");
-        }
-    }
+		if (p.getInventari().getPeixos() >= 1) {
+			javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+			vista.PantallaJuego.estilarAlerta(alert); 
+			alert.setTitle("¡Encuentro con la foca!");
+			alert.setHeaderText("¡Una foca te corta el paso!");
+			alert.setContentText("Tienes un pez. ¿Quieres usarlo para alimentar a la foca?");
 
-    public void sobornarFoca(Pinguino p) { // Permite sobornar a la foca
-        // Si ha sido alimentada recientemente, no volvemos a preguntar
-        if (this.bloqueix > 0 || this.soborno) {
-            return;
-        }
+			javafx.scene.control.ButtonType btnYes = new javafx.scene.control.ButtonType("Sí, alimentar (2 turnos)");
+			javafx.scene.control.ButtonType btnNo = new javafx.scene.control.ButtonType("No, arriesgarse");
+			alert.getButtonTypes().setAll(btnYes, btnNo);
 
-<<<<<<< Updated upstream
-        if (p.getInventari().getPeixos() >= 1) {
-            // Preguntamos al usuario si quiere usar el pez para sobornar/alimentar
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
-            vista.PantallaJuego.estilarAlerta(alert); // Aplicamos el estilo polar
-            alert.setTitle("¡Encuentro con la foca!");
-            alert.setHeaderText("¡Una foca te corta el paso!");
-            alert.setContentText("Tienes un pez en el inventario. ¿Quieres usarlo para alimentar a la foca?");
-
-            javafx.scene.control.ButtonType btnYes = new javafx.scene.control.ButtonType("Sí, alimentar (2 turnos)");
-            javafx.scene.control.ButtonType btnNo = new javafx.scene.control.ButtonType("No, arriesgarse");
-            alert.getButtonTypes().setAll(btnYes, btnNo);
-=======
 			java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
-			
+
 			if (result.isPresent() && result.get() == btnYes) {
-				System.out.println(p.getNickname() + " ha alimentado a la foca " + this.getNickname());
-				
-				// Guardamos los turnos de protección en la posición del array correspondiente al ID del jugador
 				if (p.getIdPartida() < sobornosJugadores.length) {
 					sobornosJugadores[p.getIdPartida()] = 2; 
 				}
-				
 				this.soborno = true;
-				p.getInventari().eliminarItemsPerTipus(model.items.Peix.class); // Se le resta un peix
-				vista.PantallaJuego.registrarEventoEstatico(p.getNickname() + " ha alimentado a la foca. ¡Estará a salvo 2 turnos!", "log-info");
+				p.getInventari().eliminarItemsPerTipus(model.items.Peix.class);
+				vista.PantallaJuego.registrarEventoEstatico(p.getNickname() + " ha alimentado a la foca. ¡A salvo 2 turnos!", "log-info");
 			}
-		} else {
-			System.out.println("No tienes peces para alimentar a la foca.");
 		}
 	}
 
-	// Mediante probabilidades y de tus acciones la foca querrá aplastarte o pegarte
-	public void AccionesFoca(Pinguino p, Partida partida, Runnable onComplete) {
-		// Comprobamos si el pingüino que ha chocado con nosotros está en el array de protección
-		if ((p.getIdPartida() < sobornosJugadores.length && sobornosJugadores[p.getIdPartida()] > 0) || this.getTornsBloquejat() > 0) {
-			vista.PantallaJuego.registrarEventoEstatico("La foca " + this.getNickname() + " está tranquila con " + p.getNickname() + " o bloqueada.", "log-info");
-			if (onComplete != null) onComplete.run();
-			return;
-		}
->>>>>>> Stashed changes
-
-            java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
-
-            if (result.isPresent() && result.get() == btnYes) {
-                System.out.println(p.getNickname() + " ha alimentado a la foca " + this.getNickname());
-                this.soborno = true;
-                this.bloqueix = 2; // Queda bloqueada por 2 turnos
-                p.getInventari().eliminarItemsPerTipus(Peix.class); // Se le resta un peix
-            }
-        } else {
-            System.out.println("No tienes peces para alimentar a la foca.");
-        }
-    }
-
-    // Mediante probabilidades y de tus acciones la foca querrá aplastarte o pegarte
-    public void AccionesFoca(Pinguino p, Partida partida, Runnable onComplete) {
-        if (this.soborno || this.bloqueix > 0) {
-            vista.PantallaJuego.registrarEventoEstatico("La foca " + this.getNickname() + " está tranquila o bloqueada y no atacará.", "log-info");
-            if (onComplete != null) {
-                onComplete.run();
-            }
-            return;
-        }
-
-        int totalItems = p.getInventari().getBoles() + p.getInventari().getPeixos() + p.getInventari().getDausEspecials();
-
-        java.util.Random rand = new java.util.Random();
-
-        int chancePegar = 50;
-        int chanceAplastar = 50;
-
-        // Determinar probabilidades según el contexto
-        if (p.getPosicio() >= 40) {
-            chancePegar = 10;
-            chanceAplastar = 25;
-        } else if (totalItems > 3) {
-            chancePegar = 25;
-            chanceAplastar = 75;
-        }
-
-        // Si las probabilidades son iguales (50/50), activamos la Ruleta Malvada
-        if (chancePegar == 50 && chanceAplastar == 50) {
-            int actionIndex = rand.nextInt(2); // 0 = Pegar, 1 = Aplastar
-            vista.PantallaJuego.mostrarRuletaMalvadaEstatico(p, actionIndex, () -> {
-                if (actionIndex == 0) {
-                    pegarPingu(p, partida);
-                } else {
-                    aplastarPingu(p);
-                }
-                if (onComplete != null) {
-                    onComplete.run();
-                }
-            });
-        } else {
-            // Se hace la acción directamente con un mensaje siguiendo las probabilidades
-            int roll = rand.nextInt(100);
-            if (roll < chanceAplastar) {
-                if (totalItems > 3) {
-                    vista.PantallaJuego.registrarEventoEstatico("Foca: \"Veo que tienes muchas cosas... ¡Diles adios!\"", "log-warning");
-                } else {
-                    vista.PantallaJuego.registrarEventoEstatico("¡La foca ha decidido APLASTAR a " + p.getNickname() + "!", "log-warning");
-                }
-                aplastarPingu(p);
-            } else {
-                if (p.getPosicio() >= 40) {
-                    vista.PantallaJuego.registrarEventoEstatico("Foca: \"Ja! Creiste que ibas a ganar. ¡pues no mientras este aqui!\"", "log-warning");
-                } else {
-                    vista.PantallaJuego.registrarEventoEstatico("¡La foca ha decidido PEGAR a " + p.getNickname() + "!", "log-warning");
-                }
-                pegarPingu(p, partida);
-            }
-            if (onComplete != null) {
-                onComplete.run();
-            }
-        }
-    }
-
-    /**
-     * Lógica de reacción cuando la foca cae en una casilla de Oso. Tiene un 50%
-     * de probabilidades de escapar o volver al inicio.
-     */
-    public void reaccionarAOs(Partida partida) {
-        java.util.Random rand = new java.util.Random();
-        if (rand.nextInt(100) < 50) {
-            // Escapa (50%)
-            System.out.println("La foca " + this.getNickname() + " ha esquivado el ataque del oso!");
-            vista.PantallaJuego.registrarEventoEstatico("La foca " + this.getNickname() + " ha conseguido escapar del oso!", "log-info");
-        } else {
-            // No escapa (50%)
-            this.setPosicio(0);
-            System.out.println("La foca " + this.getNickname() + " ha sido cazada por el oso y vuelve al inicio.");
-            vista.PantallaJuego.registrarEventoEstatico("La foca " + this.getNickname() + " ha sido atacada por un oso y vuelve al inicio!", "log-warning");
-        }
-    }
-
-	/**
-	 * Decrementa los contadores de soborno de todos los jugadores.
-	 * Se debe llamar al inicio del turno de la foca.
-	 */
 	public void actualizarSobornos() {
 		boolean algunSobornoActivo = false;
 		for (int i = 0; i < sobornosJugadores.length; i++) {
@@ -328,8 +124,98 @@ public class Foca extends Jugador {
 				}
 			}
 		}
-		// Sincronizar el boolean soborno (true si el array aún tiene alguna protección activa)
 		this.soborno = algunSobornoActivo;
 	}
 
+	public void reaccionarAOs(Partida partida) {
+		java.util.Random rand = new java.util.Random();
+		if (rand.nextInt(100) < 50) {
+			vista.PantallaJuego.registrarEventoEstatico("¡La foca " + this.getNickname() + " esquiva al oso!", "log-info");
+		} else {
+			this.setPosicio(0);
+			vista.PantallaJuego.registrarEventoEstatico("¡La foca " + this.getNickname() + " ha sido cazada por un oso y vuelve al inicio!", "log-warning");
+		}
+	}
+
+	// =========================================================
+	// INTELIGENCIA ARTIFICIAL DE LA FOCA DURANTE SU TURNO
+	// =========================================================
+	/**
+	 * Evalúa el estado del tablero al iniciar el turno de la Foca y decide si debe usar un objeto 
+	 * táctico de su inventario (Dado rápido para avanzar, Dado lento o Bola de nieve para atacar).
+	 * Su prioridad número 1 es ganar, así que intentará avanzar rápidamente si se queda atrás.
+	 * Su prioridad secundaria es molestar a los jugadores que estén cerca o desprotegidos.
+	 * 
+	 * @param partida La partida actual para obtener la distancia y posición de los rivales.
+	 * @return Un objeto Dau (Dado Especial) si la IA decide usarlo, o null si usará el dado normal.
+	 */
+	public Dau jugarTurnoTactico(Partida partida) {
+		actualizarSobornos(); // Refrescar los turnos de protección antes de pensar
+		
+		if (this.getTornsBloquejat() > 0) return null; // Si ella misma está bloqueada, no hace nada
+		
+		int maxDistanciaLider = 0;
+		Pinguino elMasCercano = null;
+		int minDistanciaCercano = 999;
+		
+		// 1. Escaneo del entorno táctico
+		for (Jugador j : partida.getJugadors()) {
+			if (j instanceof Pinguino) {
+				Pinguino ping = (Pinguino) j;
+				
+				// Descartar a jugadores protegidos por el arreglo de sobornos
+				if (ping.getIdPartida() < sobornosJugadores.length && sobornosJugadores[ping.getIdPartida()] > 0) continue; 
+				
+				if (ping.getPosicio() > maxDistanciaLider) {
+					maxDistanciaLider = ping.getPosicio();
+				}
+				
+				// Calcula la distancia hacia adelante (sólo objetivos frente a la foca)
+				int dist = ping.getPosicio() - this.getPosicio();
+				if (dist > 0 && dist < minDistanciaCercano) {
+					minDistanciaCercano = dist;
+					elMasCercano = ping;
+				}
+			}
+		}
+		
+		// 2. Modo: Acelerar (Prioridad Ganar)
+		// Si el líder está sacando demasiada ventaja (>10 casillas), gastamos inventario para atrapar
+		if (this.getPosicio() < maxDistanciaLider - 10 && inventari.getDausEspecials() > 0) {
+			for(Item item : inventari.getLlista()) {
+				if(item instanceof Dau && ((Dau)item).getNom().equals("Dado Rápido")) {
+					Dau d = (Dau) item;
+					inventari.usarItem(d);
+					if (d.getQuantitat() <= 0) inventari.eliminarItem(d);
+					vista.PantallaJuego.registrarEventoEstatico("La Foca ha activado un Dado Rápido para ganar ventaja.", "log-warning");
+					return d;
+				}
+			}
+		}
+		
+		// 3. Modo: Embestida (Prioridad Atacar de cerca)
+		// Si un objetivo clave está muy cerca (a tiro de piedra, max 3 casillas), forzamos aterrizaje con dado lento
+		if (minDistanciaCercano > 0 && minDistanciaCercano <= 3 && inventari.getDausEspecials() > 0) {
+			for(Item item : inventari.getLlista()) {
+				if(item instanceof Dau && ((Dau)item).getNom().equals("Dado Lento")) {
+					Dau d = (Dau) item;
+					inventari.usarItem(d);
+					if (d.getQuantitat() <= 0) inventari.eliminarItem(d);
+					vista.PantallaJuego.registrarEventoEstatico("¡La Foca activa un Dado Lento para acechar a " + elMasCercano.getNickname() + "!", "log-warning");
+					return d;
+				}
+			}
+		}
+		
+		// 4. Modo: Ataque a distancia (Prioridad Fastidiar)
+		// Lanza hielo al jugador más cercano en su rango sin piedad
+		if (minDistanciaCercano > 0 && minDistanciaCercano <= 4 && inventari.getBoles() > 0 && elMasCercano != null) {
+			inventari.retirarQuantitat(BolaNeu.class, 1);
+			elMasCercano.mourePosicio(-2); // Efecto básico bola nieve en retroceso
+			vista.PantallaJuego.registrarEventoEstatico("¡La foca lanza Bola de Nieve a " + elMasCercano.getNickname() + "!", "log-warning");
+		}
+		
+		// Si no valía la pena nada, tirará el dado estándar.
+		return null; 
+	}
 }
