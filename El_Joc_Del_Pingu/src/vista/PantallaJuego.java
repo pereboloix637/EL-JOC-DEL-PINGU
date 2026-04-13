@@ -898,7 +898,7 @@ public class PantallaJuego {
 		rouletteContainer.setAlignment(javafx.geometry.Pos.CENTER);
 		rouletteContainer.setMaxSize(600, 600);
 		
-		Label title = new Label("¡RULETA MALVADA!");
+		Label title = new Label("¡FOCA ATACA!");
 		title.getStyleClass().add("big-text-mini");
 		title.setStyle("-fx-text-fill: #ff0044; -fx-font-size: 50px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
 		
