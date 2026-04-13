@@ -49,27 +49,17 @@ public class Foca extends Jugador {
 	public void aplastarPingu(Pinguino p) { // La foca aplasta al pingüino que toque
         // Si NO ha sido sobornada y NO está bloqueada, ataca
         if (!this.soborno && this.bloqueix == 0) {
-            int itemB = p.getInventari().getBoles();
-            int itemP = p.getInventari().getPeixos();
-            int itemD = p.getInventari().getDausEspecials();
-            System.out.println("¡A " + p.getNickname() + " le van a dar un buen repaso y va a perder todo esto!");
+            int deleteBoles = p.getInventari().getBoles() / 2;
+            int deletePeixos = p.getInventari().getPeixos() / 2;
+            int deleteDaus = p.getInventari().getDausEspecials() / 2;
+            
+            System.out.println("¡A " + p.getNickname() + " le van a dar un buen repaso y va a perder la mitad de su inventario!");
 
-            // Eliminamos todas las bolas del aplastado (pingu)
-            for (int i = 0; i < itemB; i++) {
-                p.getInventari().eliminarItemsPerTipus(BolaNeu.class);
-            }
+            if (deleteBoles > 0) p.getInventari().retirarQuantitat(BolaNeu.class, deleteBoles);
+            if (deletePeixos > 0) p.getInventari().retirarQuantitat(Peix.class, deletePeixos);
+            if (deleteDaus > 0) p.getInventari().retirarQuantitat(model.items.Dau.class, deleteDaus);
 
-            // Eliminamos todos los peces del aplastado (pingu)
-            for (int i = 0; i < itemP; i++) {
-                p.getInventari().eliminarItemsPerTipus(Peix.class);
-            }
-
-            // Eliminamos todos los dados especiales del aplastado (pingu)
-            for (int i = 0; i < itemD; i++) {
-                p.getInventari().eliminarItemsPerTipus(model.items.Dau.class);
-            }
-
-            vista.PantallaJuego.registrarEventoEstatico("¡" + p.getNickname() + " ha sido aplastado por la foca y ha perdido todos sus ítems!", "log-warning");
+            vista.PantallaJuego.registrarEventoEstatico("¡" + p.getNickname() + " ha sido aplastado por la foca y ha perdido la mitad de sus ítems!", "log-warning");
             System.out.println("=====================================================");
         }
     }

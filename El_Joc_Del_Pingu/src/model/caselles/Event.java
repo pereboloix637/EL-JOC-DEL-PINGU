@@ -43,7 +43,17 @@ public class Event extends Casella {
 		if (!(jugador instanceof Pinguino)) return;
 		Pinguino pingui = (Pinguino) jugador;
 
-		int index = new Random().nextInt(4);
+		int roll = new Random().nextInt(100);
+		int index;
+		if (roll < 25) {
+			index = 0; // 25% Peix
+		} else if (roll < 50) {
+			index = 1; // 25% Boles
+		} else if (roll < 90) {
+			index = 3; // 40% Dau Lent (probabilitat alta)
+		} else {
+			index = 2; // 10% Dau Ràpid (probabilitat baixa)
+		}
 		
 		// En lugar de aplicar directamente, pedimos a la vista que muestre la ruleta
 		// y pase un callback para aplicar el premio al terminar.

@@ -133,6 +133,7 @@ public class GestorTaulell {
 	    int[] comptadors = new int[6];
 	    int[] ultimaPosicio = {-10, -10, -10, -10, -10, -10};
 	    int separacioMinima = 4;
+	    int casellesEspecialsConsecutives = 0;
 
 	    for (int i = 0; i < 50; i++) {
 	        char c = seed.charAt(i);
@@ -151,6 +152,21 @@ public class GestorTaulell {
 	                return false; // Dos especials del mateix tipus massa propers
 	            }
 	            ultimaPosicio[type] = i;
+	            
+	            casellesEspecialsConsecutives++;
+	            if (casellesEspecialsConsecutives > 2) {
+	                return false; // Mes de 2 caselles especials consecutives
+	            }
+	            
+	            // Validem combinacions letals: no es poden posar 1(Os), 3(Forat), 5(Trencadis) junts
+	            if (i > 0) {
+	                int prevType = Character.getNumericValue(seed.charAt(i - 1));
+	                if ((type == 1 || type == 3 || type == 5) && (prevType == 1 || prevType == 3 || prevType == 5)) {
+	                    return false;
+	                }
+	            }
+	        } else {
+	            casellesEspecialsConsecutives = 0;
 	        }
 	    }
 
@@ -201,27 +217,63 @@ public class GestorTaulell {
 	    int[] comptadorsEspecial = new int[6]; // 1-5
 	    int[] ultimaPosicio = {-10, -10, -10, -10, -10, -10};
 	    int separacioMinima = 4;
+	    int casellesEspecialsConsecutives = 0;
 
 	    for (int i = 0; i < 50; i++) {
 	        if (i < 4 || i >= 48) {
 	            seed.append('0');
+	            casellesEspecialsConsecutives = 0;
 	        } else {
 	            boolean afegit = false;
 	            int intentsCasella = 0;
-	            while (!afegit && intentsCasella < 20) {
+	            while (!afegit && intentsCasella < 30) {
 	                intentsCasella++;
-	                // Probabilitats ajustades: 40% normal, 12% cadascun dels 5 especials (60% total especial)
 	                int roll = random.nextInt(100);
-	                int type;
-	                if (roll < 40) type = 0;
-	                else if (roll < 52) type = 1;
-	                else if (roll < 64) type = 2;
-	                else if (roll < 76) type = 3;
-	                else if (roll < 88) type = 4;
-	                else type = 5;
+	                int type = 0;
+
+	                // Zones de dificultat
+	                if (i < 16) {
+	                    // Zona 1: Mes fàcil, més trineus i events
+	                    if (roll < 45) type = 0;
+	                    else if (roll < 50) type = 1; // 5%
+	                    else if (roll < 65) type = 2; // 15%
+	                    else if (roll < 70) type = 3; // 5%
+	                    else if (roll < 85) type = 4; // 15%
+	                    else type = 5; // 15%
+	                } else if (i < 36) {
+	                    // Zona 2: Probabilitats estàndard
+	                    if (roll < 40) type = 0;
+	                    else if (roll < 52) type = 1;
+	                    else if (roll < 64) type = 2;
+	                    else if (roll < 76) type = 3;
+	                    else if (roll < 88) type = 4;
+	                    else type = 5;
+	                } else {
+	                    // Zona 3: Final difícil, més ossos i forats
+	                    if (roll < 35) type = 0;
+	                    else if (roll < 50) type = 1; // 15%
+	                    else if (roll < 60) type = 2; // 10%
+	                    else if (roll < 75) type = 3; // 15%
+	                    else if (roll < 85) type = 4; // 10%
+	                    else type = 5; // 15%
+	                }
+
+	                // Limitem caselles consecutives per forçar una normal
+	                if (casellesEspecialsConsecutives >= 2) {
+	                    type = 0;
+	                } else if (type == 1 || type == 3 || type == 5) {
+	                    // Evitar combinacions letals (1, 3, 5 juntos)
+	                    if (i > 0) {
+	                        int prevType = Character.getNumericValue(seed.charAt(i - 1));
+	                        if (prevType == 1 || prevType == 3 || prevType == 5) {
+	                            continue; // Tornem a fer roll
+	                        }
+	                    }
+	                }
 
 	                if (type == 0) {
 	                    seed.append('0');
+	                    casellesEspecialsConsecutives = 0;
 	                    afegit = true;
 	                } else {
 	                    // Comprovar límits (màxim 5) i separació
@@ -229,12 +281,16 @@ public class GestorTaulell {
 	                        seed.append(type);
 	                        comptadorsEspecial[type]++;
 	                        ultimaPosicio[type] = i;
+	                        casellesEspecialsConsecutives++;
 	                        afegit = true;
 	                    }
 	                }
 	            }
-	            // Si no s'ha pogut afegir res després de molts intents (estrany), posem una normal
-	            if (!afegit) seed.append('0');
+	            // Si no s'ha pogut afegir res després de molts intents, posem una normal
+	            if (!afegit) {
+	                seed.append('0');
+	                casellesEspecialsConsecutives = 0;
+	            }
 	        }
 	    }
 	    return seed.toString();
