@@ -87,10 +87,14 @@ public class PantallaJuego {
 	private MenuItem menuFullScreen;
 	@FXML
 	private MenuItem quitGame;
+	@FXML
+	private MenuItem menuAutoPlay;
+
+	// Flag de modo auto-play (el jugador humano juega solo automáticamente)
+	private boolean autoPlayActivo = false;
+
 	
-	
-	
-	
+
 	// Buttons
 	@FXML
 	private Button dado;
@@ -104,6 +108,8 @@ public class PantallaJuego {
 	private Button nieve;
 	@FXML
 	private Button btnPausa;
+	@FXML
+	private Label lblAutoPlaying;
 
 	// Item count labels
 	@FXML
@@ -1091,6 +1097,24 @@ public class PantallaJuego {
 		mostrarVentanaSeed();
 	}
 
+	private void exportarSemillaLogica(String seed) {
+		javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+		fileChooser.setTitle("Exportar Semilla");
+		fileChooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("Archivo de texto (*.txt)", "*.txt"));
+		fileChooser.setInitialFileName("semilla_pingu.txt");
+		
+		java.io.File file = fileChooser.showSaveDialog(boardContainer.getScene().getWindow());
+		
+		if (file != null) {
+			try {
+				java.nio.file.Files.writeString(file.toPath(), seed);
+				registrarEvento("Semilla exportada a: " + file.getName(), "log-info");
+			} catch (Exception e) {
+				registrarEvento("Error al exportar la semilla.", "log-warning");
+			}
+		}
+	}
+
 	private void mostrarVentanaSeed() {
 		GestorTaulell gt = new GestorTaulell();
 		String seed = gt.obtenirSeedTaulell(gestorPartida.getPartida().getTaulell());
@@ -1100,6 +1124,16 @@ public class PantallaJuego {
 		dialog.setTitle("Semilla de la Partida");
 		dialog.setHeaderText("Copia esta semilla para volver a jugar en este tablero:");
 		dialog.setContentText("Semilla:");
+		
+		// Añadir botón de "Exportar a .txt"
+		ButtonType btnExportar = new ButtonType("Exportar a .txt", javafx.scene.control.ButtonBar.ButtonData.LEFT);
+		dialog.getDialogPane().getButtonTypes().add(btnExportar);
+		
+		Button exportButton = (Button) dialog.getDialogPane().lookupButton(btnExportar);
+		exportButton.addEventFilter(ActionEvent.ACTION, event -> {
+			event.consume(); // Evitar que el diálogo se cierre
+			exportarSemillaLogica(seed);
+		});
 		
 		dialog.showAndWait();
 	}
@@ -1162,6 +1196,60 @@ public class PantallaJuego {
 		});
 	}
 
+	@FXML
+	private void handleToggleAutoPlay() {
+		autoPlayActivo = !autoPlayActivo;
+		updateAutoPlayUI();
+		if (autoPlayActivo) {
+			registrarEvento("Auto-Play ACTIVADO. El pingüino jugará solo.", "log-info");
+			// Si ya es el turno de un Pinguino, disparar inmediatamente
+			if (gestorPartida.getPartida().getJugadorActual() instanceof Pinguino) {
+				checkTurnoCPU();
+			}
+		} else {
+			registrarEvento("Auto-Play DESACTIVADO.", "log-info");
+		}
+	}
+
+	private void updateAutoPlayUI() {
+		if (menuAutoPlay == null)
+			return;
+		if (autoPlayActivo) {
+			menuAutoPlay.setText("⏹ Desactivar Auto-Play");
+			menuAutoPlay.setStyle("-fx-text-fill: #e74c3c;");
+			// Mostrar indicador con fade-in
+			if (lblAutoPlaying != null) {
+				lblAutoPlaying.setVisible(true);
+				lblAutoPlaying.setOpacity(0);
+				FadeTransition ft = new FadeTransition(Duration.millis(400), lblAutoPlaying);
+				ft.setToValue(1.0);
+				ft.play();
+				// Pulso continuo para que llame la atención
+				FadeTransition pulse = new FadeTransition(Duration.seconds(1.2), lblAutoPlaying);
+				pulse.setFromValue(1.0);
+				pulse.setToValue(0.35);
+				pulse.setAutoReverse(true);
+				pulse.setCycleCount(FadeTransition.INDEFINITE);
+				lblAutoPlaying.setUserData(pulse);
+				ft.setOnFinished(e -> pulse.play());
+			}
+		} else {
+			menuAutoPlay.setText("▶ Activar Auto-Play");
+			menuAutoPlay.setStyle("-fx-text-fill: #2ecc71;");
+			// Ocultar indicador con fade-out
+			if (lblAutoPlaying != null) {
+				// Detener el pulso si estaba activo
+				if (lblAutoPlaying.getUserData() instanceof FadeTransition pulse) {
+					pulse.stop();
+				}
+				FadeTransition ft = new FadeTransition(Duration.millis(400), lblAutoPlaying);
+				ft.setToValue(0.0);
+				ft.setOnFinished(e -> lblAutoPlaying.setVisible(false));
+				ft.play();
+			}
+		}
+	}
+
 
 	// Button actions
 	@FXML
@@ -1181,14 +1269,29 @@ public class PantallaJuego {
 		pausaAlert.setHeaderText("Juego en Pausa");
 		pausaAlert.setContentText("¿Qué deseas hacer?");
 
-		ButtonType btnContinuar = new ButtonType("Continuar");
-		ButtonType btnMenu = new ButtonType("Ir al Menú");
-		pausaAlert.getButtonTypes().setAll(btnContinuar, btnMenu);
+		String autoPlayBtnText = autoPlayActivo
+				? "⏹ Desactivar Auto-Play"
+				: "▶ Activar Auto-Play";
+
+		ButtonType btnContinuar  = new ButtonType("Continuar");
+		ButtonType btnAutoPlay   = new ButtonType(autoPlayBtnText);
+		ButtonType btnMenu       = new ButtonType("Ir al Menú");
+		pausaAlert.getButtonTypes().setAll(btnContinuar, btnAutoPlay, btnMenu);
+
+		// Colorear el botón de auto-play después de que el diálogo cree los nodos
+		pausaAlert.getDialogPane().lookupButton(btnAutoPlay).setStyle(
+				autoPlayActivo
+						? "-fx-text-fill: #e74c3c; -fx-font-weight: bold;"
+						: "-fx-text-fill: #2ecc71; -fx-font-weight: bold;"
+		);
 
 		pausaAlert.showAndWait().ifPresent(result -> {
 			if (result == btnMenu) {
 				handleGoToMenu();
+			} else if (result == btnAutoPlay) {
+				handleToggleAutoPlay();
 			} else {
+				// "Continuar" o cierre directo
 				actualizarUI();
 			}
 		});
@@ -1401,12 +1504,8 @@ public class PantallaJuego {
 	                                
 	                                mostrarOverlayBatalla(() -> {
 	                                    pActual.gestionarBatalla(pRival);
-	                                    Alert batallaAlert = new Alert(AlertType.INFORMATION);
-	                                    estilar(batallaAlert);
-	                                    batallaAlert.setTitle("Resultado de la Batalla");
-	                                    batallaAlert.setHeaderText("¡Combate de bolas de nieve!");
-	                                    
-	                                    String resultMsg = "";
+
+	                                    String resultMsg;
 	                                    if (pActual.getPosicio() < posJ1Abans) {
 	                                        resultMsg = pRival.getNickname() + " ¡gana! " + pActual.getNickname() + " retrocede.";
 	                                    } else if (pRival.getPosicio() < posJ2Abans) {
@@ -1414,21 +1513,36 @@ public class PantallaJuego {
 	                                    } else {
 	                                        resultMsg = "¡Empate! Ambos pierden todas las bolas de nieve.";
 	                                    }
-	                                    batallaAlert.setContentText(resultMsg);
-	                                    batallaAlert.showAndWait();
+	                                    registrarEvento("Batalla: " + resultMsg, "log-warning");
 
-	                                    if (pActual.getPosicio() != posJ1Abans) {
-	                                        animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), () -> {
-	                                            if (pRival.getPosicio() != posJ2Abans) {
-	                                                animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
-	                                            } else {
-	                                                finishTurnCallback.run();
-	                                            }
-	                                        });
-	                                    } else if (pRival.getPosicio() != posJ2Abans) {
-	                                        animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
+	                                    // En auto-play se omite el diálogo de resultado; en modo normal se muestra
+	                                    Runnable continueAfterBattle = () -> {
+	                                        if (pActual.getPosicio() != posJ1Abans) {
+	                                            animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), () -> {
+	                                                if (pRival.getPosicio() != posJ2Abans) {
+	                                                    animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
+	                                                } else {
+	                                                    finishTurnCallback.run();
+	                                                }
+	                                            });
+	                                        } else if (pRival.getPosicio() != posJ2Abans) {
+	                                            animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), finishTurnCallback);
+	                                        } else {
+	                                            finishTurnCallback.run();
+	                                        }
+	                                    };
+
+	                                    if (autoPlayActivo) {
+	                                        // Auto-play: primera opción automáticamente sin diálogo
+	                                        continueAfterBattle.run();
 	                                    } else {
-	                                        finishTurnCallback.run();
+	                                        Alert batallaAlert = new Alert(AlertType.INFORMATION);
+	                                        estilar(batallaAlert);
+	                                        batallaAlert.setTitle("Resultado de la Batalla");
+	                                        batallaAlert.setHeaderText("¡Combate de bolas de nieve!");
+	                                        batallaAlert.setContentText(resultMsg);
+	                                        batallaAlert.showAndWait();
+	                                        continueAfterBattle.run();
 	                                    }
 	                                });
 	                            }
@@ -1438,8 +1552,12 @@ public class PantallaJuego {
 	                            registrarEvento(pActual.getNickname() + " ha chocado con la foca " + fRival.getNickname(), "log-warning");
 	                            int posPinguAbans = pActual.getPosicio();
 	                            
-	                            // Opción de alimentar a la foca si se tienen peces
-	                            fRival.sobornarFoca(pActual);
+	                            // En auto-play no se usan ítems: saltamos el soborno
+	                            if (!autoPlayActivo) {
+	                                fRival.sobornarFoca(pActual);
+	                            } else {
+	                                registrarEvento("(Auto-Play) Se omite el soborno a la foca.", "log-info");
+	                            }
 	                            
                                 // Aplicamos directamente el ataque de "pegar" de la Foca si no fue sobornada previamente.
                                 // Esto enviará al Pingüino al agujero anterior.
@@ -1464,8 +1582,12 @@ public class PantallaJuego {
 	                        registrarEvento("La foca " + fActual.getNickname() + " ha caído sobre " + pRival.getNickname(), "log-warning");
 	                        int posPAbans = pRival.getPosicio();
 	                        
-	                        // Opción de alimentar a la foca para evitar el ataque
-	                        fActual.sobornarFoca(pRival);
+	                        // Opción de alimentar a la foca para evitar el ataque (en auto-play se omite el soborno)
+	                        if (!autoPlayActivo) {
+	                            fActual.sobornarFoca(pRival);
+	                        } else {
+	                            registrarEvento("(Auto-Play) Se omite el soborno a la foca.", "log-info");
+	                        }
 	                        
 	                        // Aplicamos el ataque en el que la foca le pega al Pingüino con la cola
 	                        fActual.pegarPingu(pRival, gestorPartida.getPartida());
@@ -1753,6 +1875,13 @@ public class PantallaJuego {
 		    bloquearControles(true);
 			new Thread(() -> {
 				try { Thread.sleep(1000); } catch (InterruptedException e) {}
+				javafx.application.Platform.runLater(this::executartorn);
+			}).start();
+		} else if (proximo instanceof Pinguino && autoPlayActivo) {
+			// Auto-play: el pingüino humano juega automáticamente sin usar ítems
+			bloquearControles(true);
+			new Thread(() -> {
+				try { Thread.sleep(1200); } catch (InterruptedException e) {}
 				javafx.application.Platform.runLater(this::executartorn);
 			}).start();
 		}

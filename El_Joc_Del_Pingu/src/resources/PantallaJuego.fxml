@@ -28,6 +28,8 @@
                     <items>
                         <MenuItem fx:id="menuItem" mnemonicParsing="false" onAction="#handleGoToMenu" text="Menu" />
                         <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="menuAutoPlay" mnemonicParsing="false" onAction="#handleToggleAutoPlay" text="Auto-Play: OFF" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem fx:id="saveGame" mnemonicParsing="false" onAction="#handleSaveGame" text="Guardar" />
                         <MenuItem fx:id="copySeed" mnemonicParsing="false" onAction="#handleCopySeed" text="Copiar semilla" />
                         <MenuItem fx:id="menuMute" mnemonicParsing="false" onAction="#handleToggleMute" text="Música: ON" />
@@ -96,6 +98,10 @@
 
                    <!-- BOTÓN PAUSA (Arriba Derecha) -->
                    <Button fx:id="btnPausa" onAction="#handlePausa" styleClass="pause-button" text="PAUSAR" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0" />
+
+                   <!-- INDICADOR AUTO-PLAYING (Esquina inferior derecha) -->
+                   <Label fx:id="lblAutoPlaying" text="▶ Auto-Playing..." styleClass="auto-play-indicator" visible="false"
+                          AnchorPane.rightAnchor="20.0" AnchorPane.bottomAnchor="20.0" />
 
                <HBox layoutX="53.0" layoutY="752.0" pickOnBounds="false" prefHeight="314.0" prefWidth="1264.0" styleClass="buttons-hbox" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="53.0">
                   <children>

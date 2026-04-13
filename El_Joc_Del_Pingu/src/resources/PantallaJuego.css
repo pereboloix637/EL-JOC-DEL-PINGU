@@ -339,3 +339,16 @@
     -fx-translate-y: 2;
     -fx-effect: none;
 }
+
+/* ---- INDICADOR AUTO-PLAY ---- */
+.auto-play-indicator {
+    -fx-text-fill: #2ecc71;
+    -fx-font-family: "Press Start 2P", "Courier New", "Monospaced";
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(0, 20, 10, 0.75);
+    -fx-border-color: #2ecc71;
+    -fx-border-width: 2;
+    -fx-padding: 8 14;
+    -fx-effect: dropshadow(three-pass-box, rgba(46, 204, 113, 0.6), 8, 0, 0, 0);
+}
