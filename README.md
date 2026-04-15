@@ -44,6 +44,9 @@ Aquí están las funcionalidades y efectos de los diferentes tipos de casillas:
   - **1 a 3 Bolas de nieve:** Se consiguen aleatoriamente entre 1 y 3 bolas de nieve (Límite: 6).
   - **Dado rápido:** Un dado especial de alto movimiento que otorga resultados entre 5 y 10 (Límite: 3).
   - **Dado lento:** Un dado especial de bajo movimiento cauteloso de 1 a 3 (Límite: 3).
+  - **Moto de Nieve:** Al obtener este "item", automaticamente seras teletrasportado hasta el trineo mas cercano (que tengas en frente, nunca te hara retroceder casillas).
+  - **Perder turno:**
+  - **Perder item:**
 - **🧊 Trencadís / Hielo Frágil (5)**: Penalización dinámica según el peso (cantidad total de ítems en el inventario del Pingüino).
   - **0 ítems:** El hielo resiste, el jugador pasa sin penalización.
   - **1 a 5 ítems:** El jugador pierde un turno debido a que el hielo se quiebra ligeramente.
@@ -53,7 +56,7 @@ Aquí están las funcionalidades y efectos de los diferentes tipos de casillas:
 La **Foca** patrulla el mapa y bloquea el paso, actuando como un obstáculo agresivo.
 
 **Soborno a la Foca:**
-Si el Pingüino tiene un **Pez**, puede usarlo para sobornar o alimentar a la foca. Hacer esto mantendrá a la Foca feliz y **bloqueada durante 2 turnos**, permitiendo al jugador y otros personajes pasar con total tranquilidad.
+Si el Pingüino tiene un **Pez**, puede usarlo para sobornar o alimentar a la foca. Hacer esto mantendrá a la Foca feliz y **bloqueada durante 2 turnos**, permitiendo al jugador, pero no a otros personajes (los demas que no hayan sobornado a la foca) pasar con total tranquilidad.
 
 **Ataque de la Foca:**
 Si el jugador no tiene un pez, o decide no dárselo, la Foca lo atacará irremediablemente. Dependiendo del contexto actual del jugador, la Foca activará distintas probabilidades de ataque:
@@ -66,6 +69,7 @@ Si el jugador no tiene un pez, o decide no dárselo, la Foca lo atacará irremed
    - **75% Aplastar:** La foca castiga la avaricia destruyendo el inventario.
 3. **Contexto: Base (Normal).**
    - **50% Pegar / 50% Aplastar:** Al ser 50/50, se activa la **Ruleta Malvada**. Una ruleta visual decidirá la suerte y el tipo de castigo que recibirá el jugador.
+La foca aparte es inteligente y a veces ignorara por completo la ruleta, aparte de que usara sus items a su favor mas frecuentemente.
 
 ### 4. Sistema de Sonido (AudioManager)
 Sistema **Singleton** para audio ininterrumpido:
