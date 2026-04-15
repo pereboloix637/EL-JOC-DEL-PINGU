@@ -830,8 +830,9 @@ public class PantallaJuego {
 		Pane itemsPane = new Pane();
 		itemsPane.setPrefSize(500, 500);
 		
-		String[] itemImages = {"Pez.png", "BolasNieve.png", "Dado_Rapido.png", "Dado_Lento.png", "MOTO_DE_NIEVE.png"};
-		for (int i = 0; i < 5; i++) {
+		String[] itemImages = {"Pez.png", "BolasNieve.png", "Dado_Rapido.png", "Dado_Lento.png", "MOTO_DE_NIEVE.png", "perder_turno.png", "perder_item.png"};
+		double angleStep = 360.0 / 7.0;
+		for (int i = 0; i < 7; i++) {
 			ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/assets/" + itemImages[i])));
 			
 			// Hacemos la moto de nieve más destacada
@@ -840,11 +841,11 @@ public class PantallaJuego {
 			iv.setFitHeight(size);
 			iv.setPreserveRatio(true);
 			
-			// Posicionar en los cuadrantes (Dividido por 5 = 72 grados)
-			double angle = Math.toRadians(i * 72);
+			// Posicionar en los cuadrantes (Dividido por 7)
+			double angle = Math.toRadians(i * angleStep);
 			iv.setLayoutX(250 + 165 * Math.cos(angle) - (size / 2));
 			iv.setLayoutY(250 + 165 * Math.sin(angle) - (size / 2));
-			iv.setRotate(i * 72);
+			iv.setRotate(i * angleStep + 90);
 			itemsPane.getChildren().add(iv);
 		}
 		
@@ -879,7 +880,9 @@ public class PantallaJuego {
 		
 		// Animación giro (Ahora apunta a rotatingWheel en lugar del contenedor completo)
 		int rotations = 5 + new Random().nextInt(3);
-		double targetAngle = rotations * 360 - (itemIndex * 72) - 90;
+		// El index 0 está en 0 grados (derecha). El puntero está arriba (-90 grados).
+		// Para que el index I quede arriba, rotamos -90 - (I * angleStep)
+		double targetAngle = rotations * 360 - (itemIndex * angleStep) - 90;
 		
 		RotateTransition rotate = new RotateTransition(Duration.seconds(3), rotatingWheel);
 		rotate.setByAngle(targetAngle);

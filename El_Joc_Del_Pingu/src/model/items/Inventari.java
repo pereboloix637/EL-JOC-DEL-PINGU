@@ -179,6 +179,26 @@ public class Inventari {
 		return false;
 	}
 
+	/**
+	 * Retira un ítem aleatori de l'inventari (1 unitat).
+	 * Retorna el nom de l'item retirat o null si l'inventari està buit.
+	 */
+	public String retirarItemAleatorio() {
+		if (llista.isEmpty()) return null;
+		
+		int index = new java.util.Random().nextInt(llista.size());
+		Item item = llista.get(index);
+		String nom = item.getNom();
+		
+		item.setQuantitat(item.getQuantitat() - 1);
+		if (item.getQuantitat() <= 0) {
+			llista.remove(index);
+		}
+		
+		return nom;
+	}
+
+
 	@Override
 	public String toString() {
 		if (llista.isEmpty())
