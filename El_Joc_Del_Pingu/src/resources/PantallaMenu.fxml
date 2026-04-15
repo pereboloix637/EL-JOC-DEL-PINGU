@@ -101,7 +101,7 @@
                                             <Label styleClass="section-title" text="NUEVA EXPEDICIÓN" />
                                             <Label styleClass="hint" text="Añade jugadores (2-6, mín. 1 humano)." wrapText="true" />
                                             <Separator />
-                                            <javafx.scene.control.ListView fx:id="playersList" prefHeight="250" styleClass="players-list" />
+                                            <javafx.scene.control.ListView fx:id="playersList" prefHeight="325" styleClass="players-list" />
                                             
                                             <VBox spacing="8" styleClass="login-mini-card">
                                                 <TextField fx:id="userField" promptText="Nombre de usuario..." />
@@ -115,7 +115,9 @@
                                                     <Label fx:id="seedStatusLabel" styleClass="hint" text="Semilla: Aleatoria" />
                                                 </HBox>
                                             </VBox>
+
                                             <Region VBox.vgrow="ALWAYS" />
+
                                             <Button fx:id="startGameButton" maxWidth="Infinity" onAction="#handleStartGame" styleClass="primary-large" text="COMENZAR" />
                                         </VBox>
                                     </content>
@@ -154,19 +156,22 @@
                 </VBox>
                 <!-- SETTINGS CONTAINER (FOR CENTERING WITHOUT FILLING) -->
                 <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" pickOnBounds="false">
-                    <VBox fx:id="settingsPane" alignment="TOP_LEFT" managed="false" maxHeight="-Infinity" maxWidth="-Infinity" mouseTransparent="false" pickOnBounds="true" prefWidth="350.0" spacing="12" styleClass="settings-pane-ref" visible="false">
+                    <VBox fx:id="settingsPane" alignment="TOP_CENTER" managed="false" maxHeight="-Infinity" maxWidth="-Infinity" mouseTransparent="false" pickOnBounds="true" prefWidth="420.0" spacing="22" styleClass="settings-pane-ref" visible="false">
                         <padding>
-                            <Insets bottom="15" left="20" right="20" top="12" />
+                            <Insets bottom="25" left="30" right="30" top="18" />
                         </padding>
                         
                         <!-- HEADER -->
-                        <HBox alignment="CENTER_LEFT">
-                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" spacing="0">
+                            <Region prefWidth="40.0" /> <!-- Balancer -->
+                            <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
                                 <Label styleClass="settings-title-ref" text="AJUSTES" />
-                                <Separator styleClass="settings-separator-ref" />
+                                <Region fx:id="titleGlow" prefHeight="2.0" styleClass="title-glow-ref" />
                             </VBox>
-                            <Button onAction="#handleToggleSettings" styleClass="close-button-ref" text="✕" translateY="-8" translateX="8" />
+                            <Button onAction="#handleToggleSettings" styleClass="close-button-ref" text="✕" />
                         </HBox>
+                        
+                        <Separator styleClass="settings-separator-ref" />
 
                         <!-- MUSICA SECTION -->
                         <VBox spacing="8">
@@ -174,7 +179,7 @@
                             <HBox alignment="CENTER_LEFT" spacing="12">
                                 <Button fx:id="btnMute" onAction="#handleToggleMute" styleClass="mute-button-ref">
                                     <graphic>
-                                        <ImageView fx:id="imgMute" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                        <ImageView fx:id="imgMute" fitHeight="28.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
                                             <image>
                                                 <Image url="@../assets/speaker_on.png" />
                                             </image>
@@ -191,7 +196,7 @@
                             <HBox alignment="CENTER_LEFT" spacing="12">
                                 <Button fx:id="btnMuteSfx" onAction="#handleToggleSfxMute" styleClass="mute-button-ref">
                                     <graphic>
-                                        <ImageView fx:id="imgMuteSfx" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                        <ImageView fx:id="imgMuteSfx" fitHeight="28.0" fitWidth="28.0" pickOnBounds="true" preserveRatio="true">
                                             <image>
                                                 <Image url="@../assets/speaker_on.png" />
                                             </image>
