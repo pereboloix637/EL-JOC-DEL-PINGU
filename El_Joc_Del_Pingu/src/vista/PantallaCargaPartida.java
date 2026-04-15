@@ -19,7 +19,7 @@ public class PantallaCargaPartida {
     private String[] tips = {
     		"Las bolas de nieve seria mejor usarlas para batallar que para atacar...",
     		"¿Tienes peces? ¡Quizás querrías guardártelos para alimentar al oso!",
-    		"¡Las focas no tienen inventario! Pero te sorprenderá saber como actúan.",
+    		"¡Las focas, con su inventario y sus diferentes ataques pueden hacerte de tu recorrido una pesadilla.",
     		"A veces la estrategia gana a la fuerza, y los ítems lo saben perfectamente.",
     		"Quizás te sorprenda saber que existe un Pingu y una Foca oculta...",
     		"El dado lento te puede ayudar a caer en casillas cercanas.",
@@ -32,7 +32,9 @@ public class PantallaCargaPartida {
     		"Con capacidad para hasta 6 jugadores, dispones de un total de 12 figuras (6 Pingus y 6 Focas)",
     		"El oso polar normalmente atacara a los pingüinos, pero es probable que a las focas tanbien sean afectadas",
     		"Las bolas de nieve hacen retrodecer al mas cercano",
-    		"PCI Studios no se responsabiliza de los conflictos o desacuerdos que surjan durante el transcurso del juego."
+    		"PCI Studios no se responsabiliza de los conflictos o desacuerdos que surjan durante el transcurso del juego.",
+    		"Si te toca una Moto de nieve, avanzaras hasta el proximo trineo. ¡Que bien!",
+    		"¿Sabias que en llos eventos puedes perder turnos y items? Uy que mal rollo..."
     };
 
     @FXML
