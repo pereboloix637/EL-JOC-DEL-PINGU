@@ -1,6 +1,8 @@
 package controlador;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import model.caselles.Casella;
@@ -132,7 +134,7 @@ public class GestorTaulell {
 	    // Comptatge de caselles especials i registre de l'última posició de cada tipus
 	    int[] comptadors = new int[6];
 	    int[] ultimaPosicio = {-10, -10, -10, -10, -10, -10};
-	    int separacioMinima = 3;
+	    int separacioMinima = 4;
 	    int casellesEspecialsConsecutives = 0;
 
 	    for (int i = 0; i < 50; i++) {
@@ -209,90 +211,76 @@ public class GestorTaulell {
 
 	/**
 	 * Genera un candidat a seed intentant complir les regles bàsiques.
+	 * Utilitza un sac de 30 caselles (6 de cada tipus) per garantir varietat i equitat.
 	 */
 	private String generarCandidatoSeed() {
-	    StringBuilder seed = new StringBuilder(50);
+	    char[] seed = new char[50];
+	    for (int i = 0; i < 50; i++) seed[i] = '0';
+	    
+	    List<Integer> sac = new ArrayList<>();
+	    for (int type = 1; type <= 5; type++) {
+	        for (int j = 0; j < 6; j++) sac.add(type);
+	    }
+	    Collections.shuffle(sac);
+
 	    Random random = new Random();
+	    List<Integer> indexsDisponibles = new ArrayList<>();
+	    for (int i = 4; i < 48; i++) indexsDisponibles.add(i);
+	    Collections.shuffle(indexsDisponibles);
 
-	    int[] comptadorsEspecial = new int[6]; // 1-5
-	    int[] ultimaPosicio = {-10, -10, -10, -10, -10, -10};
-	    int separacioMinima = 3;
-	    int casellesEspecialsConsecutives = 0;
-
-	    for (int i = 0; i < 50; i++) {
-	        if (i < 4 || i >= 48) {
-	            seed.append('0');
-	            casellesEspecialsConsecutives = 0;
-	        } else {
-	            boolean afegit = false;
-	            int intentsCasella = 0;
-	            while (!afegit && intentsCasella < 30) {
-	                intentsCasella++;
-	                int roll = random.nextInt(100);
-	                int type = 0;
-
-	                // Zones de dificultat
-	                if (i < 16) {
-	                    // Zona 1: Mes fàcil, més trineus i events
-	                    if (roll < 38) type = 0;
-	                    else if (roll < 45) type = 1; // 7%
-	                    else if (roll < 60) type = 2; // 15%
-	                    else if (roll < 67) type = 3; // 7%
-	                    else if (roll < 85) type = 4; // 18%
-	                    else type = 5; // 15%
-	                } else if (i < 36) {
-	                    // Zona 2: Probabilitats estàndard
-	                    if (roll < 33) type = 0;
-	                    else if (roll < 46) type = 1;
-	                    else if (roll < 59) type = 2;
-	                    else if (roll < 72) type = 3;
-	                    else if (roll < 86) type = 4;
-	                    else type = 5;
-	                } else {
-	                    // Zona 3: Final difícil, més ossos i forats
-	                    if (roll < 28) type = 0;
-	                    else if (roll < 45) type = 1; // 17%
-	                    else if (roll < 55) type = 2; // 10%
-	                    else if (roll < 72) type = 3; // 17%
-	                    else if (roll < 82) type = 4; // 10%
-	                    else type = 5; // 18%
-	                }
-
-	                // Limitem caselles consecutives per forçar una normal
-	                if (casellesEspecialsConsecutives >= 2) {
-	                    type = 0;
-	                } else if (type == 1 || type == 3 || type == 5) {
-	                    // Evitar combinacions letals (1, 3, 5 juntos)
-	                    if (i > 0) {
-	                        int prevType = Character.getNumericValue(seed.charAt(i - 1));
-	                        if (prevType == 1 || prevType == 3 || prevType == 5) {
-	                            continue; // Tornem a fer roll
-	                        }
-	                    }
-	                }
-
-	                if (type == 0) {
-	                    seed.append('0');
-	                    casellesEspecialsConsecutives = 0;
-	                    afegit = true;
-	                } else {
-	                    // Comprovar límits (màxim 6) i separació
-	                    if (comptadorsEspecial[type] < 6 && (i - ultimaPosicio[type]) >= separacioMinima) {
-	                        seed.append(type);
-	                        comptadorsEspecial[type]++;
-	                        ultimaPosicio[type] = i;
-	                        casellesEspecialsConsecutives++;
-	                        afegit = true;
-	                    }
-	                }
-	            }
-	            // Si no s'ha pogut afegir res després de molts intents, posem una normal
-	            if (!afegit) {
-	                seed.append('0');
-	                casellesEspecialsConsecutives = 0;
+	    for (int tipus : sac) {
+	        boolean colocat = false;
+	        for (int i = 0; i < indexsDisponibles.size(); i++) {
+	            int pos = indexsDisponibles.get(i);
+	            
+	            if (esValidCollocar(seed, pos, tipus)) {
+	                seed[pos] = (char) ('0' + tipus);
+	                indexsDisponibles.remove(i);
+	                colocat = true;
+	                break;
 	            }
 	        }
+	        // Si no es pot col·locar, es perd aquesta casella (però el validador ho detectarà)
 	    }
-	    return seed.toString();
+	    
+	    return new String(seed);
+	}
+
+	/**
+	 * Comprova si és vàlid col·locar un tipus de casella en una posició.
+	 */
+	private boolean esValidCollocar(char[] seed, int pos, int tipus) {
+	    // 1. Separació mínima de 4 amb el mateix tipus
+	    for (int i = Math.max(0, pos - 3); i <= Math.min(49, pos + 3); i++) {
+	        if (i != pos && seed[i] == (char) ('0' + tipus)) return false;
+	    }
+
+	    // 2. Màxim 2 especials consecutives
+	    // Marem a l'esquerra
+	    int consecutives = 1;
+	    if (pos > 0 && seed[pos - 1] != '0') {
+	        consecutives++;
+	        if (pos > 1 && seed[pos - 2] != '0') return false;
+	    }
+	    // Marem a la dreta
+	    if (pos < 49 && seed[pos + 1] != '0') {
+	        consecutives++;
+	        if (consecutives > 2) return false;
+	        if (pos < 48 && seed[pos + 2] != '0') return false;
+	    }
+
+	    // 3. Combinacions letals (1, 3, 5)
+	    if (tipus == 1 || tipus == 3 || tipus == 5) {
+	        if (pos > 0) {
+	            int prev = seed[pos - 1] - '0';
+	            if (prev == 1 || prev == 3 || prev == 5) return false;
+	        }
+	        if (pos < 49) {
+	            int next = seed[pos + 1] - '0';
+	            if (next == 1 || next == 3 || next == 5) return false;
+	        }
+	    }
+
+	    return true;
 	}
 }
