@@ -44,8 +44,9 @@ Aquí están las funcionalidades y efectos de los diferentes tipos de casillas:
   - **1 a 3 Bolas de nieve:** Se consiguen aleatoriamente entre 1 y 3 bolas de nieve (Límite: 6).
   - **Dado rápido:** Un dado especial de alto movimiento que otorga resultados entre 5 y 10 (Límite: 3).
   - **Dado lento:** Un dado especial de bajo movimiento cauteloso de 1 a 3 (Límite: 3).
-  - **Moto de Nieve** Al obtener este "item", automaticamente seras teletrasportado hasta el trineo mas cercano (que tengas en frente, nunca te hara retroceder casillas).
-  - **Perder turno**
+  - **Moto de Nieve:** Al obtener este "item", automaticamente seras teletrasportado hasta el trineo mas cercano (que tengas en frente, nunca te hara retroceder casillas).
+  - **Perder turno:**
+  - **Perder item:**
 - **🧊 Trencadís / Hielo Frágil (5)**: Penalización dinámica según el peso (cantidad total de ítems en el inventario del Pingüino).
   - **0 ítems:** El hielo resiste, el jugador pasa sin penalización.
   - **1 a 5 ítems:** El jugador pierde un turno debido a que el hielo se quiebra ligeramente.
