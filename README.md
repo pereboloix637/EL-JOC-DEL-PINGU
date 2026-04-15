@@ -53,7 +53,7 @@ Aquí están las funcionalidades y efectos de los diferentes tipos de casillas:
 La **Foca** patrulla el mapa y bloquea el paso, actuando como un obstáculo agresivo.
 
 **Soborno a la Foca:**
-Si el Pingüino tiene un **Pez**, puede usarlo para sobornar o alimentar a la foca. Hacer esto mantendrá a la Foca feliz y **bloqueada durante 2 turnos**, permitiendo al jugador y otros personajes pasar con total tranquilidad.
+Si el Pingüino tiene un **Pez**, puede usarlo para sobornar o alimentar a la foca. Hacer esto mantendrá a la Foca feliz y **bloqueada durante 2 turnos**, permitiendo al jugador, pero no a otros personajes (los demas que no hayan sobornado a la foca) pasar con total tranquilidad.
 
 **Ataque de la Foca:**
 Si el jugador no tiene un pez, o decide no dárselo, la Foca lo atacará irremediablemente. Dependiendo del contexto actual del jugador, la Foca activará distintas probabilidades de ataque:
