@@ -45,16 +45,20 @@ public class Event extends Casella {
 
 		int roll = new Random().nextInt(100);
 		int index;
-		if (roll < 20) {
-			index = 0; // 20% Peix
-		} else if (roll < 40) {
-			index = 1; // 20% Boles
-		} else if (roll < 60) {
-			index = 2; // 20% Dau Ràpid
-		} else if (roll < 80) {
-			index = 3; // 20% Dau Lent
+		if (roll < 15) {
+			index = 0; // 15% Peix
+		} else if (roll < 30) {
+			index = 1; // 15% Boles
+		} else if (roll < 44) {
+			index = 2; // 14% Dau Ràpid
+		} else if (roll < 58) {
+			index = 3; // 14% Dau Lent
+		} else if (roll < 72) {
+			index = 4; // 14% Moto de Nieve
+		} else if (roll < 86) {
+			index = 5; // 14% Perder Turno
 		} else {
-			index = 4; // 20% Moto de Nieve
+			index = 6; // 14% Perder Item
 		}
 		
 		// En lugar de aplicar directamente, pedimos a la vista que muestre la ruleta
@@ -130,6 +134,24 @@ public class Event extends Casella {
 				vista.PantallaJuego.registrarEventoEstatico("¡A " + pingui.getNickname() + " le ha tocado la moto de nieve y ha avanzado hasta el trineo más cercano!", "log-info");
 			} else {
 				vista.PantallaJuego.registrarEventoEstatico("¡A " + pingui.getNickname() + " le ha tocado la moto de nieve pero no hay más trineos adelante!", "log-info");
+			}
+			break;
+
+		case 5:
+			// EVENT 5: Perder Turno - El jugador pierde el siguiente turno
+			pingui.setTornsBloquejat(pingui.getTornsBloquejat() + 1);
+			vista.PantallaJuego.mostrarPopupItem(pingui, "perder_turno.png");
+			vista.PantallaJuego.registrarEventoEstatico("¡" + pingui.getNickname() + " ha perdido el siguiente turno!", "log-warning");
+			break;
+
+		case 6:
+			// EVENT 6: Perder Item - El jugador pierde un item aleatorio del inventario
+			String itemPerdut = pingui.getInventari().retirarItemAleatorio();
+			vista.PantallaJuego.mostrarPopupItem(pingui, "perder_item.png");
+			if (itemPerdut != null) {
+				vista.PantallaJuego.registrarEventoEstatico("¡" + pingui.getNickname() + " ha perdido un " + itemPerdut + " de su inventario!", "log-warning");
+			} else {
+				vista.PantallaJuego.registrarEventoEstatico("¡A " + pingui.getNickname() + " le ha tocado perder item, pero no tiene nada en el inventario!", "log-info");
 			}
 			break;
 		}

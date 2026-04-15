@@ -95,13 +95,33 @@ public class GestorPartida {
 
     public void seguentTorn() {
         if (!partida.isFinalitzada()) {
-            int seguentIndex = (partida.getIndexJugadorActual() + 1) % partida.getJugadors().size();
+            int numJugadors = partida.getJugadors().size();
+            int seguentIndex = (partida.getIndexJugadorActual() + 1) % numJugadors;
+            
+            // Bucle para buscar el siguiente jugador disponible (que no esté bloqueado)
+            boolean encontrado = false;
+            int intentos = 0;
+            
+            while (!encontrado && intentos < numJugadors) {
+                Jugador j = partida.getJugadors().get(seguentIndex);
+                if (j.getTornsBloquejat() > 0) {
+                    // Si está bloqueado, bajamos el contador y pasamos al siguiente
+                    j.setTornsBloquejat(j.getTornsBloquejat() - 1);
+                    vista.PantallaJuego.registrarEventoEstatico(j.getNickname() + " sigue bloqueado (" + j.getTornsBloquejat() + " turnos restantes).", "log-info");
+                    seguentIndex = (seguentIndex + 1) % numJugadors;
+                    intentos++;
+                } else {
+                    encontrado = true;
+                }
+            }
+            
             partida.setIndexJugadorActual(seguentIndex);
             if (seguentIndex == 0) {
                 partida.setTorns(partida.getTorns() + 1);
             }
         }
     }
+
 
     public void guardarPartida(Connection con) {
         if (partida != null) gestorBBDD.guardarBBDD(partida, con);
