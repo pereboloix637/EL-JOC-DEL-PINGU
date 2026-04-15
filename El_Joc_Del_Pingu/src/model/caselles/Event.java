@@ -45,14 +45,16 @@ public class Event extends Casella {
 
 		int roll = new Random().nextInt(100);
 		int index;
-		if (roll < 25) {
-			index = 0; // 25% Peix
-		} else if (roll < 50) {
-			index = 1; // 25% Boles
-		} else if (roll < 90) {
-			index = 3; // 40% Dau Lent (probabilitat alta)
+		if (roll < 20) {
+			index = 0; // 20% Peix
+		} else if (roll < 40) {
+			index = 1; // 20% Boles
+		} else if (roll < 60) {
+			index = 2; // 20% Dau Ràpid
+		} else if (roll < 80) {
+			index = 3; // 20% Dau Lent
 		} else {
-			index = 2; // 10% Dau Ràpid (probabilitat baixa)
+			index = 4; // 20% Moto de Nieve
 		}
 		
 		// En lugar de aplicar directamente, pedimos a la vista que muestre la ruleta
@@ -109,6 +111,25 @@ public class Event extends Casella {
 			} else {
 				System.out.println(pingui.getNickname() + " ya tiene el máximo de dados especiales (3).");
 				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caído en una casilla de evento, ¡pero ya tiene el máximo de dados especiales!", "log-info");
+			}
+			break;
+		case 4:
+			// EVENT 4: Moto de Nieve - Lleva al trineo más cercano por delante
+			int posActual = pingui.getPosicio();
+			int seguentTrineu = -1;
+			for (Casella casella : partida.getTaulell().getCaselles()) {
+				if (casella instanceof Trineu && casella.getPosicio() > posActual) {
+					if (seguentTrineu == -1 || casella.getPosicio() < seguentTrineu) {
+						seguentTrineu = casella.getPosicio();
+					}
+				}
+			}
+
+			if (seguentTrineu != -1) {
+				pingui.setPosicio(seguentTrineu);
+				vista.PantallaJuego.registrarEventoEstatico("¡A " + pingui.getNickname() + " le ha tocado la moto de nieve y ha avanzado hasta el trineo más cercano!", "log-info");
+			} else {
+				vista.PantallaJuego.registrarEventoEstatico("¡A " + pingui.getNickname() + " le ha tocado la moto de nieve pero no hay más trineos adelante!", "log-info");
 			}
 			break;
 		}

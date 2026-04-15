@@ -152,6 +152,13 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         stage = primaryStage;
         
+        // --- REGISTRO DE FUENTE LOCAL ---
+        try {
+            javafx.scene.text.Font.loadFont(getClass().getResourceAsStream("/assets/PressStart2P-Regular.ttf"), 10);
+        } catch (Exception e) {
+            System.err.println("No se pudo cargar la fuente local: " + e.getMessage());
+        }
+        
         // --- CONFIGURACIÓN DEL ICONO ---
         try {
             // Buscamos en la carpeta assets que está en la raíz de resources

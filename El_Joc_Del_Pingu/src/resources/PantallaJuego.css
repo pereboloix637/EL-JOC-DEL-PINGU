@@ -3,7 +3,6 @@
    Paleta: azul noche, glaciar, cian helado, blanco nieve
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 .root {
     -fx-font-family: "Press Start 2P", "Courier New", "Monospaced";
@@ -198,7 +197,9 @@
 }
 
 .big-text-mini {
-    -fx-fill: #F0F4FF;
+    -fx-font-family: "Press Start 2P";
+    -fx-fill: #F0F4FF;       /* Para nodos Text */
+    -fx-text-fill: #F0F4FF;  /* Para nodos Label */
     -fx-font-size: 16px;
     -fx-font-weight: bold;
 }

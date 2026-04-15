@@ -811,51 +811,59 @@ public class PantallaJuego {
 		
 		VBox rouletteContainer = new VBox(25);
 		rouletteContainer.setAlignment(javafx.geometry.Pos.CENTER);
-		rouletteContainer.setMaxSize(600, 600);
+		rouletteContainer.setMaxSize(750, 750);
 		
 		Label title = new Label("¡RULETA!");
 		title.getStyleClass().add("big-text-mini");
-		title.setStyle("-fx-text-fill: #00ffff; -fx-font-size: 50px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
+		title.setStyle("-fx-text-fill: whitesmoke; -fx-font-family: 'Press Start 2P'; -fx-font-size: 70px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
 		
 		StackPane wheelStack = new StackPane();
 		
 		// Marco de la rueda proporcionado por el usuario
 		ImageView wheelVisuals = new ImageView(new Image(getClass().getResourceAsStream("/assets/RULETA_ALEATORIA.png")));
-		wheelVisuals.setFitWidth(300);
-		wheelVisuals.setFitHeight(300);
+		wheelVisuals.setFitWidth(500);
+		wheelVisuals.setFitHeight(500);
 		wheelVisuals.setPreserveRatio(true);
 		wheelVisuals.setSmooth(false); // Para mantener el estilo pixelart sin blur
 		
 		// Iconos de los items en la rueda
 		Pane itemsPane = new Pane();
-		itemsPane.setPrefSize(300, 300);
+		itemsPane.setPrefSize(500, 500);
 		
-		String[] itemImages = {"Pez.png", "BolasNieve.png", "Dado_Rapido.png", "Dado_Lento.png"};
-		for (int i = 0; i < 4; i++) {
+		String[] itemImages = {"Pez.png", "BolasNieve.png", "Dado_Rapido.png", "Dado_Lento.png", "MOTO_DE_NIEVE.png"};
+		for (int i = 0; i < 5; i++) {
 			ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/assets/" + itemImages[i])));
-			iv.setFitWidth(70);
-			iv.setFitHeight(70);
+			
+			// Hacemos la moto de nieve más destacada
+			double size = itemImages[i].equals("MOTO_DE_NIEVE.png") ? 160 : 110;
+			iv.setFitWidth(size);
+			iv.setFitHeight(size);
 			iv.setPreserveRatio(true);
 			
-			// Posicionar en los cuadrantes
-			double angle = Math.toRadians(i * 90);
-			iv.setLayoutX(150 + 95 * Math.cos(angle) - 35);
-			iv.setLayoutY(150 + 95 * Math.sin(angle) - 35);
-			iv.setRotate(i * 90);
+			// Posicionar en los cuadrantes (Dividido por 5 = 72 grados)
+			double angle = Math.toRadians(i * 72);
+			iv.setLayoutX(250 + 165 * Math.cos(angle) - (size / 2));
+			iv.setLayoutY(250 + 165 * Math.sin(angle) - (size / 2));
+			iv.setRotate(i * 72);
 			itemsPane.getChildren().add(iv);
 		}
 		
-		wheelStack.getChildren().addAll(wheelVisuals, itemsPane);
-		wheelStack.setMaxSize(300, 300);
+		// Envolvemos la parte que gira en un StackPane separado
+		StackPane rotatingWheel = new StackPane(wheelVisuals, itemsPane);
+		rotatingWheel.setMaxSize(500, 500);
 		
-		// Puntero (flecha asset)
+		// Puntero (flecha asset) - Lo centramos respecto a la rueda usando un StackPane común
 		ImageView pointer = new ImageView(new Image(getClass().getResourceAsStream("/assets/Flecha ruleta.png")));
-		pointer.setFitWidth(60);
+		pointer.setFitWidth(100);
 		pointer.setPreserveRatio(true);
-		pointer.setSmooth(false); // Estilo pixelart
-		pointer.setTranslateY(-210);
+		pointer.setSmooth(false); 
+		// Ajustamos el translateY respecto al centro (0,0) de la rueda
+		pointer.setTranslateY(-30); 
 		
-		rouletteContainer.getChildren().addAll(title, wheelStack, pointer);
+		StackPane wheelAndPointer = new StackPane(rotatingWheel, pointer);
+		wheelAndPointer.setMaxSize(500, 500);
+		
+		rouletteContainer.getChildren().addAll(title, wheelAndPointer);
 		
 		rootOverlay.getChildren().addAll(dim, rouletteContainer);
 		
@@ -869,11 +877,11 @@ public class PantallaJuego {
 		scaleIn.setToX(1); scaleIn.setToY(1);
 		scaleIn.play();
 		
-		// Animación giro
+		// Animación giro (Ahora apunta a rotatingWheel en lugar del contenedor completo)
 		int rotations = 5 + new Random().nextInt(3);
-		double targetAngle = rotations * 360 - (itemIndex * 90) - 90;
+		double targetAngle = rotations * 360 - (itemIndex * 72) - 90;
 		
-		RotateTransition rotate = new RotateTransition(Duration.seconds(3), wheelStack);
+		RotateTransition rotate = new RotateTransition(Duration.seconds(3), rotatingWheel);
 		rotate.setByAngle(targetAngle);
 		rotate.setInterpolator(Interpolator.SPLINE(0.1, 0.5, 0.2, 1)); // Slow down effect
 		
@@ -913,52 +921,56 @@ public class PantallaJuego {
 		
 		VBox rouletteContainer = new VBox(25);
 		rouletteContainer.setAlignment(javafx.geometry.Pos.CENTER);
-		rouletteContainer.setMaxSize(600, 600);
+		rouletteContainer.setMaxSize(750, 750);
 		
 		Label title = new Label("¡FOCA ATACA!");
 		title.getStyleClass().add("big-text-mini");
-		title.setStyle("-fx-text-fill: #ff0044; -fx-font-size: 50px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
+		title.setStyle("-fx-text-fill: whitesmoke; -fx-font-family: 'Press Start 2P'; -fx-font-size: 70px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
 		
 		StackPane wheelStack = new StackPane();
 		
 		// Unificamos con la lógica de items
 		String wheelPath = "/assets/Ruleta_Malvada.png";
 		ImageView wheelVisuals = new ImageView(new Image(getClass().getResourceAsStream(wheelPath)));
-		wheelVisuals.setFitWidth(300);
-		wheelVisuals.setFitHeight(300);
+		wheelVisuals.setFitWidth(500);
+		wheelVisuals.setFitHeight(500);
 		wheelVisuals.setPreserveRatio(true);
 		wheelVisuals.setSmooth(false);
 		
 		Pane itemsPane = new Pane();
-		itemsPane.setPrefSize(300, 300);
+		itemsPane.setPrefSize(500, 500);
 		
 		// Dues opcions: 0=Pegar, 1=Aplastar
 		String[] options = {"PegarPingu.png", "AplastarPingu.png"};
 		for (int i = 0; i < options.length; i++) {
 			ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/assets/" + options[i])));
-			iv.setFitWidth(100);
-			iv.setFitHeight(100);
+			iv.setFitWidth(160);
+			iv.setFitHeight(160);
 			iv.setPreserveRatio(true);
 			
 			// Colocamos en 0° (Derecha) y 180° (Izquierda) para seguir la lógica de la ruleta base
 			double angle = Math.toRadians(i * 180);
-			iv.setLayoutX(150 + 95 * Math.cos(angle) - 50);
-			iv.setLayoutY(150 + 95 * Math.sin(angle) - 50);
+			iv.setLayoutX(250 + 160 * Math.cos(angle) - 80);
+			iv.setLayoutY(250 + 160 * Math.sin(angle) - 80);
 			iv.setRotate(i * 180 + 90); // Mantenemos los iconos rectos al llegar arriba
 			itemsPane.getChildren().add(iv);
 		}
 		
-		wheelStack.getChildren().addAll(wheelVisuals, itemsPane);
-		wheelStack.setMaxSize(300, 300);
+		// Unificamos estructura con mostrarRuletaItem
+		StackPane rotatingWheel = new StackPane(wheelVisuals, itemsPane);
+		rotatingWheel.setMaxSize(500, 500);
 		
-		// Puntero uniforme con la ruleta de items
+		// Puntero uniforme
 		ImageView pointer = new ImageView(new Image(getClass().getResourceAsStream("/assets/Flecha ruleta.png")));
-		pointer.setFitWidth(60);
+		pointer.setFitWidth(100);
 		pointer.setPreserveRatio(true);
 		pointer.setSmooth(false);
-		pointer.setTranslateY(-210);
+		pointer.setTranslateY(-30);
 		
-		rouletteContainer.getChildren().addAll(title, wheelStack, pointer);
+		StackPane wheelAndPointer = new StackPane(rotatingWheel, pointer);
+		wheelAndPointer.setMaxSize(500, 500);
+		
+		rouletteContainer.getChildren().addAll(title, wheelAndPointer);
 		rootOverlay.getChildren().addAll(dim, rouletteContainer);
 		
 		FadeTransition fadeIn = new FadeTransition(Duration.millis(300), dim);
@@ -971,7 +983,7 @@ public class PantallaJuego {
 		int rotations = 6 + new Random().nextInt(3);
 		double targetAngle = (rotations * 360) - (actionIndex * 180) - 90;
 		
-		RotateTransition rotate = new RotateTransition(Duration.seconds(3), wheelStack);
+		RotateTransition rotate = new RotateTransition(Duration.seconds(3), rotatingWheel);
 		rotate.setByAngle(targetAngle);
 		rotate.setInterpolator(Interpolator.SPLINE(0.1, 0.5, 0.2, 1));
 		
