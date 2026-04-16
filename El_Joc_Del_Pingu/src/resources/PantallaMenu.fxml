@@ -109,8 +109,8 @@
                                                 <TextField fx:id="userField" promptText="Nombre de usuario..." />
                                                 <PasswordField fx:id="passField" promptText="Contraseña..." />
                                                 <HBox spacing="10">
-                                                    <Button maxWidth="Infinity" onAction="#handleLogin" styleClass="secondary" text="+ Humano" HBox.hgrow="ALWAYS" />
-                                                    <Button maxWidth="Infinity" onAction="#handleAddCPU" styleClass="secondary" text="+ CPU" HBox.hgrow="ALWAYS" />
+                                                    <Button fx:id="btnLoginHumano" maxWidth="Infinity" onAction="#handleLogin" styleClass="secondary" text="+ Humano" HBox.hgrow="ALWAYS" />
+                                                    <Button fx:id="btnAddCPU" maxWidth="Infinity" onAction="#handleAddCPU" styleClass="secondary" text="+ CPU" HBox.hgrow="ALWAYS" />
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" spacing="10">
                                                     <Button onAction="#handleLoadSeed" styleClass="secondary" text="Cargar Semilla" />
