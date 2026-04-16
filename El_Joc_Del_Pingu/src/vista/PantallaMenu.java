@@ -646,6 +646,7 @@ public class PantallaMenu {
                 Alert alert = new Alert(AlertType.WARNING, "Por favor, selecciona una partida para cargar.", ButtonType.OK);
                 estilar(alert);
                 alert.showAndWait();
+                if (startGameButton != null) startGameButton.setDisable(false);
                 return;
             }
             int id = Integer.parseInt(selected.split(":")[1].trim().split(" ")[0]);
@@ -654,6 +655,7 @@ public class PantallaMenu {
                 partida = dbManager.carregarBBDD(id, con);
             } catch (Exception e) {
                 e.printStackTrace();
+                if (startGameButton != null) startGameButton.setDisable(false);
                 return;
             }
 
@@ -685,6 +687,7 @@ public class PantallaMenu {
                                 Alert alert = new Alert(AlertType.WARNING, "Carga cancelada.", ButtonType.OK);
                                 estilar(alert);
                                 alert.showAndWait();
+                                if (startGameButton != null) startGameButton.setDisable(false);
                                 return;
                             }
 
@@ -696,12 +699,14 @@ public class PantallaMenu {
                                         ButtonType.OK);
                                 estilar(alert);
                                 alert.showAndWait();
+                                if (startGameButton != null) startGameButton.setDisable(false);
                                 return;
                             }
                         }
                     }
                 } catch (Exception e) {
                     System.err.println("Error validando contraseñas al cargar: " + e.getMessage());
+                    if (startGameButton != null) startGameButton.setDisable(false);
                     return;
                 }
             }
@@ -717,12 +722,14 @@ public class PantallaMenu {
                 Alert alert = new Alert(AlertType.WARNING, "Debe haber al menos 1 jugador humano.", ButtonType.OK);
                 estilar(alert);
                 alert.showAndWait();
+                if (startGameButton != null) startGameButton.setDisable(false);
                 return;
             }
             if (joinedPlayers.size() < 2) {
                 Alert alert = new Alert(AlertType.WARNING, "Se necesitan al menos 2 jugadores (humanos o CPU) para jugar.", ButtonType.OK);
                 estilar(alert);
                 alert.showAndWait();
+                if (startGameButton != null) startGameButton.setDisable(false);
                 return;
             }
 
