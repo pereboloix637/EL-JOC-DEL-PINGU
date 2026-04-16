@@ -10,7 +10,7 @@ import model.items.Peix;
 import java.util.Random;
 
 /**
- * Casella Event: el pingüí rep un ítem aleatori (peix, boles de neu o dau especial).
+ * Casella Event: el jugador (Pinguino o Foca) rep un ítem aleatori (peix, boles de neu o dau especial).
  */
 public class Event extends Casella {
 
@@ -40,8 +40,7 @@ public class Event extends Casella {
 
 	@Override
 	public void realitzarAccio(Partida partida, Jugador jugador) {
-		if (!(jugador instanceof Pinguino)) return;
-		Pinguino pingui = (Pinguino) jugador;
+		if (!(jugador instanceof Pinguino) && !(jugador instanceof model.entitats.Foca)) return;
 
 		int roll = new Random().nextInt(100);
 		int index;
@@ -61,65 +60,87 @@ public class Event extends Casella {
 			index = 6; // 14% Perder Item
 		}
 		
-		// En lugar de aplicar directamente, pedimos a la vista que muestre la ruleta
-		// y pase un callback para aplicar el premio al terminar.
-		vista.PantallaJuego.mostrarRuletaEstatico(pingui, index, () -> {
-			aplicarPremio(partida, pingui, index);
+		if (jugador instanceof Pinguino) {
+			// En lugar de aplicar directamente, pedimos a la vista que muestre la ruleta
+			// y pase un callback para aplicar el premio al terminar.
+			vista.PantallaJuego.mostrarRuletaEstatico(jugador, index, () -> {
+				aplicarPremio(partida, jugador, index);
+				if (callbackFinalizacion != null) {
+					callbackFinalizacion.run();
+					callbackFinalizacion = null; // Limpiar para evitar re-ejecución accidental
+				}
+			});
+		} else {
+			// Foca: sin ruleta
+			aplicarPremio(partida, jugador, index);
 			if (callbackFinalizacion != null) {
 				callbackFinalizacion.run();
 				callbackFinalizacion = null; // Limpiar para evitar re-ejecución accidental
 			}
-		});
+		}
 	}
 
-	public void aplicarPremio(Partida partida, Pinguino pingui, int index) {
+	public void aplicarPremio(Partida partida, Jugador jugador, int index) {
 		Random random = new Random();
+		model.items.Inventari inventari = null;
+		
+		if (jugador instanceof Pinguino) {
+			inventari = ((Pinguino)jugador).getInventari();
+		} else if (jugador instanceof model.entitats.Foca) {
+			inventari = ((model.entitats.Foca)jugador).getInventari();
+		}
+		
+		if (inventari == null) return;
+
 		switch (index) {
 		case 0:
-			if (pingui.getInventari().getPeixos() < 2) {
-				pingui.getInventari().afegirItem(new Peix("Peix", 1));
-				vista.PantallaJuego.mostrarPopupItem(pingui, "Pez.png");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha obtenido 1 pez en la ruleta!", "log-info");
+			if (inventari.getPeixos() < 2) {
+				inventari.afegirItem(new Peix("Peix", 1));
+				vista.PantallaJuego.mostrarPopupItem(jugador, "Pez.png");
+				String msg = (jugador instanceof Pinguino) ? jugador.getNickname() + " ha obtenido 1 pez en la ruleta!" : jugador.getNickname() + " ha obtenido 1 pez!";
+				vista.PantallaJuego.registrarEventoEstatico(msg, "log-info");
 			} else {
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ya tenía el máximo de peces.", "log-info");
+				vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ya tenía el máximo de peces.", "log-info");
 			}
 			break;
 		case 1:
 			int bolesNoves = random.nextInt(3) + 1;
-			int bolesAfegir = Math.min(bolesNoves, 6 - pingui.getInventari().getBoles());
+			int bolesAfegir = Math.min(bolesNoves, 6 - inventari.getBoles());
 			if (bolesAfegir > 0) {
-				pingui.getInventari().afegirItem(new BolaNeu("Bola de Neu", bolesAfegir));
-				vista.PantallaJuego.mostrarPopupItem(pingui, "BolasNieve.png");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha obtenido " + bolesAfegir + " bolas de nieve!", "log-info");
+				inventari.afegirItem(new BolaNeu("Bola de Neu", bolesAfegir));
+				vista.PantallaJuego.mostrarPopupItem(jugador, "BolasNieve.png");
+				String msg = (jugador instanceof Pinguino) ? jugador.getNickname() + " ha obtenido " + bolesAfegir + " bolas de nieve en la ruleta!" : jugador.getNickname() + " ha obtenido " + bolesAfegir + " bolas de nieve!";
+				vista.PantallaJuego.registrarEventoEstatico(msg, "log-info");
 			} else {
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ya tenía el máximo de bolas de nieve.", "log-info");
+				vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ya tenía el máximo de bolas de nieve.", "log-info");
 			}
 			break;
 		case 2:
-			if (pingui.getInventari().getDausEspecials() < 3) {
-				pingui.getInventari().afegirItem(new Dau("Dado rápido", 1, 5, 10));
-				vista.PantallaJuego.mostrarPopupItem(pingui, "Dado_Rapido.png");
+			if (inventari.getDausEspecials() < 3) {
+				inventari.afegirItem(new Dau("Dado Rápido", 1, 5, 10));
+				vista.PantallaJuego.mostrarPopupItem(jugador, "Dado_Rapido.png");
+				String msg = (jugador instanceof Pinguino) ? jugador.getNickname() + " ha obtenido un Dado Rápido en la ruleta!" : jugador.getNickname() + " ha obtenido un Dado Rápido!";
+				vista.PantallaJuego.registrarEventoEstatico(msg, "log-info");
 			} else {
-				System.out.println(pingui.getNickname() + " ya tiene el máximo de dados especiales (3).");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caído en una casilla de evento, ¡pero ya tiene el máximo de dados especiales!", "log-info");
+				System.out.println(jugador.getNickname() + " ya tiene el máximo de dados especiales (3).");
+				vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ha caído en una casilla de evento, ¡pero ya tiene el máximo de dados especiales!", "log-info");
 			}
 			break;
 
 		case 3:
-			// EVENT 3: dau lent 1-3 caselles (màxim 3 daus especials)
-			if (pingui.getInventari().getDausEspecials() < 3) {
-				pingui.getInventari().afegirItem(new Dau("Dado lento", 1, new int[] { 1, 3 }));
-				System.out.println(pingui.getNickname() + " ¡ha obtenido un dado lento! (1 o 3 casillas)");
-				vista.PantallaJuego.mostrarPopupItem(pingui, "Dado_Lento.png");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ¡ha caído en una casilla de evento y ha obtenido un dado lento!", "log-info");
+			if (inventari.getDausEspecials() < 3) {
+				inventari.afegirItem(new Dau("Dado Lento", 1, new int[] { 1, 3 }));
+				System.out.println(jugador.getNickname() + " ¡ha obtenido un dado lento! (1 o 3 casillas)");
+				vista.PantallaJuego.mostrarPopupItem(jugador, "Dado_Lento.png");
+				String msg = (jugador instanceof Pinguino) ? jugador.getNickname() + " ha obtenido un Dado Lento en la ruleta!" : jugador.getNickname() + " ha obtenido un Dado Lento!";
+				vista.PantallaJuego.registrarEventoEstatico(msg, "log-info");
 			} else {
-				System.out.println(pingui.getNickname() + " ya tiene el máximo de dados especiales (3).");
-				vista.PantallaJuego.registrarEventoEstatico(pingui.getNickname() + " ha caído en una casilla de evento, ¡pero ya tiene el máximo de dados especiales!", "log-info");
+				System.out.println(jugador.getNickname() + " ya tiene el máximo de dados especiales (3).");
+				vista.PantallaJuego.registrarEventoEstatico(jugador.getNickname() + " ha caído en una casilla de evento, ¡pero ya tiene el máximo de dados especiales!", "log-info");
 			}
 			break;
 		case 4:
-			// EVENT 4: Moto de Nieve - Lleva al trineo más cercano por delante
-			int posActual = pingui.getPosicio();
+			int posActual = jugador.getPosicio();
 			int seguentTrineu = -1;
 			for (Casella casella : partida.getTaulell().getCaselles()) {
 				if (casella instanceof Trineu && casella.getPosicio() > posActual) {
@@ -130,28 +151,26 @@ public class Event extends Casella {
 			}
 
 			if (seguentTrineu != -1) {
-				pingui.setPosicio(seguentTrineu);
-				vista.PantallaJuego.registrarEventoEstatico("¡A " + pingui.getNickname() + " le ha tocado la moto de nieve y ha avanzado hasta el trineo más cercano!", "log-info");
+				jugador.setPosicio(seguentTrineu);
+				vista.PantallaJuego.registrarEventoEstatico("¡A " + jugador.getNickname() + " le ha tocado la moto de nieve y ha avanzado hasta el trineo más cercano!", "log-info");
 			} else {
-				vista.PantallaJuego.registrarEventoEstatico("¡A " + pingui.getNickname() + " le ha tocado la moto de nieve pero no hay más trineos adelante!", "log-info");
+				vista.PantallaJuego.registrarEventoEstatico("¡A " + jugador.getNickname() + " le ha tocado la moto de nieve pero no hay más trineos adelante!", "log-info");
 			}
 			break;
 
 		case 5:
-			// EVENT 5: Perder Turno - El jugador pierde el siguiente turno
-			pingui.setTornsBloquejat(pingui.getTornsBloquejat() + 1);
-			vista.PantallaJuego.mostrarPopupItem(pingui, "perder_turno.png");
-			vista.PantallaJuego.registrarEventoEstatico("¡" + pingui.getNickname() + " ha perdido el siguiente turno!", "log-warning");
+			jugador.setTornsBloquejat(jugador.getTornsBloquejat() + 1);
+			vista.PantallaJuego.mostrarPopupItem(jugador, "perder_turno.png");
+			vista.PantallaJuego.registrarEventoEstatico("¡" + jugador.getNickname() + " ha perdido el siguiente turno!", "log-warning");
 			break;
 
 		case 6:
-			// EVENT 6: Perder Item - El jugador pierde un item aleatorio del inventario
-			String itemPerdut = pingui.getInventari().retirarItemAleatorio();
-			vista.PantallaJuego.mostrarPopupItem(pingui, "perder_item.png");
+			String itemPerdut = inventari.retirarItemAleatorio();
+			vista.PantallaJuego.mostrarPopupItem(jugador, "perder_item.png");
 			if (itemPerdut != null) {
-				vista.PantallaJuego.registrarEventoEstatico("¡" + pingui.getNickname() + " ha perdido un " + itemPerdut + " de su inventario!", "log-warning");
+				vista.PantallaJuego.registrarEventoEstatico("¡" + jugador.getNickname() + " ha perdido un " + itemPerdut + " de su inventario!", "log-warning");
 			} else {
-				vista.PantallaJuego.registrarEventoEstatico("¡A " + pingui.getNickname() + " le ha tocado perder item, pero no tiene nada en el inventario!", "log-info");
+				vista.PantallaJuego.registrarEventoEstatico("¡A " + jugador.getNickname() + " le ha tocado perder item, pero no tiene nada en el inventario!", "log-info");
 			}
 			break;
 		}
