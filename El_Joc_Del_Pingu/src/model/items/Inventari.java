@@ -28,8 +28,9 @@ public class Inventari {
 	public int contarTipus(Class<? extends Item> tipus) {
 		int total = 0;
 		for (Item i : llista) {
-			if (tipus.isInstance(i))
+			if (tipus.isInstance(i)) {
 				total += i.getQuantitat();
+			}
 		}
 		return total;
 	}
@@ -49,8 +50,9 @@ public class Inventari {
 	// Retorna el primer ítem disponible del tipus indicat, o null
 	public Item obtenirPrimer(Class<? extends Item> tipus) {
 		for (Item i : llista) {
-			if (tipus.isInstance(i) && i.getQuantitat() > 0)
+			if (tipus.isInstance(i) && i.getQuantitat() > 0) {
 				return i;
+			}
 		}
 		return null;
 	}
@@ -60,13 +62,13 @@ public class Inventari {
 	/// Instanceof = instancia del objecte
 	public int afegirItem(Item item) {
 		int max;
-		if (item instanceof BolaNeu)
+		if (item instanceof BolaNeu) {
 			max = 6;
-		else if (item instanceof Peix)
+		} else if (item instanceof Peix) {
 			max = 2;
-		else if (item instanceof Dau)
+		} else if (item instanceof Dau) {
 			max = 3;
-		else {
+		} else {
 			System.out.println("Aquest ítem no es pot guardar a l'inventari.");
 			return 0;
 		}
@@ -110,10 +112,11 @@ public class Inventari {
 
 	// Elimina completament un ítem de la llista
 	public void eliminarItem(Item item) {
-		if (llista.remove(item))
+		if (llista.remove(item)) {
 			System.out.println("S'ha eliminat: " + item.getNom());
-		else
+		} else {
 			System.out.println("L'ítem " + item.getNom() + " no és a l'inventari.");
+		}
 	}
 	
 	// Elimina el item per el seu tipus
@@ -144,26 +147,29 @@ public class Inventari {
 	// Retorna l'ítem si existeix, null altrament
 	public Item obtenirItem(Item item) {
 		for (Item i : llista) {
-			if (i.equals(item))
+			if (i.equals(item)) {
 				return i;
+			}
 		}
 		return null;
 	}
 
 	// Llença un ítem sense usar-lo
 	public void tirarItem(Item item) {
-		if (llista.remove(item))
+		if (llista.remove(item)) {
 			System.out.println("Has llençat: " + item.getNom());
-		else
+		} else {
 			System.out.println("L'ítem " + item.getNom() + " no és a l'inventari.");
+		}
 	}
 
 	// Usa un ítem i l'elimina si arriba a 0 unitats. Retorna true si ha tingut èxit
 	public boolean usarItem(Item item) {
 		if (llista.contains(item)) {
 			boolean usat = item.usar();
-			if (usat && item.getQuantitat() <= 0)
+			if (usat && item.getQuantitat() <= 0) {
 				llista.remove(item);
+			}
 			return usat;
 		}
 		System.out.println("L'ítem " + item.getNom() + " no és a l'inventari.");
@@ -173,8 +179,9 @@ public class Inventari {
 	// Usa el primer ítem disponible del tipus indicat
 	public boolean usarPrimer(Class<? extends Item> tipus) {
 		Item i = obtenirPrimer(tipus);
-		if (i != null)
+		if (i != null) {
 			return usarItem(i);
+		}
 		System.out.println("No tens cap " + tipus.getSimpleName() + " disponible.");
 		return false;
 	}
@@ -184,7 +191,9 @@ public class Inventari {
 	 * Retorna el nom de l'item retirat o null si l'inventari està buit.
 	 */
 	public String retirarItemAleatorio() {
-		if (llista.isEmpty()) return null;
+		if (llista.isEmpty()) {
+			return null;
+		}
 		
 		int index = new java.util.Random().nextInt(llista.size());
 		Item item = llista.get(index);
@@ -201,8 +210,9 @@ public class Inventari {
 
 	@Override
 	public String toString() {
-		if (llista.isEmpty())
+		if (llista.isEmpty()) {
 			return "Inventari buit.";
+		}
 		StringBuilder sb = new StringBuilder("Inventari:\n");
 		for (Item i : llista)
 			sb.append("  - ").append(i).append("\n");

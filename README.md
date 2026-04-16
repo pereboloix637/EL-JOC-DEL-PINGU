@@ -1,4 +1,3 @@
-# El Joc del Pingüí 🐧
 
 ![Java](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk)
 ![JavaFX](https://img.shields.io/badge/JavaFX-21.0.10-blue?style=for-the-badge&logo=javafx)
@@ -29,71 +28,58 @@ El proyecto implementa el patrón **Modelo-Vista-Controlador**:
 - **Modelo**: Entidades (`Taulell`, `Pinguino`, `Foca`, `Casella`).
 - **Vista**: Interfaces FXML y controladores de escena en los paquetes `resources` y `vista`.
 
+---
+
 ### 2. Tablero y Tipos de Casillas
-El tablero de 50 casillas es determinista y se genera mediante una cadena de semillas (Seed).
-Aquí están las funcionalidades y efectos de los diferentes tipos de casillas:
+El tablero de 50 casillas se genera mediante una cadena de semillas (Seed). Cada tipo de casilla tiene efectos únicos:
 
-- **⚪ Normal (0)**: No tiene ningún efecto especial. Casilla segura.
-- **🐻 Ós / Oso (1)**: Casilla de peligro. El oso ataca de inmediato.
-  - **Jugador (Pingüino)**: Si el jugador recibe un ataque, vuelve a la casilla de inicio (0). Si tiene **1 Pez**, puede decidir gastarlo para salvarse de volver al inicio.
-  - **Foca**: Si la Foca cae en una casilla de Oso, tiene un **50% de probabilidad** de esquivarlo, y un **50% de probabilidad** de ser alcanzada (volviendo a la casilla 0).
-- **🛷 Trineu / Trineo (2)**: Casilla de avance. El personaje viaja automáticamente a la próxima posición donde haya otro trineo. Si no hay ninguno delante, se queda en la misma casilla.
-- **🕳️ Forat / Agujero (3)**: Casilla de retroceso. El jugador cae por el agujero y retrocede hasta el **Agujero inmediatamente anterior** en el tablero. Si es el primer agujero del tablero, vuelve a la casilla 0.
-- **🎉 Event / Evento (4)**: Activa la **Ruleta de Premios** beneficiosa para el jugador. La ruleta tiene 4 posibles eventos con probabilidad equitativa (25% cada uno):
-  - **1 Pez:** Se añade un pez al inventario (Límite: 2).
-  - **1 a 3 Bolas de nieve:** Se consiguen aleatoriamente entre 1 y 3 bolas de nieve (Límite: 6).
-  - **Dado rápido:** Un dado especial de alto movimiento que otorga resultados entre 5 y 10 (Límite: 3).
-  - **Dado lento:** Un dado especial de bajo movimiento cauteloso de 1 a 3 (Límite: 3).
-  - **Moto de Nieve:** Al obtener este "item", automaticamente seras teletrasportado hasta el trineo mas cercano (que tengas en frente, nunca te hara retroceder casillas).
-  - **Perder turno:**
-  - **Perder item:**
-- **🧊 Trencadís / Hielo Frágil (5)**: Penalización dinámica según el peso (cantidad total de ítems en el inventario del Pingüino).
-  - **0 ítems:** El hielo resiste, el jugador pasa sin penalización.
-  - **1 a 5 ítems:** El jugador pierde un turno debido a que el hielo se quiebra ligeramente.
-  - **Más de 5 ítems:** El peso es demasiado. El jugador cae al agua y es arrastrado de regreso a la **casilla inicial (0)**.
+- **⚪ Normal (0)**: Sin efectos especiales. Casilla segura.
+- **🐻 Ós / Oso (1)**: Casilla de peligro. 
+  - **Jugador**: Si es alcanzado, vuelve a la casilla inicial (0). Puede gastar **1 Pez** para salvarse.
+  - **Foca**: Tiene un **50% de probabilidad** de esquivarlo. Si falla, vuelve a la casilla 0.
+- **🛷 Trineu / Trineo (2)**: El personaje viaja automáticamente a la próxima posición donde haya otro trineo. Si no hay ninguno delante, permanece en la misma casilla.
+- **🕳️ Forat / Agujero (3)**: El jugador retrocede hasta el **agujero inmediatamente anterior** en el tablero (o a la casilla 0 si no hay ninguno anterior).
+- **🎉 Event / Evento (4)**: Activa la **Ruleta de Premios** con los siguientes efectos:
+  - **Pez (15%)**: Añade un pez al inventario (Límite: 2).
+  - **Bolas de Nieve (15%)**: Obtienes entre 1 y 3 bolas (Límite: 6).
+  - **Dado Rápido (14%)**: Movimiento entre 5 y 10 (Límite consolidado: 3 dados especiales).
+  - **Dado Lento (14%)**: Movimiento estratégico de 1 o 3 casillas.
+  - **Moto de Nieve (14%)**: Teletransporta instantáneamente al próximo trineo disponible en el camino.
+  - **Perder Turno (14%)**: El jugador queda bloqueado el siguiente turno.
+  - **Perder Ítem (14%)**: Se elimina un ítem aleatorio del inventario.
+- **🧊 Trencadís / Hielo Frágil (5)**: Penalización basada en el peso (total de ítems en el inventario):
+  - **0 ítems**: Cruzas sin penalización.
+  - **1 a 5 ítems**: El hielo se agrieta y pierdes **1 turno**.
+  - **Más de 5 ítems**: El hielo se rompe. Vuelves a la **casilla inicial (0)**.
 
-### 3. Mecánicas de Jugador vs Foca
-La **Foca** patrulla el mapa y bloquea el paso, actuando como un obstáculo agresivo.
+---
 
-**Soborno a la Foca:**
-Si el Pingüino tiene un **Pez**, puede usarlo para sobornar o alimentar a la foca. Hacer esto mantendrá a la Foca feliz y **bloqueada durante 2 turnos**, permitiendo al jugador, pero no a otros personajes (los demas que no hayan sobornado a la foca) pasar con total tranquilidad.
+### 3. Mecánicas de la Foca Inteligente
+La **Foca** ya no es un simple obstáculo; es un oponente controlado por una IA táctica que gestiona su propio inventario y toma decisiones para ganar o entorpecer al jugador.
 
-**Ataque de la Foca:**
-Si el jugador no tiene un pez, o decide no dárselo, la Foca lo atacará irremediablemente. Dependiendo del contexto actual del jugador, la Foca activará distintas probabilidades de ataque:
+#### 🧠 Inteligencia Táctica (Turno de la Foca)
+Durante su turno, la foca analiza el estado del tablero y decide usar sus ítems recolectados:
+1. **Modo Acelerar**: Si el líder le saca más de 10 casillas de ventaja, usará un **Dado Rápido**.
+2. **Modo Embestida**: Si tiene a un jugador a menos de 3 casillas, usará un **Dado Lento** para intentar aterrizar exactamente sobre él y atacarlo.
+3. **Ataque a Distancia**: Si hay un jugador a menos de 4 casillas, le lanzará una **Bola de Nieve** para hacerlo retroceder 2 espacios.
 
-1. **Contexto: Ventaja final (Casilla 40 o superior).**
-   - **10% Pegar:** La foca pega al jugador, enviándolo al **Agujero (Forat) anterior**.
-   - **25% Aplastar:** La foca aplasta al jugador, lo que **destruye absolutamente todos los ítems** del inventario (peces, bolas, dados).
-2. **Contexto: Exceso de ítems (Más de 3 ítems totales).**
-   - **25% Pegar.** 
-   - **75% Aplastar:** La foca castiga la avaricia destruyendo el inventario.
-3. **Contexto: Base (Normal).**
-   - **50% Pegar / 50% Aplastar:** Al ser 50/50, se activa la **Ruleta Malvada**. Una ruleta visual decidirá la suerte y el tipo de castigo que recibirá el jugador.
-La foca aparte es inteligente y a veces ignorara por completo la ruleta, aparte de que usara sus items a su favor mas frecuentemente.
-
-### 4. Sistema de Sonido (AudioManager)
-Sistema **Singleton** para audio ininterrumpido:
-- Música de fondo (BGM) en bucle.
-- Efectos de sonido (SFX) con gestión de memoria optimizada (auto-dispose).
-- Controles de volumen independientes desde la configuración.
+#### ⚔️ Interacciones y Ataques
+- **Aplastar (Paso por encima)**: Si la foca pasa por encima de un pingüino durante su movimiento, lo aplasta automáticamente **robándole la mitad de sus ítems** (peces, bolas y dados).
+- **Pegar (Colisión)**: Si la foca aterriza sobre un jugador, o un jugador aterriza sobre ella, la foca le golpea con la cola enviándolo al **agujero anterior**.
+- **Sobornar a la Foca**: Si tienes un **Pez**, puedes elegir alimentarla al encontrártela. Esto la mantendrá feliz y bloqueada para ti durante **2 turnos**, permitiéndote pasar con seguridad.
 
 ---
 
 ## ✨ Animaciones y Feedback Visual
-Para mejorar la experiencia del usuario, el juego incluye un sistema de animaciones fluidas y notificaciones visuales:
-
-- **Popups de Ítems**: Al recoger un objeto, aparece un icono flotante sobre el pingüino con una animación de ascenso y desvanecimiento (`Fade & Translate Transition`).
-- **Ruletas Visuales**: 
-  - **Ruleta de Eventos (Buena)**: Una ruleta animada estilo pixel-art que gira físicamente para otorgar los premios.
-  - **Ruleta Malvada de la Foca**: En casos de 50/50 de probabilidad, entra en escena esta ruleta para decidir gráficamente el castigo que recibirá el Pingüino.
-- **Alertas de Peligro**: 
-  - **Ataque del Oso**: Destello visual en la casilla cuando el oso interactúa con el jugador.
-  - **Caída en un Agujero**: El pingüino cae en un agujero con una animación de caída.
-- **Interfaz Adaptativa**: La mesa de juego escala dinámicamente para adaptarse a cualquier resolución de pantalla (especialmente laptops).
+- **Popups de Ítems**: Iconos flotantes animados al recoger objetos.
+- **Ruleta de Eventos**: Sistema visual animado con físicas de giro estilo pixel-art.
+- **Efectos de Casilla**: Animaciones de caída en agujeros, destellos de ataque del oso y transiciones de movimiento fluido.
+- **Confeti**: Celebración visual al obtener grandes premios en la ruleta.
+- **Interfaz Adaptativa**: Escalado dinámico para resoluciones HD y dispositivos portátiles.
 
 ---
 
 ## 🚀 Cómo empezar
-1. Asegúrate de tener configurado el **JavaFX SDK 21** en tus variables de entorno o en tu IDE (Eclipse/IntelliJ).
-2. Configura las credenciales de la base de datos en el archivo `.env` (puedes usar `sample.env` como guía).
+1. Configura el **JavaFX SDK 21** en tu entorno o IDE.
+2. Configura las credenciales de la base de datos en el archivo `.env`.
 3. Ejecuta la clase `controlador.Main`.

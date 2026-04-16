@@ -29,16 +29,32 @@ public class Foca extends Jugador {
 		this.inventari = new model.items.Inventari();
 	}
 
-	public boolean isSoborno() { return soborno; }
-	public void setSoborno(boolean soborno) { this.soborno = soborno; }
-	public int getBloqueix() { return this.getTornsBloquejat(); }
-	public void setBloqueix(int bloqueix) { this.setTornsBloquejat(bloqueix); }
-	public model.items.Inventari getInventari() { return inventari; }
+	public boolean isSoborno() {
+		return soborno;
+	}
+	public void setSoborno(boolean soborno) {
+		this.soborno = soborno;
+	}
+	public int getBloqueix() {
+		return this.getTornsBloquejat();
+	}
+	public void setBloqueix(int bloqueix) {
+		this.setTornsBloquejat(bloqueix);
+	}
+	public model.items.Inventari getInventari() {
+		return inventari;
+	}
 
 	// Gestión temporal de objetos análoga a la del Pingüino
-	public void usarItem(model.items.Item i) { inventari.usarItem(i); }
-	public void agregarItem(model.items.Item i) { inventari.afegirItem(i); }
-	public void retirarItem(model.items.Item i) { inventari.tirarItem(i); }
+	public void usarItem(model.items.Item i) {
+		inventari.usarItem(i);
+	}
+	public void agregarItem(model.items.Item i) {
+		inventari.afegirItem(i);
+	}
+	public void retirarItem(model.items.Item i) {
+		inventari.tirarItem(i);
+	}
 
 	public void aplastarPingu(Pinguino p) {
 		if (p.getIdPartida() < sobornosJugadores.length && sobornosJugadores[p.getIdPartida()] <= 0 && getBloqueix() == 0) {
@@ -47,9 +63,15 @@ public class Foca extends Jugador {
 			int deleteDaus = p.getInventari().getDausEspecials() / 2;
 			
 			System.out.println("¡A " + p.getNickname() + " le van a quitar la mitad del inventario!");
-			if (deleteBoles > 0) p.getInventari().retirarQuantitat(BolaNeu.class, deleteBoles);
-			if (deletePeixos > 0) p.getInventari().retirarQuantitat(Peix.class, deletePeixos);
-			if (deleteDaus > 0) p.getInventari().retirarQuantitat(model.items.Dau.class, deleteDaus);
+			if (deleteBoles > 0) {
+				p.getInventari().retirarQuantitat(BolaNeu.class, deleteBoles);
+			}
+			if (deletePeixos > 0) {
+				p.getInventari().retirarQuantitat(Peix.class, deletePeixos);
+			}
+			if (deleteDaus > 0) {
+				p.getInventari().retirarQuantitat(model.items.Dau.class, deleteDaus);
+			}
 
 			vista.PantallaJuego.registrarEventoEstatico("¡Foca aplasta a " + p.getNickname() + " y le roba la mitad de los ítems!", "log-warning");
 		}
@@ -87,8 +109,12 @@ public class Foca extends Jugador {
 	}
 
 	public void sobornarFoca(Pinguino p) {
-		if ((Object)p instanceof Foca) return;
-		if (this.getBloqueix() > 0) return;
+		if ((Object)p instanceof Foca) {
+			return;
+		}
+		if (this.getBloqueix() > 0) {
+			return;
+		}
 
 		if (p.getInventari().getPeixos() >= 1) {
 			javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
@@ -152,7 +178,9 @@ public class Foca extends Jugador {
 	public Dau jugarTurnoTactico(Partida partida) {
 		actualizarSobornos(); // Refrescar los turnos de protección antes de pensar
 		
-		if (this.getTornsBloquejat() > 0) return null; // Si ella misma está bloqueada, no hace nada
+		if (this.getTornsBloquejat() > 0) {
+			return null; // Si ella misma está bloqueada, no hace nada
+		}
 		
 		int maxDistanciaLider = 0;
 		Pinguino elMasCercano = null;
@@ -164,8 +192,9 @@ public class Foca extends Jugador {
 				Pinguino ping = (Pinguino) j;
 				
 				// Descartar a jugadores protegidos por el arreglo de sobornos
-				if (ping.getIdPartida() < sobornosJugadores.length && sobornosJugadores[ping.getIdPartida()] > 0) continue; 
-				
+				if (ping.getIdPartida() < sobornosJugadores.length && sobornosJugadores[ping.getIdPartida()] > 0) {
+					continue; 
+				}				
 				if (ping.getPosicio() > maxDistanciaLider) {
 					maxDistanciaLider = ping.getPosicio();
 				}
@@ -186,7 +215,9 @@ public class Foca extends Jugador {
 				if(item instanceof Dau && ((Dau)item).getNom().equals("Dado Rápido")) {
 					Dau d = (Dau) item;
 					inventari.usarItem(d);
-					if (d.getQuantitat() <= 0) inventari.eliminarItem(d);
+					if (d.getQuantitat() <= 0) {
+						inventari.eliminarItem(d);
+					}
 					vista.PantallaJuego.registrarEventoEstatico("La Foca ha activado un Dado Rápido para ganar ventaja.", "log-warning");
 					return d;
 				}
@@ -200,7 +231,9 @@ public class Foca extends Jugador {
 				if(item instanceof Dau && ((Dau)item).getNom().equals("Dado Lento")) {
 					Dau d = (Dau) item;
 					inventari.usarItem(d);
-					if (d.getQuantitat() <= 0) inventari.eliminarItem(d);
+					if (d.getQuantitat() <= 0) {
+						inventari.eliminarItem(d);
+					}
 					vista.PantallaJuego.registrarEventoEstatico("¡La Foca activa un Dado Lento para acechar a " + elMasCercano.getNickname() + "!", "log-warning");
 					return d;
 				}

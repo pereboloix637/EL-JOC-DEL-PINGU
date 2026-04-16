@@ -363,7 +363,9 @@ public class PantallaJuego {
 	}
 
 	public static void estilarAlerta(javafx.scene.control.Dialog<?> d) {
-		if (instanciaActual != null) instanciaActual.estilar(d);
+		if (instanciaActual != null) {
+			instanciaActual.estilar(d);
+		}
 	}
 
 	/**
@@ -382,7 +384,9 @@ public class PantallaJuego {
 	}
 
 	public static void mostrarOverlayBatallaEstatico() {
-		if (instanciaActual != null) instanciaActual.mostrarOverlayBatalla(null);
+		if (instanciaActual != null) {
+			instanciaActual.mostrarOverlayBatalla(null);
+		}
 	}
 
 	public static void mostrarRuletaEstatico(Jugador j, int itemIndex, Runnable onFinished) {
@@ -407,12 +411,24 @@ public class PantallaJuego {
 	 * Habilita o deshabilita todos los controles de interacción del jugador.
 	 */
 	private void bloquearControles(boolean bloquear) {
-	    if (dado != null) dado.setDisable(bloquear);
-	    if (rapido != null) rapido.setDisable(bloquear);
-	    if (lento != null) lento.setDisable(bloquear);
-	    if (peces != null) peces.setDisable(bloquear);
-	    if (nieve != null) nieve.setDisable(bloquear);
-	    if (btnPausa != null) btnPausa.setDisable(bloquear);
+		if (dado != null) {
+			dado.setDisable(bloquear);
+		}
+		if (rapido != null) {
+			rapido.setDisable(bloquear);
+		}
+		if (lento != null) {
+			lento.setDisable(bloquear);
+		}
+		if (peces != null) {
+			peces.setDisable(bloquear);
+		}
+		if (nieve != null) {
+			nieve.setDisable(bloquear);
+		}
+		if (btnPausa != null) {
+			btnPausa.setDisable(bloquear);
+		}
 	}
 
 	/**
@@ -448,16 +464,32 @@ public class PantallaJuego {
 		}
 
 		// Habilitar/deshabilitar botons (null-safe)
-		if (rapido != null) rapido.setDisable(totalRapido <= 0);
-		if (lento != null) lento.setDisable(totalLento <= 0);
-		if (peces != null) peces.setDisable(inv.getPeixos() <= 0);
-		if (nieve != null) nieve.setDisable(inv.getBoles() <= 0);
+		if (rapido != null) {
+			rapido.setDisable(totalRapido <= 0);
+		}
+		if (lento != null) {
+			lento.setDisable(totalLento <= 0);
+		}
+		if (peces != null) {
+			peces.setDisable(inv.getPeixos() <= 0);
+		}
+		if (nieve != null) {
+			nieve.setDisable(inv.getBoles() <= 0);
+		}
 
 		// Actualitzar comptadors sobre els botons
-		if (lblRapido != null) lblRapido.setText(String.valueOf(totalRapido));
-		if (lblLento != null) lblLento.setText(String.valueOf(totalLento));
-		if (lblPeces != null) lblPeces.setText(String.valueOf(inv.getPeixos()));
-		if (lblNieve != null) lblNieve.setText(String.valueOf(inv.getBoles()));
+		if (lblRapido != null) {
+			lblRapido.setText(String.valueOf(totalRapido));
+		}
+		if (lblLento != null) {
+			lblLento.setText(String.valueOf(totalLento));
+		}
+		if (lblPeces != null) {
+			lblPeces.setText(String.valueOf(inv.getPeixos()));
+		}
+		if (lblNieve != null) {
+			lblNieve.setText(String.valueOf(inv.getBoles()));
+		}
 	}
 
 	private void actualizarSidebarJugadores() {
@@ -727,7 +759,9 @@ public class PantallaJuego {
 
 
 	public static void mostrarPopupItem(Jugador j, String imagenNombre) {
-		if (instanciaActual == null) return;
+		if (instanciaActual == null) {
+			return;
+		}
 		Platform.runLater(() -> instanciaActual.mostrarPopupUI(j, imagenNombre));
 	}
 
@@ -1312,6 +1346,80 @@ public class PantallaJuego {
 		});
 	}
 
+	/**
+	 * Mostra un banner animat anunciant el torn del jugador.
+	 * El banner entra des de l'esquerra, es queda al centre, i surt per la dreta.
+	 */
+	private void mostrarBannerTurno(Jugador jugador, Runnable onComplete) {
+		HBox banner = new HBox(25);
+		banner.setAlignment(javafx.geometry.Pos.CENTER);
+		banner.getStyleClass().add("turn-banner");
+		banner.setMaxHeight(130);
+		banner.setMaxWidth(650);
+		banner.setMouseTransparent(true);
+
+		// Imagen del personaje del jugador
+		try {
+			Image img = obtenerImagenJugador(jugador);
+			if (img != null) {
+				ImageView playerImg = new ImageView(img);
+				playerImg.setFitWidth(90);
+				playerImg.setFitHeight(90);
+				playerImg.setPreserveRatio(true);
+				playerImg.setSmooth(false);
+				banner.getChildren().add(playerImg);
+			}
+		} catch (Exception e) {
+			// Continuar sin imagen si falla
+		}
+
+		// Textos del banner
+		VBox textBox = new VBox(8);
+		textBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+		Label turnLabel = new Label("Turno de:");
+		turnLabel.setStyle("-fx-text-fill: #7FD4F0; -fx-font-family: 'Press Start 2P'; -fx-font-size: 16px;");
+
+		HBox nameRow = new HBox(12);
+		nameRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+		Circle colorDot = new Circle(10);
+		String colorHex = getColorForPlayer(jugador);
+		colorDot.setStyle("-fx-fill: " + colorHex + "; -fx-stroke: white; -fx-stroke-width: 2;");
+
+		Label nameLabel = new Label(jugador.getNickname());
+		nameLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Press Start 2P'; -fx-font-size: 24px; -fx-effect: dropshadow(three-pass-box, #000000, 3, 0, 2, 2);");
+
+		nameRow.getChildren().addAll(colorDot, nameLabel);
+		textBox.getChildren().addAll(turnLabel, nameRow);
+		banner.getChildren().add(textBox);
+
+		// Empezar fuera de pantalla a la izquierda
+		banner.setTranslateX(-2000);
+
+		boardRoot.getChildren().add(banner);
+
+		// Animación: entrar desde la izquierda
+		TranslateTransition slideIn = new TranslateTransition(Duration.millis(500), banner);
+		slideIn.setToX(0);
+		slideIn.setInterpolator(Interpolator.SPLINE(0.25, 0.1, 0.25, 1));
+
+		// Pausa en el centro
+		PauseTransition pausaCentro = new PauseTransition(Duration.seconds(1.5));
+
+		// Salir hacia la derecha
+		TranslateTransition slideOut = new TranslateTransition(Duration.millis(400), banner);
+		slideOut.setToX(2000);
+		slideOut.setInterpolator(Interpolator.SPLINE(0.55, 0.0, 0.675, 0.19));
+
+		SequentialTransition seq = new SequentialTransition(slideIn, pausaCentro, slideOut);
+		seq.setOnFinished(e -> {
+			boardRoot.getChildren().remove(banner);
+			if (onComplete != null) onComplete.run();
+		});
+		seq.play();
+	}
+
 	private void executartorn() {
 		Partida p = gestorPartida.getPartida();
 		Jugador actual = p.getJugadorActual();
@@ -1350,35 +1458,42 @@ public class PantallaJuego {
 		bloquearControles(true);
 		registrarEvento("Turno de: " + actual.getNickname(), "log-turn");
 
-		Dau d;
-		if (dauSeleccionat != null) {
-			d = dauSeleccionat;
-			dauSeleccionat = null; 
-		} else {
-			d = new Dau();
-		}
+		// Mostrar banner animado de turno y después proceder con el dado
+		mostrarBannerTurno(actual, () -> {
+			Dau d;
+			if (dauSeleccionat != null) {
+				d = dauSeleccionat;
+				dauSeleccionat = null; 
+			} else {
+				d = new Dau();
+			}
 
-		int resultado = gestorPartida.tirarDau(actual, d);
-		dadoResultText.setText("Dado: " + resultado);
-		
-		if (d.esEspecial()) {
-		    if (d.getMax() > 6) {
-		        dadoResultText.setStyle("-fx-fill: #E67E22;"); 
-		    } else if (d.getMax() <= 3) {
-		        dadoResultText.setStyle("-fx-fill: #27AE60;"); 
-		    }
-		} else {
-		    dadoResultText.setStyle("-fx-fill: white;");
-		}
-		
-		moverPieza(actual, resultado);
+			int resultado = gestorPartida.tirarDau(actual, d);
+			dadoResultText.setText("Dado: " + resultado);
+			
+			if (d.esEspecial()) {
+			    if (d.getMax() > 6) {
+			        dadoResultText.setStyle("-fx-fill: #E67E22;"); 
+			    } else if (d.getMax() <= 3) {
+			        dadoResultText.setStyle("-fx-fill: #27AE60;"); 
+			    }
+			} else {
+			    dadoResultText.setStyle("-fx-fill: white;");
+			}
+			
+			moverPieza(actual, resultado);
+		});
 	}
 
 	private void moverPieza(Jugador j, int steps) {
-	    if (steps <= 0) return;
-	    bloquearControles(true);
+		if (steps <= 0) {
+			return;
+		}
+		bloquearControles(true);
 	    ImageView pieza = getPiezaParaJugador(j);
-	    if (pieza == null) return;
+	    if (pieza == null) {
+			return;
+		}
 
 	    int oldPos = j.getPosicio();
 	    int totalCaselles = gestorPartida.getPartida().getTaulell().getCaselles().size();
@@ -1404,7 +1519,9 @@ public class PantallaJuego {
 	    double offsetSeparacion = 15.0;
 	    int totalEnDestino = 0;
 	    for (Jugador other : js) {
-	    	if (other.getPosicio() == newPos) totalEnDestino++;
+			if (other.getPosicio() == newPos) {
+				totalEnDestino++;
+			}
 	    }
 	    totalEnDestino++; 
 
@@ -1448,8 +1565,11 @@ public class PantallaJuego {
 
 	        final ImageView sombraFwd = getSombraParaJugador(j);
 	        // Girar el personaje según la dirección horizontal
-	        if (stepDx > 0) pieza.setScaleX(1.0);
-	        else if (stepDx < 0) pieza.setScaleX(-1.0);
+	        if (stepDx > 0) {
+				pieza.setScaleX(1.0);
+			} else if (stepDx < 0) {
+				pieza.setScaleX(-1.0);
+			}
 	        
 	        // -------------------------------------------------------------------------
 	        // --- Detección de colisiones en ruta EXCLUSIVA para la Foca ---
@@ -1699,25 +1819,33 @@ public class PantallaJuego {
 				ft.setCycleCount(2);
 				ft.setOnFinished(e -> {
 					boardContainer.getChildren().remove(wrapper);
-					if (onComplete != null) javafx.application.Platform.runLater(onComplete);
+					if (onComplete != null) {
+						javafx.application.Platform.runLater(onComplete);
+					}
 				});
 				ft.play();
 			});
 		} catch (Exception e) {
 			System.err.println("Error cargando GestionarBatallaTEXTO: " + e.getMessage());
-			if (onComplete != null) onComplete.run();
+			if (onComplete != null) {
+				onComplete.run();
+			}
 		}
 	}
 
 	public void animarRetroceso(Jugador j, int oldPos, int newPos, Runnable onComplete) {
 	    ImageView pieza = getPiezaParaJugador(j);
 	    if (pieza == null) {
-	        if (onComplete != null) onComplete.run();
+	        if (onComplete != null) {
+				onComplete.run();
+			}
 	        return;
 	    }
 	    if (oldPos <= newPos) {
 	        actualizarUI();
-	        if (onComplete != null) onComplete.run();
+	        if (onComplete != null) {
+				onComplete.run();
+			}
 	        return;
 	    }
 
@@ -1747,8 +1875,11 @@ public class PantallaJuego {
 
 	        final ImageView sombraBack = getSombraParaJugador(j);
 	        // Girar el personaje según la dirección horizontal del retroceso
-	        if (stepDx > 0) pieza.setScaleX(1.0);
-	        else if (stepDx < 0) pieza.setScaleX(-1.0);
+	        if (stepDx > 0) {
+				pieza.setScaleX(1.0);
+			} else if (stepDx < 0) {
+				pieza.setScaleX(-1.0);
+			}
 	        Transition jump = new Transition() {
 	            { setCycleDuration(Duration.millis(450)); }
 	            @Override protected void interpolate(double frac) {
@@ -1774,7 +1905,9 @@ public class PantallaJuego {
 	        pieza.setTranslateX(0);
 	        pieza.setTranslateY(0);
 	        actualizarUI();
-	        if (onComplete != null) onComplete.run();
+	        if (onComplete != null) {
+				onComplete.run();
+			}
 	    }));
 	    sequence.play();
 	}
@@ -1968,6 +2101,14 @@ public class PantallaJuego {
 		int maxPos = gestorPartida.getPartida().getTaulell().getCaselles().size() - 1;
 		pingu.setPosicio(Math.min(pingu.getPosicio() + 2, maxPos));
 		actualizarUI();
+		
+		if (pingu.getPosicio() == maxPos) {
+			controlador.GestorTaulell gt = new controlador.GestorTaulell();
+			gt.comprovarFiTorn(gestorPartida.getPartida());
+			if (gestorPartida.getPartida().isFinalitzada()) {
+				mostrarAlertaGanador(gestorPartida.getPartida().getGuanyador());
+			}
+		}
 	}
 
 	@FXML

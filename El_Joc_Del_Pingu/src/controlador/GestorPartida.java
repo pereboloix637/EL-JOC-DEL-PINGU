@@ -63,7 +63,9 @@ public class GestorPartida {
     }
 
     public void executarTornComplet() {
-        if (partida == null || partida.isFinalitzada()) return;
+        if (partida == null || partida.isFinalitzada()) {
+            return;
+        }
         Jugador jugadorActual = partida.getJugadorActual();
         if (jugadorActual != null) {
             processarTornJugador(jugadorActual);
@@ -124,7 +126,9 @@ public class GestorPartida {
 
 
     public void guardarPartida(Connection con) {
-        if (partida != null) gestorBBDD.guardarBBDD(partida, con);
+        if (partida != null) {
+            gestorBBDD.guardarBBDD(partida, con);
+        }
     }
 
     public Partida carregarPartida(int id, Connection con) {
