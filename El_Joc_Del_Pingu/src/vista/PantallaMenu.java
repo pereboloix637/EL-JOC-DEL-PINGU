@@ -75,6 +75,9 @@ public class PantallaMenu {
     @FXML private Button btnMuteSfx;
     @FXML private ImageView imgMuteSfx;
     @FXML private Button btnSettings;
+    @FXML private Button btnLoginHumano;
+    @FXML private Button btnAddCPU;
+    @FXML private Button startGameButton;
     @FXML private VBox settingsPane;
     @FXML private Slider musicSlider;
     @FXML private Slider sfxSlider;
@@ -480,18 +483,22 @@ public class PantallaMenu {
             }
         }
 
+        // --- PREVENCIÓN DE DOBLE CLIC Y LIMPIEZA RÁPIDA ---
+        btnLoginHumano.setDisable(true);
+        userField.clear();
+        passField.clear();
+
         ejecutarTareaDB("Validando usuario...", () -> {
             try (Connection con = GestorBBDD.conectarBaseDatos()) {
                 if (con != null) {
                     boolean valid = dbManager.validarLogin(username, password, con);
                     Platform.runLater(() -> {
+                        btnLoginHumano.setDisable(false); // Re-habilitar al terminar
                         if (valid) {
                             Pinguino p = new Pinguino(username, "Azul", new model.items.Inventari());
                             p.setContrasenya(password);
                             joinedPlayers.add(p);
                             playersList.getItems().add(username + " (Humano)");
-                            userField.clear();
-                            passField.clear();
                             System.out.println("Jugador añadido: " + username);
                         } else {
                             Alert alert = new Alert(AlertType.ERROR, "Contraseña incorrecta para el usuario: " + username, ButtonType.OK);
@@ -499,7 +506,12 @@ public class PantallaMenu {
                             alert.showAndWait();
                         }
                     });
+                } else {
+                    Platform.runLater(() -> btnLoginHumano.setDisable(false));
                 }
+            } catch (Exception e) {
+                Platform.runLater(() -> btnLoginHumano.setDisable(false));
+                throw e;
             }
             return null;
         });
@@ -513,6 +525,13 @@ public class PantallaMenu {
             alert.showAndWait();
             return;
         }
+        
+        // Deshabilitar temporalmente para evitar spam
+        btnAddCPU.setDisable(true);
+        PauseTransition cooldown = new PauseTransition(Duration.millis(500));
+        cooldown.setOnFinished(e -> btnAddCPU.setDisable(false));
+        cooldown.play();
+
         cpuCount++;
         String cpuName = "Foca " + cpuCount;
         Foca cpu = new Foca(cpuName, "tempColor");
@@ -583,6 +602,7 @@ public class PantallaMenu {
 
     @FXML
     private void handleStartGame(ActionEvent event) {
+        if (startGameButton != null) startGameButton.setDisable(true);
         Partida partida;
 
         int selectedTabIndex = mainTabPane.getSelectionModel().getSelectedIndex();
@@ -705,7 +725,10 @@ public class PantallaMenu {
                 controlador.Main.cambiarEscena("/resources/PantallaCargaPartida.fxml", true);
             } catch (Exception e) {
                 e.printStackTrace();
+                if (startGameButton != null) startGameButton.setDisable(false);
             }
+        } else {
+            if (startGameButton != null) startGameButton.setDisable(false);
         }
     }
 
