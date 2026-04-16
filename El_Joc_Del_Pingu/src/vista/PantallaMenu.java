@@ -483,6 +483,14 @@ public class PantallaMenu {
             }
         }
 
+        // --- VALIDACIÓN DE NOMBRE RESERVADO (FOCA) ---
+        if (username.toLowerCase().contains("foca")) {
+            Alert alert = new Alert(AlertType.WARNING, "El nombre '" + username + "' no está permitido (palabra reservada).", ButtonType.OK);
+            estilar(alert);
+            alert.showAndWait();
+            return;
+        }
+
         // --- PREVENCIÓN DE DOBLE CLIC Y LIMPIEZA RÁPIDA ---
         btnLoginHumano.setDisable(true);
         userField.clear();
