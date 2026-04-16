@@ -1312,6 +1312,80 @@ public class PantallaJuego {
 		});
 	}
 
+	/**
+	 * Mostra un banner animat anunciant el torn del jugador.
+	 * El banner entra des de l'esquerra, es queda al centre, i surt per la dreta.
+	 */
+	private void mostrarBannerTurno(Jugador jugador, Runnable onComplete) {
+		HBox banner = new HBox(25);
+		banner.setAlignment(javafx.geometry.Pos.CENTER);
+		banner.getStyleClass().add("turn-banner");
+		banner.setMaxHeight(130);
+		banner.setMaxWidth(650);
+		banner.setMouseTransparent(true);
+
+		// Imagen del personaje del jugador
+		try {
+			Image img = obtenerImagenJugador(jugador);
+			if (img != null) {
+				ImageView playerImg = new ImageView(img);
+				playerImg.setFitWidth(90);
+				playerImg.setFitHeight(90);
+				playerImg.setPreserveRatio(true);
+				playerImg.setSmooth(false);
+				banner.getChildren().add(playerImg);
+			}
+		} catch (Exception e) {
+			// Continuar sin imagen si falla
+		}
+
+		// Textos del banner
+		VBox textBox = new VBox(8);
+		textBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+		Label turnLabel = new Label("Turno de:");
+		turnLabel.setStyle("-fx-text-fill: #7FD4F0; -fx-font-family: 'Press Start 2P'; -fx-font-size: 16px;");
+
+		HBox nameRow = new HBox(12);
+		nameRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+		Circle colorDot = new Circle(10);
+		String colorHex = getColorForPlayer(jugador);
+		colorDot.setStyle("-fx-fill: " + colorHex + "; -fx-stroke: white; -fx-stroke-width: 2;");
+
+		Label nameLabel = new Label(jugador.getNickname());
+		nameLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Press Start 2P'; -fx-font-size: 24px; -fx-effect: dropshadow(three-pass-box, #000000, 3, 0, 2, 2);");
+
+		nameRow.getChildren().addAll(colorDot, nameLabel);
+		textBox.getChildren().addAll(turnLabel, nameRow);
+		banner.getChildren().add(textBox);
+
+		// Empezar fuera de pantalla a la izquierda
+		banner.setTranslateX(-2000);
+
+		boardRoot.getChildren().add(banner);
+
+		// Animación: entrar desde la izquierda
+		TranslateTransition slideIn = new TranslateTransition(Duration.millis(500), banner);
+		slideIn.setToX(0);
+		slideIn.setInterpolator(Interpolator.SPLINE(0.25, 0.1, 0.25, 1));
+
+		// Pausa en el centro
+		PauseTransition pausaCentro = new PauseTransition(Duration.seconds(1.5));
+
+		// Salir hacia la derecha
+		TranslateTransition slideOut = new TranslateTransition(Duration.millis(400), banner);
+		slideOut.setToX(2000);
+		slideOut.setInterpolator(Interpolator.SPLINE(0.55, 0.0, 0.675, 0.19));
+
+		SequentialTransition seq = new SequentialTransition(slideIn, pausaCentro, slideOut);
+		seq.setOnFinished(e -> {
+			boardRoot.getChildren().remove(banner);
+			if (onComplete != null) onComplete.run();
+		});
+		seq.play();
+	}
+
 	private void executartorn() {
 		Partida p = gestorPartida.getPartida();
 		Jugador actual = p.getJugadorActual();
@@ -1350,28 +1424,31 @@ public class PantallaJuego {
 		bloquearControles(true);
 		registrarEvento("Turno de: " + actual.getNickname(), "log-turn");
 
-		Dau d;
-		if (dauSeleccionat != null) {
-			d = dauSeleccionat;
-			dauSeleccionat = null; 
-		} else {
-			d = new Dau();
-		}
+		// Mostrar banner animado de turno y después proceder con el dado
+		mostrarBannerTurno(actual, () -> {
+			Dau d;
+			if (dauSeleccionat != null) {
+				d = dauSeleccionat;
+				dauSeleccionat = null; 
+			} else {
+				d = new Dau();
+			}
 
-		int resultado = gestorPartida.tirarDau(actual, d);
-		dadoResultText.setText("Dado: " + resultado);
-		
-		if (d.esEspecial()) {
-		    if (d.getMax() > 6) {
-		        dadoResultText.setStyle("-fx-fill: #E67E22;"); 
-		    } else if (d.getMax() <= 3) {
-		        dadoResultText.setStyle("-fx-fill: #27AE60;"); 
-		    }
-		} else {
-		    dadoResultText.setStyle("-fx-fill: white;");
-		}
-		
-		moverPieza(actual, resultado);
+			int resultado = gestorPartida.tirarDau(actual, d);
+			dadoResultText.setText("Dado: " + resultado);
+			
+			if (d.esEspecial()) {
+			    if (d.getMax() > 6) {
+			        dadoResultText.setStyle("-fx-fill: #E67E22;"); 
+			    } else if (d.getMax() <= 3) {
+			        dadoResultText.setStyle("-fx-fill: #27AE60;"); 
+			    }
+			} else {
+			    dadoResultText.setStyle("-fx-fill: white;");
+			}
+			
+			moverPieza(actual, resultado);
+		});
 	}
 
 	private void moverPieza(Jugador j, int steps) {
