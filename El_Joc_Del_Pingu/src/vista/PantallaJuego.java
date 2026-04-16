@@ -363,7 +363,9 @@ public class PantallaJuego {
 	}
 
 	public static void estilarAlerta(javafx.scene.control.Dialog<?> d) {
-		if (instanciaActual != null) instanciaActual.estilar(d);
+		if (instanciaActual != null) {
+			instanciaActual.estilar(d);
+		}
 	}
 
 	/**
@@ -382,7 +384,9 @@ public class PantallaJuego {
 	}
 
 	public static void mostrarOverlayBatallaEstatico() {
-		if (instanciaActual != null) instanciaActual.mostrarOverlayBatalla(null);
+		if (instanciaActual != null) {
+			instanciaActual.mostrarOverlayBatalla(null);
+		}
 	}
 
 	public static void mostrarRuletaEstatico(Jugador j, int itemIndex, Runnable onFinished) {
@@ -407,12 +411,24 @@ public class PantallaJuego {
 	 * Habilita o deshabilita todos los controles de interacción del jugador.
 	 */
 	private void bloquearControles(boolean bloquear) {
-	    if (dado != null) dado.setDisable(bloquear);
-	    if (rapido != null) rapido.setDisable(bloquear);
-	    if (lento != null) lento.setDisable(bloquear);
-	    if (peces != null) peces.setDisable(bloquear);
-	    if (nieve != null) nieve.setDisable(bloquear);
-	    if (btnPausa != null) btnPausa.setDisable(bloquear);
+		if (dado != null) {
+			dado.setDisable(bloquear);
+		}
+		if (rapido != null) {
+			rapido.setDisable(bloquear);
+		}
+		if (lento != null) {
+			lento.setDisable(bloquear);
+		}
+		if (peces != null) {
+			peces.setDisable(bloquear);
+		}
+		if (nieve != null) {
+			nieve.setDisable(bloquear);
+		}
+		if (btnPausa != null) {
+			btnPausa.setDisable(bloquear);
+		}
 	}
 
 	/**
@@ -448,16 +464,32 @@ public class PantallaJuego {
 		}
 
 		// Habilitar/deshabilitar botons (null-safe)
-		if (rapido != null) rapido.setDisable(totalRapido <= 0);
-		if (lento != null) lento.setDisable(totalLento <= 0);
-		if (peces != null) peces.setDisable(inv.getPeixos() <= 0);
-		if (nieve != null) nieve.setDisable(inv.getBoles() <= 0);
+		if (rapido != null) {
+			rapido.setDisable(totalRapido <= 0);
+		}
+		if (lento != null) {
+			lento.setDisable(totalLento <= 0);
+		}
+		if (peces != null) {
+			peces.setDisable(inv.getPeixos() <= 0);
+		}
+		if (nieve != null) {
+			nieve.setDisable(inv.getBoles() <= 0);
+		}
 
 		// Actualitzar comptadors sobre els botons
-		if (lblRapido != null) lblRapido.setText(String.valueOf(totalRapido));
-		if (lblLento != null) lblLento.setText(String.valueOf(totalLento));
-		if (lblPeces != null) lblPeces.setText(String.valueOf(inv.getPeixos()));
-		if (lblNieve != null) lblNieve.setText(String.valueOf(inv.getBoles()));
+		if (lblRapido != null) {
+			lblRapido.setText(String.valueOf(totalRapido));
+		}
+		if (lblLento != null) {
+			lblLento.setText(String.valueOf(totalLento));
+		}
+		if (lblPeces != null) {
+			lblPeces.setText(String.valueOf(inv.getPeixos()));
+		}
+		if (lblNieve != null) {
+			lblNieve.setText(String.valueOf(inv.getBoles()));
+		}
 	}
 
 	private void actualizarSidebarJugadores() {
@@ -727,7 +759,9 @@ public class PantallaJuego {
 
 
 	public static void mostrarPopupItem(Jugador j, String imagenNombre) {
-		if (instanciaActual == null) return;
+		if (instanciaActual == null) {
+			return;
+		}
 		Platform.runLater(() -> instanciaActual.mostrarPopupUI(j, imagenNombre));
 	}
 
@@ -1375,10 +1409,14 @@ public class PantallaJuego {
 	}
 
 	private void moverPieza(Jugador j, int steps) {
-	    if (steps <= 0) return;
-	    bloquearControles(true);
+		if (steps <= 0) {
+			return;
+		}
+		bloquearControles(true);
 	    ImageView pieza = getPiezaParaJugador(j);
-	    if (pieza == null) return;
+	    if (pieza == null) {
+			return;
+		}
 
 	    int oldPos = j.getPosicio();
 	    int totalCaselles = gestorPartida.getPartida().getTaulell().getCaselles().size();
@@ -1404,7 +1442,9 @@ public class PantallaJuego {
 	    double offsetSeparacion = 15.0;
 	    int totalEnDestino = 0;
 	    for (Jugador other : js) {
-	    	if (other.getPosicio() == newPos) totalEnDestino++;
+			if (other.getPosicio() == newPos) {
+				totalEnDestino++;
+			}
 	    }
 	    totalEnDestino++; 
 
@@ -1448,8 +1488,11 @@ public class PantallaJuego {
 
 	        final ImageView sombraFwd = getSombraParaJugador(j);
 	        // Girar el personaje según la dirección horizontal
-	        if (stepDx > 0) pieza.setScaleX(1.0);
-	        else if (stepDx < 0) pieza.setScaleX(-1.0);
+	        if (stepDx > 0) {
+				pieza.setScaleX(1.0);
+			} else if (stepDx < 0) {
+				pieza.setScaleX(-1.0);
+			}
 	        
 	        // -------------------------------------------------------------------------
 	        // --- Detección de colisiones en ruta EXCLUSIVA para la Foca ---
@@ -1699,25 +1742,33 @@ public class PantallaJuego {
 				ft.setCycleCount(2);
 				ft.setOnFinished(e -> {
 					boardContainer.getChildren().remove(wrapper);
-					if (onComplete != null) javafx.application.Platform.runLater(onComplete);
+					if (onComplete != null) {
+						javafx.application.Platform.runLater(onComplete);
+					}
 				});
 				ft.play();
 			});
 		} catch (Exception e) {
 			System.err.println("Error cargando GestionarBatallaTEXTO: " + e.getMessage());
-			if (onComplete != null) onComplete.run();
+			if (onComplete != null) {
+				onComplete.run();
+			}
 		}
 	}
 
 	public void animarRetroceso(Jugador j, int oldPos, int newPos, Runnable onComplete) {
 	    ImageView pieza = getPiezaParaJugador(j);
 	    if (pieza == null) {
-	        if (onComplete != null) onComplete.run();
+	        if (onComplete != null) {
+				onComplete.run();
+			}
 	        return;
 	    }
 	    if (oldPos <= newPos) {
 	        actualizarUI();
-	        if (onComplete != null) onComplete.run();
+	        if (onComplete != null) {
+				onComplete.run();
+			}
 	        return;
 	    }
 
@@ -1747,8 +1798,11 @@ public class PantallaJuego {
 
 	        final ImageView sombraBack = getSombraParaJugador(j);
 	        // Girar el personaje según la dirección horizontal del retroceso
-	        if (stepDx > 0) pieza.setScaleX(1.0);
-	        else if (stepDx < 0) pieza.setScaleX(-1.0);
+	        if (stepDx > 0) {
+				pieza.setScaleX(1.0);
+			} else if (stepDx < 0) {
+				pieza.setScaleX(-1.0);
+			}
 	        Transition jump = new Transition() {
 	            { setCycleDuration(Duration.millis(450)); }
 	            @Override protected void interpolate(double frac) {
@@ -1774,7 +1828,9 @@ public class PantallaJuego {
 	        pieza.setTranslateX(0);
 	        pieza.setTranslateY(0);
 	        actualizarUI();
-	        if (onComplete != null) onComplete.run();
+	        if (onComplete != null) {
+				onComplete.run();
+			}
 	    }));
 	    sequence.play();
 	}
@@ -1968,6 +2024,14 @@ public class PantallaJuego {
 		int maxPos = gestorPartida.getPartida().getTaulell().getCaselles().size() - 1;
 		pingu.setPosicio(Math.min(pingu.getPosicio() + 2, maxPos));
 		actualizarUI();
+		
+		if (pingu.getPosicio() == maxPos) {
+			controlador.GestorTaulell gt = new controlador.GestorTaulell();
+			gt.comprovarFiTorn(gestorPartida.getPartida());
+			if (gestorPartida.getPartida().isFinalitzada()) {
+				mostrarAlertaGanador(gestorPartida.getPartida().getGuanyador());
+			}
+		}
 	}
 
 	@FXML

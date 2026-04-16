@@ -133,7 +133,9 @@ public class PantallaMenu {
         javafx.beans.value.ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> {
             double w = wrapper.getWidth();
             double h = wrapper.getHeight();
-            if (w == 0 || h == 0) return;
+            if (w == 0 || h == 0) {
+				return;
+			}
 
             // Factor de escala respetando aspecto 16:9
             double scaleFactor = Math.min(w / 1920.0, h / 1080.0);
@@ -164,11 +166,17 @@ public class PantallaMenu {
                     setText(item);
                     getStyleClass().removeAll("rank-1", "rank-2", "rank-3", "rank-4-5", "rank-default");
                     int index = getIndex();
-                    if (index == 0) getStyleClass().add("rank-1");
-                    else if (index == 1) getStyleClass().add("rank-2");
-                    else if (index == 2) getStyleClass().add("rank-3");
-                    else if (index == 3 || index == 4) getStyleClass().add("rank-4-5");
-                    else getStyleClass().add("rank-default");
+                    if (index == 0) {
+						getStyleClass().add("rank-1");
+					} else if (index == 1) {
+						getStyleClass().add("rank-2");
+					} else if (index == 2) {
+						getStyleClass().add("rank-3");
+					} else if (index == 3 || index == 4) {
+						getStyleClass().add("rank-4-5");
+					} else {
+						getStyleClass().add("rank-default");
+					}
                 }
             }
         });
@@ -254,10 +262,21 @@ public class PantallaMenu {
         updateMuteUI();
 
         // ── Preparar estado inicial para las animaciones (evitar parpadeo) ──
-        if (landingContainer != null) { landingContainer.setOpacity(0); landingContainer.setTranslateY(-400); }
-        if (rulesContainer != null) { rulesContainer.setOpacity(0); rulesContainer.setTranslateX(-800); }
+        if (landingContainer != null) {
+			landingContainer.setOpacity(0);
+			landingContainer.setTranslateY(-400);
+		}
+        if (rulesContainer != null) {
+			rulesContainer.setOpacity(0);
+			rulesContainer.setTranslateX(-800);
+		}
         Button[] buttons = {btnNewGame, btnLoadGame, btnRanking, btnSettings, btnQuit};
-        for (Button b : buttons) { if (b != null) { b.setOpacity(0); b.setTranslateX(800); } }
+        for (Button b : buttons) {
+			if (b != null) {
+				b.setOpacity(0);
+				b.setTranslateX(800);
+			}
+		}
 
         // ── Animaciones de entrada escalonadas para los botones ──
         // Usamos un listener para detectar cuando el menú se muestra realmente en pantalla
@@ -286,7 +305,9 @@ public class PantallaMenu {
      * Aplica una animación de entrada (desplazamiento + fade) a un botón con un retraso.
      */
     private void animarBotonEntrada(Node node, int delayMillis) {
-        if (node == null) return;
+        if (node == null) {
+			return;
+		}
 
         // El estado inicial ya se ha configurado en initialize() para evitar parpadeos
         
@@ -312,7 +333,9 @@ public class PantallaMenu {
      * Aplica una animación de entrada desde la izquierda con rebote.
      */
     private void animarPanelIzquierda(Node node, int delayMillis) {
-        if (node == null) return;
+        if (node == null) {
+			return;
+		}
 
         // El estado inicial ya se ha configurado en initialize() para evitar parpadeos
 
@@ -336,7 +359,9 @@ public class PantallaMenu {
      * Aplica una animación de entrada desde arriba con rebote.
      */
     private void animarPanelArriba(Node node, int delayMillis) {
-        if (node == null) return;
+        if (node == null) {
+			return;
+		}
 
         // El estado inicial ya se ha configurado en initialize() para evitar parpadeos
 

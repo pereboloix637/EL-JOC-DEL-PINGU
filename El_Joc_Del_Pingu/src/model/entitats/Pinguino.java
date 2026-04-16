@@ -44,7 +44,10 @@ public class Pinguino extends Jugador {
 	// MÉTODO PARA PELEAR CON UN RIVAL
 	public void gestionarBatalla(Pinguino pingu) {
 		int bolesJ1 = this.getInventari().getBoles();
-		int bolesJ2 = (pingu != null) ? pingu.getInventari().getBoles() : -1;
+		int bolesJ2 = -1;
+		if (pingu != null) {
+			bolesJ2 = pingu.getInventari().getBoles();
+		}
 
 		// Validamos: Rival no nulo y que las cantidades de bolas sean lógicas
 		if (pingu != null && bolesJ1 >= 0 && bolesJ2 >= 0) {
