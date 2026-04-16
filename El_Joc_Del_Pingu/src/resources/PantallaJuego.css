@@ -353,3 +353,14 @@
     -fx-padding: 8 14;
     -fx-effect: dropshadow(three-pass-box, rgba(46, 204, 113, 0.6), 8, 0, 0, 0);
 }
+
+/* ---- BANNER DE TURNO ---- */
+.turn-banner {
+    -fx-background-color: rgba(13, 27, 42, 0.95);
+    -fx-border-color: #7FD4F0;
+    -fx-border-width: 3;
+    -fx-padding: 20 40;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(127, 212, 240, 0.6), 20, 0, 0, 0);
+}
