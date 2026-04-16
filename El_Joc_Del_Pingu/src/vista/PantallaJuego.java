@@ -509,14 +509,19 @@ public class PantallaJuego {
 			}
 
 			HBox header = new HBox(10);
-			Circle colorIndicator = new Circle(8);
-			String colorHex = getColorForPlayer(j);
-			colorIndicator.setStyle("-fx-fill: " + colorHex + ";");
+			header.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+			// Imagen del personaje en lugar del círculo de color
+			ImageView charIcon = new ImageView(obtenerImagenJugador(j));
+			charIcon.setFitWidth(32);
+			charIcon.setFitHeight(32);
+			charIcon.setPreserveRatio(true);
+			charIcon.setSmooth(false);
 			
 			Label name = new Label(j.getNickname());
 			name.getStyleClass().add("player-name");
 			
-			header.getChildren().addAll(colorIndicator, name);
+			header.getChildren().addAll(charIcon, name);
 			card.getChildren().add(header);
 
 			if (j instanceof Pinguino p) {
@@ -1354,8 +1359,8 @@ public class PantallaJuego {
 		HBox banner = new HBox(25);
 		banner.setAlignment(javafx.geometry.Pos.CENTER);
 		banner.getStyleClass().add("turn-banner");
-		banner.setMaxHeight(130);
-		banner.setMaxWidth(650);
+		banner.setMaxHeight(110);
+		banner.setMaxWidth(420);
 		banner.setMouseTransparent(true);
 
 		// Imagen del personaje del jugador
@@ -1380,18 +1385,10 @@ public class PantallaJuego {
 		Label turnLabel = new Label("Turno de:");
 		turnLabel.setStyle("-fx-text-fill: #7FD4F0; -fx-font-family: 'Press Start 2P'; -fx-font-size: 16px;");
 
-		HBox nameRow = new HBox(12);
-		nameRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-
-		Circle colorDot = new Circle(10);
-		String colorHex = getColorForPlayer(jugador);
-		colorDot.setStyle("-fx-fill: " + colorHex + "; -fx-stroke: white; -fx-stroke-width: 2;");
-
 		Label nameLabel = new Label(jugador.getNickname());
 		nameLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Press Start 2P'; -fx-font-size: 24px; -fx-effect: dropshadow(three-pass-box, #000000, 3, 0, 2, 2);");
 
-		nameRow.getChildren().addAll(colorDot, nameLabel);
-		textBox.getChildren().addAll(turnLabel, nameRow);
+		textBox.getChildren().addAll(turnLabel, nameLabel);
 		banner.getChildren().add(textBox);
 
 		// Empezar fuera de pantalla a la izquierda
