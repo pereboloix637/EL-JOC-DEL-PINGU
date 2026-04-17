@@ -250,6 +250,9 @@ public class PantallaJuego {
 
 		wrapper.widthProperty().addListener(resizeListener);
 		wrapper.heightProperty().addListener(resizeListener);
+
+		// ── Efecto de nieve cayendo ──
+		new EfectoNieve(wrapper);
 		
 		registrarEvento("¡El juego ha comenzado!", "log-info");
 
@@ -276,8 +279,17 @@ public class PantallaJuego {
 		});
 		boardDelay.play();
 		
-		// Verificar si el primer turno es de la CPU
-		checkTurnoCPU();
+		// Bloquear controles inicialmente para que no se pueda tirar antes del banner
+		bloquearControles(true);
+
+		// Anunciar el primer turno con el banner
+		Platform.runLater(() -> {
+			Jugador primerJugador = gestorPartida.getPartida().getJugadorActual();
+			mostrarBannerTurno(primerJugador, () -> {
+				actualizarUI(); // Desbloquea si es humano y limpia estado
+				checkTurnoCPU();
+			});
+		});
 	}
 
 	/**
@@ -1455,31 +1467,30 @@ public class PantallaJuego {
 		bloquearControles(true);
 		registrarEvento("Turno de: " + actual.getNickname(), "log-turn");
 
-		// Mostrar banner animado de turno y después proceder con el dado
-		mostrarBannerTurno(actual, () -> {
-			Dau d;
-			if (dauSeleccionat != null) {
-				d = dauSeleccionat;
-				dauSeleccionat = null; 
-			} else {
-				d = new Dau();
-			}
+		// Ya no mostramos el banner aquí, puesto que se muestra al inicio del turno automáticamente.
+		// Procedemos directamente con el lanzamiento del dado.
+		Dau d;
+		if (dauSeleccionat != null) {
+			d = dauSeleccionat;
+			dauSeleccionat = null; 
+		} else {
+			d = new Dau();
+		}
 
-			int resultado = gestorPartida.tirarDau(actual, d);
-			dadoResultText.setText("Dado: " + resultado);
-			
-			if (d.esEspecial()) {
-			    if (d.getMax() > 6) {
-			        dadoResultText.setStyle("-fx-fill: #E67E22;"); 
-			    } else if (d.getMax() <= 3) {
-			        dadoResultText.setStyle("-fx-fill: #27AE60;"); 
-			    }
-			} else {
-			    dadoResultText.setStyle("-fx-fill: white;");
+		int resultado = gestorPartida.tirarDau(actual, d);
+		dadoResultText.setText("Dado: " + resultado);
+		
+		if (d.esEspecial()) {
+			if (d.getMax() > 6) {
+				dadoResultText.setStyle("-fx-fill: #E67E22;"); 
+			} else if (d.getMax() <= 3) {
+				dadoResultText.setStyle("-fx-fill: #27AE60;"); 
 			}
-			
-			moverPieza(actual, resultado);
-		});
+		} else {
+			dadoResultText.setStyle("-fx-fill: white;");
+		}
+		
+		moverPieza(actual, resultado);
 	}
 
 	private void moverPieza(Jugador j, int steps) {
@@ -1772,9 +1783,25 @@ public class PantallaJuego {
 			return;
 		}
 
-		gestorPartida.seguentTorn();
-		actualizarUI();
-		checkTurnoCPU();
+		// Bloquear controles inmediatamente
+		bloquearControles(true);
+
+		// Esperar 1 segundo antes de anunciar el siguiente turno (delay solicitado)
+		PauseTransition delayTurno = new PauseTransition(Duration.seconds(1));
+		delayTurno.setOnFinished(e -> {
+			gestorPartida.seguentTorn();
+			// Actualizamos solo el highlight visual, pero volvemos a bloquear para el banner
+			actualizarUI();
+			bloquearControles(true);
+			
+			// Anunciar el siguiente turno y habilitar al final de la animación
+			Jugador proximo = gestorPartida.getPartida().getJugadorActual();
+			mostrarBannerTurno(proximo, () -> {
+				actualizarUI(); // Esto desbloqueará si es humano
+				checkTurnoCPU();
+			});
+		});
+		delayTurno.play();
 	}
 
 	/**
