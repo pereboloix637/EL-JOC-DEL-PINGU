@@ -155,6 +155,8 @@ public class PantallaMenu {
         wrapper.widthProperty().addListener(resizeListener);
         wrapper.heightProperty().addListener(resizeListener);
 
+        // ── Efecto de nieve cayendo ──
+        new EfectoNieve(wrapper);
 
         // Personalización de colores del ranking por posición (Se configura ANTES de cargar datos)
         rankingList.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
