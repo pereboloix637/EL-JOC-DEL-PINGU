@@ -51,22 +51,17 @@ public class Pinguino extends Jugador {
 
 		// Validamos: Rival no nulo y que las cantidades de bolas sean lógicas
 		if (pingu != null && bolesJ1 >= 0 && bolesJ2 >= 0) {
-			// Mostrar overlay de batalla (via helper estático)
-			vista.PantallaJuego.mostrarOverlayBatallaEstatico();
-
 			// Guardar posiciones anteriores para animaciones
 			int posJ1Abans = this.getPosicio();
 			int posJ2Abans = pingu.getPosicio();
 
 			int diferencia = bolesJ1 - bolesJ2;
 			System.out.println("¡Empieza la pelea! Los dos tiran bolas de nieve y...");
-			String resultMsg = "";
 			if (bolesJ1 > bolesJ2) {
 				// CASO 1: Gana el atacante
 				System.out.println("¡" + this.getNickname() + " gana!");
 				pingu.mourePosicio(-diferencia); 
 				System.out.println("El rival retrocederá " + diferencia + " casillas...");
-				resultMsg = this.getNickname() + " guanya! " + pingu.getNickname() + " retrocede.";
 				this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 				pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 			} else if (bolesJ1 < bolesJ2) {
@@ -74,7 +69,6 @@ public class Pinguino extends Jugador {
 				System.out.println("¡" + pingu.getNickname() + " gana!");
 				this.mourePosicio(diferencia); 
 				System.out.println("El atacante retrocederá " + Math.abs(diferencia) + " casillas...");
-				resultMsg = pingu.getNickname() + " guanya! " + this.getNickname() + " retrocede.";
 				this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 				pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 			} else {
@@ -82,16 +76,7 @@ public class Pinguino extends Jugador {
 				System.out.println("¡Empate! Nadie retrocede, pero se pierden las bolas de nieve.");
 				this.getInventari().eliminarItemsPerTipus(BolaNeu.class);
 				pingu.getInventari().eliminarItemsPerTipus(BolaNeu.class);
-				resultMsg = "¡Empate! Ambos pierden todas las bolas de nieve.";
 			}
-
-			// Mostrar resultado en un Alert (UI)
-			javafx.scene.control.Alert batallaAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-			vista.PantallaJuego.estilarAlerta(batallaAlert);
-			batallaAlert.setTitle("Resultado de la Batalla");
-			batallaAlert.setHeaderText("¡Combate de bolas de nieve!");
-			batallaAlert.setContentText(resultMsg);
-			batallaAlert.showAndWait();
 
 
 		} else {
