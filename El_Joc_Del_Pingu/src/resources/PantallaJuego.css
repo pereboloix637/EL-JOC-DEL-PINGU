@@ -364,3 +364,16 @@
     -fx-border-radius: 0;
     -fx-effect: dropshadow(three-pass-box, rgba(127, 212, 240, 0.6), 20, 0, 0, 0);
 }
+
+/* ---- CARTEL DE NOMBRE DE JUGADOR (HOVER) ---- */
+.player-name-tag {
+    -fx-background-color: rgba(13, 27, 42, 0.9);
+    -fx-text-fill: #7FD4F0;
+    -fx-font-family: "Press Start 2P";
+    -fx-font-size: 10px;
+    -fx-padding: 4 8;
+    -fx-border-color: #7FD4F0;
+    -fx-border-width: 2;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 5, 0, 0, 0);
+}
