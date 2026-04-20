@@ -152,6 +152,7 @@ public class PantallaJuego {
 	private ImageView P6;
 	
 	private ImageView[] sombras;
+	private Label[] nameTags;
 
 	private GestorPartida gestorPartida;
 	private static Partida partidaInicial;
@@ -219,40 +220,98 @@ public class PantallaJuego {
 		} catch (Exception e) {
 			System.err.println("Error cargando sombras: " + e.getMessage());
 		}
+
+		// --- Inicializar Carteles de Nombre (Hover) ---
+		nameTags = new Label[6];
+		for (int i = 0; i < 6; i++) {
+			Label lbl = new Label("");
+			lbl.getStyleClass().add("player-name-tag");
+			lbl.setVisible(false);
+			lbl.setMouseTransparent(true);
+			nameTags[i] = lbl;
+			tablero.getChildren().add(lbl);
+			GridPane.setHalignment(lbl, HPos.CENTER);
+			GridPane.setValignment(lbl, VPos.TOP);
+		}
+
+		// Configurar hover para cada pieza
+		ImageView[] piezas = {P1, P2, P3, P4, P5, P6};
+		for (int i = 0; i < piezas.length; i++) {
+			final int idx = i;
+			ImageView p = piezas[i];
+			if (p != null) {
+				p.setOnMouseEntered(e -> {
+					// Actualizar texto por si ha cambiado (ej. Foca num)
+					ArrayList<Jugador> js = gestorPartida.getPartida().getJugadors();
+					if (idx < js.size()) {
+						Jugador j = js.get(idx);
+						String nombre = j.getNickname();
+						if (j instanceof Foca) {
+							int focaNum = 0;
+							for (int k = 0; k <= idx; k++) {
+								if (js.get(k) instanceof Foca) focaNum++;
+							}
+							nombre = "Foca " + focaNum;
+						}
+						nameTags[idx].setText(nombre);
+						nameTags[idx].setVisible(true);
+					}
+				});
+				p.setOnMouseExited(e -> nameTags[idx].setVisible(false));
+			}
+		}
 		// --------------------------
-		// ── Escalado dinámico PERFECTO para Laptops sin romper la config base ──
-		boardRoot.getChildren().clear();
+		// ── Escalado Dinámico Proporcional (Letterbox) ──
+		// Permitimos que los contenedores se encojan para detectar el tamaño real de la ventana
 		boardRoot.setMinSize(0, 0);
+		boardContainer.setMinSize(0, 0);
+		boardContainer.setPrefSize(1920, 1080);
+		boardContainer.setMaxSize(1920, 1080);
 
-		javafx.scene.layout.Pane wrapper = new javafx.scene.layout.Pane();
-		boardRoot.getChildren().add(wrapper);
-
-		wrapper.getChildren().add(boardContainer);
+		// Usamos un Group como wrapper intermedio para que el StackPane centre el contenido escalado
+		javafx.scene.Group groupWrapper = new javafx.scene.Group(boardContainer);
+		boardRoot.getChildren().add(groupWrapper);
 
 		javafx.scene.transform.Scale scaleTransform = new javafx.scene.transform.Scale(1, 1, 0, 0);
-		boardContainer.getTransforms().clear();
-		boardContainer.getTransforms().add(scaleTransform);
+		boardContainer.getTransforms().setAll(scaleTransform);
 
 		javafx.beans.value.ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> {
-		    double w = wrapper.getWidth();
-		    double h = wrapper.getHeight();
-		    if (w == 0 || h == 0) return;
+		    // Tomamos el tamaño del boardRoot, que ahora puede encogerse con la ventana
+		    double w = boardRoot.getWidth();
+		    double h = boardRoot.getHeight();
+		    
+		    if (w <= 0 || h <= 0) return;
 
+		    // Calculamos el factor de escala para encajar 1920x1080 en el espacio disponible
 		    double scaleFactor = Math.min(w / 1920.0, h / 1080.0);
 		    scaleTransform.setX(scaleFactor);
 		    scaleTransform.setY(scaleFactor);
-
-		    double scaledWidth = 1920.0 * scaleFactor;
-		    double scaledHeight = 1080.0 * scaleFactor;
-		    boardContainer.setLayoutX((w - scaledWidth) / 2.0);
-		    boardContainer.setLayoutY((h - scaledHeight) / 2.0);
 		};
 
-		wrapper.widthProperty().addListener(resizeListener);
-		wrapper.heightProperty().addListener(resizeListener);
+		// Detectar cambios en el tamaño de la ventana a través de la escena
+		boardRoot.sceneProperty().addListener((obs, oldScene, newScene) -> {
+			if (newScene != null) {
+				newScene.widthProperty().addListener(resizeListener);
+				newScene.heightProperty().addListener(resizeListener);
+				// Ejecutar inmediatamente al detectar la escena
+				Platform.runLater(() -> resizeListener.changed(null, 0, 0));
+			}
+		});
 
-		// ── Efecto de nieve cayendo ──
-		new EfectoNieve(wrapper);
+		boardRoot.widthProperty().addListener(resizeListener);
+		boardRoot.heightProperty().addListener(resizeListener);
+		
+		// Sincronización inicial con un pequeño delay para asegurar que el layout se haya procesado
+		Platform.runLater(() -> {
+			resizeListener.changed(null, 0, 0);
+			// Forzar un segundo pase por si acaso
+			javafx.animation.PauseTransition p = new javafx.animation.PauseTransition(javafx.util.Duration.millis(100));
+			p.setOnFinished(e -> resizeListener.changed(null, 0, 0));
+			p.play();
+		});
+
+		// ── Efecto de nieve cayendo sobre toda la superficie ──
+		new EfectoNieve(boardRoot);
 		
 		registrarEvento("¡El juego ha comenzado!", "log-info");
 
@@ -354,6 +413,16 @@ public class PantallaJuego {
 					aplicarOffsetDeSeparacion(sombra, numEnCasilla, recuento.get(pos));
 					// La sombra queda en el suelo (un poco debajo del personaje)
 					GridPane.setMargin(sombra, new javafx.geometry.Insets(0, 0, 10, 0));
+				}
+
+				// Sincronizar cartel de nombre
+				Label tag = nameTags[i];
+				if (tag != null) {
+					GridPane.setRowIndex(tag, row);
+					GridPane.setColumnIndex(tag, col);
+					aplicarOffsetDeSeparacion(tag, numEnCasilla, recuento.get(pos));
+					// Posicionar el cartel arriba del personaje
+					GridPane.setMargin(tag, new javafx.geometry.Insets(0, 0, 95, 0));
 				}
 			}
 		}
@@ -1603,6 +1672,17 @@ public class PantallaJuego {
 	                double hopY = -45 * Math.sin(Math.PI * frac);
 	                pieza.setTranslateX(curX);
 	                pieza.setTranslateY(curY + hopY);
+	                
+	                // Sincronizar el cartel de nombre para que siga el salto
+	                int playerIdx = gestorPartida.getPartida().getJugadors().indexOf(j);
+	                if (playerIdx >= 0 && playerIdx < nameTags.length) {
+	                    Label tag = nameTags[playerIdx];
+	                    if (tag != null) {
+	                        tag.setTranslateX(curX);
+	                        tag.setTranslateY(curY + hopY);
+	                    }
+	                }
+
 	                // La sombra se desliza por el suelo (sin salto)
 	                if (sombraFwd != null) {
 	                    sombraFwd.setTranslateX(curX);
@@ -1912,6 +1992,17 @@ public class PantallaJuego {
 	                double hopY = -45 * Math.sin(Math.PI * frac);
 	                pieza.setTranslateX(curX);
 	                pieza.setTranslateY(curY + hopY);
+
+	                // Sincronizar el cartel de nombre durante el retroceso
+	                int playerIdx = gestorPartida.getPartida().getJugadors().indexOf(j);
+	                if (playerIdx >= 0 && playerIdx < nameTags.length) {
+	                    Label tag = nameTags[playerIdx];
+	                    if (tag != null) {
+	                        tag.setTranslateX(curX);
+	                        tag.setTranslateY(curY + hopY);
+	                    }
+	                }
+
 	                // La sombra se desliza por el suelo (sin salto)
 	                if (sombraBack != null) {
 	                    sombraBack.setTranslateX(curX);
@@ -2160,7 +2251,7 @@ public class PantallaJuego {
 	}
 
 
-	private void aplicarOffsetDeSeparacion(ImageView pieza, int index, int total) {
+	private void aplicarOffsetDeSeparacion(javafx.scene.Node pieza, int index, int total) {
 		if (total <= 1) {
 			pieza.setTranslateX(0);
 			pieza.setTranslateY(0);
