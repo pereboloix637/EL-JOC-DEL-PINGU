@@ -12,6 +12,7 @@
     -fx-font-weight: bold;
     -fx-text-fill: #F0F4FF;
     -fx-alignment: center;
+    -fx-background-color: #0D1B2A;
     -fx-effect: dropshadow(one-pass-box, #3AB5E6, 0, 0, 3, 3);
 }
 
@@ -173,11 +174,31 @@
 }
 
 /* ---- COLORES DEL RANKING (Prioridad sobre list-cell) ---- */
-.list-cell.rank-1 { -fx-text-fill: #FFFF00; } /* Amarillo Oro */
-.list-cell.rank-2 { -fx-text-fill: #A0A0A0; } /* Gris más oscuro */
-.list-cell.rank-3 { -fx-text-fill: #B87333; } /* Marrón/Bronce más oscuro */
-.list-cell.rank-4-5 { -fx-text-fill: #87CEEB; } /* Azul Claro */
-.list-cell.rank-default { -fx-text-fill: #F0F4FF; } /* Blanco Nieve */
+.list-cell.rank-1 {
+    -fx-text-fill: #FFFF00;
+}
+
+/* Amarillo Oro */
+.list-cell.rank-2 {
+    -fx-text-fill: #A0A0A0;
+}
+
+/* Gris más oscuro */
+.list-cell.rank-3 {
+    -fx-text-fill: #B87333;
+}
+
+/* Marrón/Bronce más oscuro */
+.list-cell.rank-4-5 {
+    -fx-text-fill: #87CEEB;
+}
+
+/* Azul Claro */
+.list-cell.rank-default {
+    -fx-text-fill: #F0F4FF;
+}
+
+/* Blanco Nieve */
 
 /* ---- CAMPOS DE TEXTO ---- */
 .text-field,
@@ -486,11 +507,13 @@
 .delete-button-small:pressed {
     -fx-translate-y: 1;
 }
+
 /* ---- AJUSTES PANEL (Matching Reference Image) ---- */
 .settings-pane-ref {
     -fx-background-color: linear-gradient(to bottom, #1B263B, #0D1B2A);
     -fx-background-radius: 0;
-    -fx-border-color: #3AB5E6 #1B263B #1B263B #3AB5E6; /* Light top/left, Dark bottom/right */
+    -fx-border-color: #3AB5E6 #1B263B #1B263B #3AB5E6;
+    /* Light top/left, Dark bottom/right */
     -fx-border-radius: 0;
     -fx-border-width: 4;
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.9), 20, 0, 12, 12);
@@ -531,7 +554,7 @@
     -fx-border-width: 2;
     -fx-padding: 8;
     -fx-cursor: hand;
-    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.5), 5, 0, 2, 2);
+    -fx-effect: innershadow(three-pass-box, rgba(0, 0, 0, 0.5), 5, 0, 2, 2);
 }
 
 .mute-button-ref:hover {
@@ -634,7 +657,8 @@
     -fx-font-family: "Press Start 2P";
     -fx-font-size: 12px;
     -fx-cursor: hand;
-    -fx-label-padding: 0 0 0 20; /* More space for the toggle */
+    -fx-label-padding: 0 0 0 20;
+    /* More space for the toggle */
 }
 
 .fullscreen-check .box {
@@ -644,20 +668,24 @@
     -fx-border-width: 2;
     -fx-pref-width: 56px;
     -fx-pref-height: 24px;
-    -fx-padding: 3 31 3 4; /* Knob on the left (OFF) */
+    -fx-padding: 3 31 3 4;
+    /* Knob on the left (OFF) */
     -fx-effect: innershadow(three-pass-box, black, 5, 0, 0, 0);
 }
 
 .fullscreen-check:selected .box {
     -fx-background-color: #162435;
     -fx-border-color: #3AB5E6;
-    -fx-padding: 3 4 3 31; /* Knob on the right (ON) */
+    -fx-padding: 3 4 3 31;
+    /* Knob on the right (ON) */
     -fx-effect: dropshadow(three-pass-box, rgba(58, 181, 230, 0.3), 10, 0, 0, 0);
 }
 
 .fullscreen-check .mark {
-    -fx-background-color: #444444; /* Dim handle */
-    -fx-shape: "M0 0 H10 V10 H0 Z"; /* Solid Block */
+    -fx-background-color: #444444;
+    /* Dim handle */
+    -fx-shape: "M0 0 H10 V10 H0 Z";
+    /* Solid Block */
     -fx-pref-width: 18px;
     -fx-pref-height: 18px;
     -fx-background-insets: 0;
@@ -666,7 +694,8 @@
 }
 
 .fullscreen-check:selected .mark {
-    -fx-background-color: #3AB5E6; /* Glowing Cyan handle */
+    -fx-background-color: #3AB5E6;
+    /* Glowing Cyan handle */
     -fx-border-color: #FFFFFF #1B263B #1B263B #FFFFFF;
     -fx-effect: dropshadow(one-pass-box, #7FD4F0, 0, 0, 3, 3);
 }

@@ -1,12 +1,10 @@
-
 /* ============================================================
    PANTALLA CARGA — Estilo pixel-art (Invernal)
    ============================================================ */
 
 .root {
     -fx-font-family: "Press Start 2P", "Courier New", "Monospaced";
-    -fx-background-color: black;
-    background-color: black;
+    -fx-background-color: #0D1B2A;
 }
 
 /* ProgressBar Styling - Estilo "Card" helado */
@@ -49,11 +47,14 @@
     font-size: 26px;
     -fx-text-fill: #7FD4F0;
     /* Azulito cian helado */
-    -fx-background-color: rgba(13, 27, 42, 0.85); /* Fondo oscuro semi-transparente */
+    -fx-background-color: rgba(13, 27, 42, 0.85);
+    /* Fondo oscuro semi-transparente */
     background-color: rgba(13, 27, 42, 0.85);
-    -fx-padding: 12 24 12 24; /* Margen interno */
+    -fx-padding: 12 24 12 24;
+    /* Margen interno */
     padding: 12px 24px 12px 24px;
-    -fx-border-color: #3AB5E6; /* Borde cian sutil */
+    -fx-border-color: #3AB5E6;
+    /* Borde cian sutil */
     border-color: #3AB5E6;
     -fx-border-width: 2;
     border-width: 2px;

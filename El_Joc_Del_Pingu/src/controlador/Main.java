@@ -39,6 +39,8 @@ public class Main extends Application {
         }
     }
 
+
+
     public static void preCargarEscena(String fxmlPath) {
         try {
             if (!sceneCache.containsKey(fxmlPath)) {
@@ -72,10 +74,11 @@ public class Main extends Application {
         if (stage.getScene() == null) {
             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
             Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
-            scene.setFill(Color.BLACK);
+            scene.setFill(Color.web("#0D1B2A"));
             stage.setScene(scene);
         } else {
             stage.getScene().setRoot(root);
+            stage.getScene().setFill(Color.web("#0D1B2A"));
         }
 
         if (fullScreenEnabled && !stage.isFullScreen()) {
@@ -114,10 +117,11 @@ public class Main extends Application {
 
         if (stage.getScene() == null) {
             Scene scene = new Scene(root, width, height);
-            scene.setFill(Color.BLACK);
+            scene.setFill(Color.web("#0D1B2A"));
             stage.setScene(scene);
         } else {
             stage.getScene().setRoot(root);
+            stage.getScene().setFill(Color.web("#0D1B2A"));
         }
 
         if (fullScreenEnabled && !stage.isFullScreen()) {
@@ -176,25 +180,18 @@ public class Main extends Application {
         primaryStage.setFullScreenExitHint("");
 
         // Cargar primero la pantalla de carga (Splash)
-        // Nota: He mantenido tu ruta tal cual, asegúrate de que "/resources/..." sea correcta en tu estructura
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/PantallaCarga.fxml"));
         Parent root = loader.load();
         
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
         Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
-        scene.setFill(Color.BLACK);
+        scene.setFill(Color.web("#0D1B2A"));
         
         primaryStage.setScene(scene);
         primaryStage.show();
 
         // Inicializar audio de forma asíncrona
         AudioManager.getInstance().initAsync();
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000); // Dar un segundo para que cargue
-                AudioManager.getInstance().playMusic();
-            } catch (Exception e) {}
-        }).start();
     }
 
     public static void main(String[] args) {

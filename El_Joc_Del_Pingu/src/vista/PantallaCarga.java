@@ -42,6 +42,7 @@ public class PantallaCarga {
             if (videoUrl != null) {
                 Media media = new Media(videoUrl.toExternalForm());
                 mediaPlayer = new MediaPlayer(media);
+                mediaPlayer.setMute(true); // Mute the intro video
                 mediaView.setMediaPlayer(mediaPlayer);
                 mediaView.setPreserveRatio(true);
 
@@ -161,6 +162,8 @@ public class PantallaCarga {
             ft.setToValue(0.0);
             ft.setOnFinished(event -> {
                 try {
+                    // Iniciar la música del menú al salir de la intro
+                    controlador.AudioManager.getInstance().playMusic();
                     Main.cambiarEscena("/resources/PantallaMenu.fxml");
                 } catch (Exception e) {
                     e.printStackTrace();
