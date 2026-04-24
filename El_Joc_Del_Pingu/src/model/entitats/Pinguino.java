@@ -101,7 +101,7 @@ public class Pinguino extends Jugador {
 
 // Quita (descarta) un ítem del inventario sin usarlo
 	public void trureItem(model.items.Item i) {
-		inventari.tirarItem(i);
+		inventari.eliminarItem(i);
 	}
 
 }

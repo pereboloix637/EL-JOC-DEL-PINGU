@@ -25,6 +25,8 @@ public abstract class Jugador {
 		this.idPartida = idPartida;
 	}
 
+
+
 	public int getTornsBloquejat() {
 		return tornsBloquejat;
 	}

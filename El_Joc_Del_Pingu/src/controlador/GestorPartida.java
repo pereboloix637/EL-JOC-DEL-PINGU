@@ -18,7 +18,6 @@ public class GestorPartida {
 
     public GestorPartida() {
         this.gestorTaulell = new GestorTaulell();
-        new GestorJugador();
         this.gestorBBDD = new GestorBBDD();
     }
 
@@ -60,16 +59,7 @@ public class GestorPartida {
         return dauNormal.tirar();
     }
 
-    public void executarTornComplet() {
-        if (partida != null && !partida.isFinalitzada()) {
-            Jugador jugadorActual = partida.getJugadorActual();
-            if (jugadorActual != null) {
-                processarTornJugador(jugadorActual);
-                actualitzarEstatTaulell();
-                seguentTorn();
-            }
-        }
-    }
+
 
     public void processarTornJugador(Jugador j) {
         int tirada = tirarDau(j, null);
