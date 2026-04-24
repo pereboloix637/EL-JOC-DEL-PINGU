@@ -50,12 +50,11 @@ public class EfectoNieve {
             @Override
             public void handle(long now) {
                 // Limitar a ~60 fps
-                if (now - lastUpdate < 16_000_000L) {
-                    return;
+                if (now - lastUpdate >= 16_000_000L) {
+                    lastUpdate = now;
+                    actualizar();
+                    dibujar();
                 }
-                lastUpdate = now;
-                actualizar();
-                dibujar();
             }
         };
         timer.start();
@@ -112,18 +111,16 @@ public class EfectoNieve {
     private void actualizar() {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
-        if (w == 0 || h == 0) {
-            return;
-        }
-
-        for (int i = 0; i < copos.size(); i++) {
-            Copo c = copos.get(i);
-            c.y += c.velocidadY;
-            c.x += Math.sin(c.y * c.frecuenciaX + c.fase) * c.amplitudX;
-
-            // Reciclar copo si sale por abajo o por los lados
-            if (c.y > h + 10 || c.x < -10 || c.x > w + 10) {
-                copos.set(i, crearCopo(false));
+        if (w != 0 && h != 0) {
+            for (int i = 0; i < copos.size(); i++) {
+                Copo c = copos.get(i);
+                c.y += c.velocidadY;
+                c.x += Math.sin(c.y * c.frecuenciaX + c.fase) * c.amplitudX;
+    
+                // Reciclar copo si sale por abajo o por los lados
+                if (c.y > h + 10 || c.x < -10 || c.x > w + 10) {
+                    copos.set(i, crearCopo(false));
+                }
             }
         }
     }
@@ -131,25 +128,23 @@ public class EfectoNieve {
     private void dibujar() {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
-        if (w == 0 || h == 0) {
-            return;
+        if (w != 0 && h != 0) {
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, w, h);
+    
+            for (Copo c : copos) {
+                gc.setGlobalAlpha(c.opacidad);
+                gc.setFill(c.color);
+                // Cuadraditos sin redondear = estilo pixel-art
+                gc.fillRect(
+                    Math.floor(c.x),
+                    Math.floor(c.y),
+                    c.tamaño,
+                    c.tamaño
+                );
+            }
+    
+            gc.setGlobalAlpha(1.0);
         }
-
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, w, h);
-
-        for (Copo c : copos) {
-            gc.setGlobalAlpha(c.opacidad);
-            gc.setFill(c.color);
-            // Cuadraditos sin redondear = estilo pixel-art
-            gc.fillRect(
-                Math.floor(c.x),
-                Math.floor(c.y),
-                c.tamaño,
-                c.tamaño
-            );
-        }
-
-        gc.setGlobalAlpha(1.0);
     }
 }

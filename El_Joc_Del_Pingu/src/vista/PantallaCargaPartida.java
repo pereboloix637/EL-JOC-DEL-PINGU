@@ -7,6 +7,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.StackPane;
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.util.Duration;
 import java.util.Random;
 
@@ -44,21 +46,19 @@ public class PantallaCargaPartida {
         tipLabel.setText(tips[random.nextInt(tips.length)]);
 
         // Animación de la barra de progreso
-        new Thread(() -> {
-            try {
-                // Simulación de carga fluida
-                for (double i = 0; i <= 1.0; i += 0.02) {
-                    final double progress = i;
-                    Platform.runLater(() -> progressBar.setProgress(progress));
-                    Thread.sleep(60); // ~1.5 segundos en total
-                }
-                Thread.sleep(700); // Pausa final para leer el tip
-                
-                Platform.runLater(this::transitionToGame);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
+        Timeline timeline = new Timeline();
+        int steps = 50; // 1.0 / 0.02
+        for (int step = 0; step <= steps; step++) {
+            final double progress = step * 0.02;
+            timeline.getKeyFrames().add(
+                new KeyFrame(javafx.util.Duration.millis(step * 60), e -> progressBar.setProgress(progress))
+            );
+        }
+        // Pausa final de 700ms para leer el tip
+        timeline.getKeyFrames().add(
+            new KeyFrame(javafx.util.Duration.millis(steps * 60 + 700), e -> transitionToGame())
+        );
+        timeline.play();
     }
 
     private void transitionToGame() {

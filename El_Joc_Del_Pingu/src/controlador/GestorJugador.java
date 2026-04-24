@@ -15,13 +15,17 @@ public class GestorJugador {
 	
 	// Usa l'ítem de l'inventari que coincideixi amb el nom
 	public void jugadorUsaItem(Pinguino p, String nombreItem) {
-		for (Item item : p.getInventari().getLlista()) {
+		boolean encontrado = false;
+		for (int i = 0; i < p.getInventari().getLlista().size() && !encontrado; i++) {
+			Item item = p.getInventari().getLlista().get(i);
 			if (item.getNom().equalsIgnoreCase(nombreItem)) {
 				p.usarItem(item);
-				return;
+				encontrado = true;
 			}
 		}
-		System.out.println(p.getNickname() + " no tiene \"" + nombreItem + "\" en el inventario.");
+		if (!encontrado) {
+			System.out.println(p.getNickname() + " no tiene \"" + nombreItem + "\" en el inventario.");
+		}
 	}
 
 	

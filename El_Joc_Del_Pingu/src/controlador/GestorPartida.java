@@ -63,14 +63,13 @@ public class GestorPartida {
     }
 
     public void executarTornComplet() {
-        if (partida == null || partida.isFinalitzada()) {
-            return;
-        }
-        Jugador jugadorActual = partida.getJugadorActual();
-        if (jugadorActual != null) {
-            processarTornJugador(jugadorActual);
-            actualitzarEstatTaulell();
-            seguentTorn();
+        if (partida != null && !partida.isFinalitzada()) {
+            Jugador jugadorActual = partida.getJugadorActual();
+            if (jugadorActual != null) {
+                processarTornJugador(jugadorActual);
+                actualitzarEstatTaulell();
+                seguentTorn();
+            }
         }
     }
 
