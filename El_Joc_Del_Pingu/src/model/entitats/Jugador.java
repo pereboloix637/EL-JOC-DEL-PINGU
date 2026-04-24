@@ -41,16 +41,6 @@ public abstract class Jugador {
 		this.nerfOs = nerfOs;
 	}
 	
-	/// CONSTRUCTORES
-	// CON TODOS LOS PARÁMETROS
-	public Jugador (String nickname, int posicio, String color) {
-		this.id = 0;
-		this.nickname = nickname;
-		this.posicio = posicio;
-		this.color = color;
-		this.tornsBloquejat = 0;
-		this.nerfOs = false;
-	}
 	
 	// AUTOMÁTICO CON NICKNAME Y COLOR -> Pensado para poner al jugador al inicio del tablero
 	public Jugador (String nickname, String color) {
@@ -62,7 +52,7 @@ public abstract class Jugador {
 		this.nerfOs = false;
 	}
 	
-	/// GETTERS Y SETTERS
+
 	public String getNickname() {
 		return nickname;
 	}
@@ -87,7 +77,7 @@ public abstract class Jugador {
 		this.color = color;
 	}
 	
-	/// MÉTODOS
+
 	public void mourePosicio(int p) {
 		this.posicio = Math.max(0, this.posicio + p);
 	}

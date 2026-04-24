@@ -528,8 +528,7 @@ public class GestorBBDD {
 			// Esborrar la partida
 			int rows = delete(con, "DELETE FROM partida WHERE id = " + id);
 			
-			// Opcional: esborrar jugadors que no tinguin més partides? 
-			// Per mantenir-ho simple i segur, ens limitarem a esborrar la partida i les seves relacions directes.
+			// Esborrar la partida i les seves relacions directes.
 			
 			return rows > 0;
 		} catch (Exception e) {
@@ -568,7 +567,7 @@ public class GestorBBDD {
 
 		// Si sigue siendo 0, es que el jugador no existe en la tabla global, lo insertamos
 		if (rows == 0 && nickname != null && !nickname.isEmpty()) {
-			// Nota: generamos una ID nueva si es necesario, pero lo ideal es que ya existiera
+			// Generamos una ID nueva si es necesario
 			ArrayList<LinkedHashMap<String, String>> resMax = select(con, "SELECT MAX(id) AS MAX_ID FROM jugador");
 			int nouId = (resMax.isEmpty() || resMax.get(0).get("MAX_ID") == null) ? 1 
 						: Integer.parseInt(resMax.get(0).get("MAX_ID")) + 1;

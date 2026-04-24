@@ -5,13 +5,13 @@ import model.items.Item;
 import model.items.BolaNeu;
 
 public class Pinguino extends Jugador {
-/// ATRIBUTOS
+
 	public Inventari inventari;
 	private String contrasenya; // Para el ranking/login
 	private int victories; // Para el ranking
 
 
-/// CONSTRUCTOR
+
 	public Pinguino(String nickname, String color, Inventari inventari) {
 		super(nickname, color); // OBLIGATORIO
 		this.inventari = inventari;
@@ -19,7 +19,7 @@ public class Pinguino extends Jugador {
 		this.victories = 0;
 	}
 
-/// GETTERS Y SETTERS
+
 	public Inventari getInventari() {
 		return inventari;
 	}
@@ -40,7 +40,7 @@ public class Pinguino extends Jugador {
 		this.victories = victories;
 	}
 
-/// MÉTODOS
+
 	// MÉTODO PARA PELEAR CON UN RIVAL
 	public void gestionarBatalla(Pinguino pingu) {
 		int bolesJ1 = this.getInventari().getBoles();
