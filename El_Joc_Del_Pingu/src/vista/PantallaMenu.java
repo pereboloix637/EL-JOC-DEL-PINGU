@@ -478,8 +478,6 @@ public class PantallaMenu {
 			String sfxIcon = sfxMuted ? "/assets/speaker_off.png" : "/assets/speaker_on.png";
 			try {
 				imgMuteSfx.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream(sfxIcon)));
-				// Opcional: podrías cambiar el color o añadir un pequeño texto/overlay
-				// para diferenciar música de efectos si usas el mismo icono
 			} catch (Exception e) {
 				System.err.println("Error actualizando icono SFX: " + e.getMessage());
 			}
@@ -836,7 +834,7 @@ public class PantallaMenu {
 	@FXML
 	private void handleLoadGame() {
 		mainTabPane.getSelectionModel().select(1);
-		handleRefreshGames(); // Aprovechar para refrescar la lista
+		handleRefreshGames(); // Refrescar la lista de partidas
 	}
 
 	@FXML
