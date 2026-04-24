@@ -4,7 +4,8 @@
 ![Oracle](https://img.shields.io/badge/Database-Oracle-red?style=for-the-badge&logo=oracle)
 ![Status](https://img.shields.io/badge/Status-Development-green?style=for-the-badge)
 
-¡Bienvenido a **El Joc del Pingüí**! Un juego de tablero interactivo desarrollado en **JavaFX 21** donde la estrategia y la gestión de recursos son claves para sobrevivir al Ártico.
+¡Bienvenido a **El Joc del Pingüí**! Un juego de tablero interactivo desarrollado en **JavaFX 21** donde la estrategia y la gestión de recursos son claves para sobrevivir al *tablero helado**.
+A continuacion veran los **componentes**, los **tipos de casillas**, los **eventos** y el comportamiento del **Pingu** y la **Foca**.
 
 ---
 
