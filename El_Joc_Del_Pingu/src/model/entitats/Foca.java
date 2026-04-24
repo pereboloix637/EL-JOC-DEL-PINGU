@@ -53,7 +53,7 @@ public class Foca extends Jugador {
 		inventari.afegirItem(i);
 	}
 	public void retirarItem(model.items.Item i) {
-		inventari.tirarItem(i);
+		inventari.eliminarItem(i);
 	}
 
 	public void aplastarPingu(Pinguino p) {

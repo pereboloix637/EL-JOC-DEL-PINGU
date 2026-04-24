@@ -154,14 +154,7 @@ public class Inventari {
 		return null;
 	}
 
-	// Llença un ítem sense usar-lo
-	public void tirarItem(Item item) {
-		if (llista.remove(item)) {
-			System.out.println("Has llençat: " + item.getNom());
-		} else {
-			System.out.println("L'ítem " + item.getNom() + " no és a l'inventari.");
-		}
-	}
+
 
 	// Usa un ítem i l'elimina si arriba a 0 unitats. Retorna true si ha tingut èxit
 	public boolean usarItem(Item item) {
