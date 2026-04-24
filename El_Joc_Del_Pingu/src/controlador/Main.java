@@ -39,8 +39,6 @@ public class Main extends Application {
         }
     }
 
-
-
     public static void preCargarEscena(String fxmlPath) {
         try {
             if (!sceneCache.containsKey(fxmlPath)) {
@@ -133,13 +131,13 @@ public class Main extends Application {
         root.setCacheHint(CacheHint.SPEED);
 
         // Calcular el radio final (para cubrir la pantalla desde el centro)
-        double maxRadius = Math.sqrt(Math.pow(width/2, 2) + Math.pow(height/2, 2)) * 1.1;
+        double maxRadius = Math.sqrt(Math.pow(width / 2, 2) + Math.pow(height / 2, 2)) * 1.1;
 
         Timeline timeline = new Timeline(
-            new KeyFrame(Duration.ZERO, new KeyValue(circle.radiusProperty(), 0)),
-            new KeyFrame(Duration.seconds(1.2), new KeyValue(circle.radiusProperty(), maxRadius, Interpolator.EASE_OUT))
+                new KeyFrame(Duration.ZERO, new KeyValue(circle.radiusProperty(), 0)),
+                new KeyFrame(Duration.seconds(1.2), new KeyValue(circle.radiusProperty(), maxRadius, Interpolator.EASE_OUT))
         );
-        
+
         timeline.setOnFinished(e -> {
             root.setClip(null);
             root.setCache(false);
@@ -155,14 +153,14 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         stage = primaryStage;
-        
+
         // --- REGISTRO DE FUENTE LOCAL ---
         try {
             javafx.scene.text.Font.loadFont(getClass().getResourceAsStream("/assets/PressStart2P-Regular.ttf"), 10);
         } catch (Exception e) {
             System.err.println("No se pudo cargar la fuente local: " + e.getMessage());
         }
-        
+
         // --- CONFIGURACIÓN DEL ICONO ---
         try {
             // Buscamos en la carpeta assets que está en la raíz de resources
@@ -182,16 +180,16 @@ public class Main extends Application {
         // Cargar primero la pantalla de carga (Splash)
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/PantallaCarga.fxml"));
         Parent root = loader.load();
-        
+
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
         Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
-        scene.setFill(Color.web("#0D1B2A"));
-        
+        scene.setFill(Color.BLACK);
+
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        // Inicializar audio de forma asíncrona
         AudioManager.getInstance().initAsync();
+        AudioManager.getInstance().playMusic();
     }
 
     public static void main(String[] args) {

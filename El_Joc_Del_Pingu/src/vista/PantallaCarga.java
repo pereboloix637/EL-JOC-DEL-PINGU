@@ -70,13 +70,13 @@ public class PantallaCarga {
             rootPane.setOnMouseClicked(event -> handleUserInput());
 
             // Pre-carga
-            new Thread(() -> {
+            Platform.runLater(() -> {
                 try {
                     Main.preCargarEscena("/resources/PantallaMenu.fxml");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }).start();
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -138,16 +138,17 @@ public class PantallaCarga {
 
     private void fallbackToNormalLoad() {
         progressBar.setProgress(0);
-        new Thread(() -> {
-            try {
-                for (int i = 0; i <= 100; i++) {
-                    final double p = i / 100.0;
-                    Platform.runLater(() -> progressBar.setProgress(p));
-                    Thread.sleep(30); 
-                }
-                readyToStart();
-            } catch (Exception e) {}
-        }).start();
+        Timeline timeline = new Timeline();
+        for (int i = 0; i <= 100; i++) {
+            final double p = i / 100.0;
+            timeline.getKeyFrames().add(
+                new KeyFrame(Duration.millis(i * 30), e -> progressBar.setProgress(p))
+            );
+        }
+        timeline.getKeyFrames().add(
+            new KeyFrame(Duration.millis(100 * 30), e -> readyToStart())
+        );
+        timeline.play();
     }
 
     private void transitionToMenu() {

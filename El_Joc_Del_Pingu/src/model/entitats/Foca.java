@@ -80,10 +80,9 @@ public class Foca extends Jugador {
 	public void pegarPingu(Pinguino jugador, Partida partida) {
 		if ((jugador.getIdPartida() < sobornosJugadores.length && sobornosJugadores[jugador.getIdPartida()] > 0) || getBloqueix() > 0) {
 			System.out.println("La foca " + this.getNickname() + " está tranquila para " + jugador.getNickname());
-			return;
+		} else {
+			aplicarPegarPingu(jugador, partida);
 		}
-
-		aplicarPegarPingu(jugador, partida);
 	}
 
 	private void aplicarPegarPingu(Pinguino jugador, Partida partida) {
@@ -109,33 +108,28 @@ public class Foca extends Jugador {
 	}
 
 	public void sobornarFoca(Pinguino p) {
-		if ((Object)p instanceof Foca) {
-			return;
-		}
-		if (this.getBloqueix() > 0) {
-			return;
-		}
-
-		if (p.getInventari().getPeixos() >= 1) {
-			javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
-			vista.PantallaJuego.estilarAlerta(alert); 
-			alert.setTitle("¡Encuentro con la foca!");
-			alert.setHeaderText("¡Una foca te corta el paso!");
-			alert.setContentText("Tienes un pez. ¿Quieres usarlo para alimentar a la foca?");
-
-			javafx.scene.control.ButtonType btnYes = new javafx.scene.control.ButtonType("Sí, alimentar (2 turnos)");
-			javafx.scene.control.ButtonType btnNo = new javafx.scene.control.ButtonType("No, arriesgarse");
-			alert.getButtonTypes().setAll(btnYes, btnNo);
-
-			java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
-
-			if (result.isPresent() && result.get() == btnYes) {
-				if (p.getIdPartida() < sobornosJugadores.length) {
-					sobornosJugadores[p.getIdPartida()] = 2; 
+		if (!((Object)p instanceof Foca) && this.getBloqueix() <= 0) {
+			if (p.getInventari().getPeixos() >= 1) {
+				javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+				vista.PantallaJuego.estilarAlerta(alert); 
+				alert.setTitle("¡Encuentro con la foca!");
+				alert.setHeaderText("¡Una foca te corta el paso!");
+				alert.setContentText("Tienes un pez. ¿Quieres usarlo para alimentar a la foca?");
+	
+				javafx.scene.control.ButtonType btnYes = new javafx.scene.control.ButtonType("Sí, alimentar (2 turnos)");
+				javafx.scene.control.ButtonType btnNo = new javafx.scene.control.ButtonType("No, arriesgarse");
+				alert.getButtonTypes().setAll(btnYes, btnNo);
+	
+				java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
+	
+				if (result.isPresent() && result.get() == btnYes) {
+					if (p.getIdPartida() < sobornosJugadores.length) {
+						sobornosJugadores[p.getIdPartida()] = 2; 
+					}
+					this.soborno = true;
+					p.getInventari().eliminarItemsPerTipus(model.items.Peix.class);
+					vista.PantallaJuego.registrarEventoEstatico(p.getNickname() + " ha alimentado a la foca. ¡A salvo 2 turnos!", "log-info");
 				}
-				this.soborno = true;
-				p.getInventari().eliminarItemsPerTipus(model.items.Peix.class);
-				vista.PantallaJuego.registrarEventoEstatico(p.getNickname() + " ha alimentado a la foca. ¡A salvo 2 turnos!", "log-info");
 			}
 		}
 	}
@@ -190,20 +184,19 @@ public class Foca extends Jugador {
 		for (Jugador j : partida.getJugadors()) {
 			if (j instanceof Pinguino) {
 				Pinguino ping = (Pinguino) j;
-				
+
 				// Descartar a jugadores protegidos por el arreglo de sobornos
-				if (ping.getIdPartida() < sobornosJugadores.length && sobornosJugadores[ping.getIdPartida()] > 0) {
-					continue; 
-				}				
-				if (ping.getPosicio() > maxDistanciaLider) {
-					maxDistanciaLider = ping.getPosicio();
-				}
-				
-				// Calcula la distancia hacia adelante (sólo objetivos frente a la foca)
-				int dist = ping.getPosicio() - this.getPosicio();
-				if (dist > 0 && dist < minDistanciaCercano) {
-					minDistanciaCercano = dist;
-					elMasCercano = ping;
+				if (!(ping.getIdPartida() < sobornosJugadores.length && sobornosJugadores[ping.getIdPartida()] > 0)) {
+					if (ping.getPosicio() > maxDistanciaLider) {
+						maxDistanciaLider = ping.getPosicio();
+					}
+
+					// Calcula la distancia hacia adelante (sólo objetivos frente a la foca)
+					int dist = ping.getPosicio() - this.getPosicio();
+					if (dist > 0 && dist < minDistanciaCercano) {
+						minDistanciaCercano = dist;
+						elMasCercano = ping;
+					}
 				}
 			}
 		}

@@ -190,29 +190,28 @@ public class GestorBBDD {
 	public static void print(Connection con, String sql, String[] listaElementosSeleccionados) {
 		if (con == null) {
 			System.out.println("No hay conexión. Llama antes a conectarBaseDatos().");
-			return;
-		}
-
-		try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery(sql)) {
-
-			int fila = 0;
-			boolean hayResultados = false;
-
-			while (rs.next()) {
-				hayResultados = true;
-				fila++;
-				System.out.println("---- Fila " + fila + " ----");
-				for (String col : listaElementosSeleccionados) {
-					System.out.println(col + ": " + rs.getString(col));
+		} else {
+			try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+	
+				int fila = 0;
+				boolean hayResultados = false;
+	
+				while (rs.next()) {
+					hayResultados = true;
+					fila++;
+					System.out.println("---- Fila " + fila + " ----");
+					for (String col : listaElementosSeleccionados) {
+						System.out.println(col + ": " + rs.getString(col));
+					}
 				}
+	
+				if (!hayResultados) {
+					System.out.println("No se ha encontrado nada");
+				}
+	
+			} catch (SQLException e) {
+				System.out.println("Error en SELECT: " + e.getMessage());
 			}
-
-			if (!hayResultados) {
-				System.out.println("No se ha encontrado nada");
-			}
-
-		} catch (SQLException e) {
-			System.out.println("Error en SELECT: " + e.getMessage());
 		}
 	}
 

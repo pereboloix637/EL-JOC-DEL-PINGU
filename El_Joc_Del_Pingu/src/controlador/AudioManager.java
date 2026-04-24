@@ -25,22 +25,20 @@ public class AudioManager {
      * Inicializa el reproductor de música de fondo de forma asíncrona.
      */
     public void initAsync() {
-        new Thread(() -> {
-            try {
-                URL resource = getClass().getResource("/assets/soundtrack_menu_pingu.mp3");
-                if (resource != null) {
-                    Media media = new Media(resource.toExternalForm());
-                    mediaPlayer = new MediaPlayer(media);
-                    mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-                    mediaPlayer.setVolume(musicVolume);
-                    System.out.println("AudioManager: Música cargada correctamente.");
-                } else {
-                    System.err.println("No se ha encontrado el archivo de música: soundtrack_menu_pingu.mp3");
-                }
-            } catch (Exception e) {
-                System.err.println("Error al inicializar el audio: " + e.getMessage());
+        try {
+            URL resource = getClass().getResource("/assets/soundtrack_menu_pingu.mp3");
+            if (resource != null) {
+                Media media = new Media(resource.toExternalForm());
+                mediaPlayer = new MediaPlayer(media);
+                mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+                mediaPlayer.setVolume(musicVolume);
+                System.out.println("AudioManager: Música cargada correctamente.");
+            } else {
+                System.err.println("No se ha encontrado el archivo de música: soundtrack_menu_pingu.mp3");
             }
-        }).start();
+        } catch (Exception e) {
+            System.err.println("Error al inicializar el audio: " + e.getMessage());
+        }
     }
 
     public static AudioManager getInstance() {

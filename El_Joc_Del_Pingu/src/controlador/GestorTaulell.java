@@ -230,14 +230,13 @@ public class GestorTaulell {
 
 	    for (int tipus : sac) {
 	        boolean colocat = false;
-	        for (int i = 0; i < indexsDisponibles.size(); i++) {
+	        for (int i = 0; i < indexsDisponibles.size() && !colocat; i++) {
 	            int pos = indexsDisponibles.get(i);
-	            
+
 	            if (esValidCollocar(seed, pos, tipus)) {
 	                seed[pos] = (char) ('0' + tipus);
 	                indexsDisponibles.remove(i);
 	                colocat = true;
-	                break;
 	            }
 	        }
 	        // Si no es pot col·locar, es perd aquesta casella (però el validador ho detectarà)
