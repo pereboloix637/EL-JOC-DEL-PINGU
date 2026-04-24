@@ -42,8 +42,9 @@ El tablero de 50 casillas se genera mediante una cadena de semillas (Seed). Cada
 - **🎉 Event / Evento (4)**: Activa la **Ruleta de Premios** con los siguientes efectos:
   - **Pez (15%)**: Añade un pez al inventario (Límite: 2).
   - **Bolas de Nieve (15%)**: Obtienes entre 1 y 3 bolas (Límite: 6).
-  - **Dado Rápido (14%)**: Movimiento entre 5 y 10 (Límite consolidado: 3 dados especiales).
-  - **Dado Lento (14%)**: Movimiento estratégico de 1 o 3 casillas.
+  - **DADOS ESPECIALES (Límite consolidado: 3 dados especiales).**
+    - **Dado Rápido (14%)**: Movimiento entre 5 y 10.
+    - **Dado Lento (14%)**: Movimiento estratégico de 1 o 3 casillas.
   - **Moto de Nieve (14%)**: Teletransporta instantáneamente al próximo trineo disponible en el camino.
   - **Perder Turno (14%)**: El jugador queda bloqueado el siguiente turno.
   - **Perder Ítem (14%)**: Se elimina un ítem aleatorio del inventario.
