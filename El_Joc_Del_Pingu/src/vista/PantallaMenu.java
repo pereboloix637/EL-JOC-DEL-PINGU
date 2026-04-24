@@ -51,13 +51,7 @@ import controlador.GestorTaulell;
 
 public class PantallaMenu {
 
-	/**
-	 * Interfaz funcional pròpia per substituir java.util.concurrent.Callable sense
-	 * dependències il·legals.
-	 */
-	private interface TascaDB {
-		void executar() throws Exception;
-	}
+
 
 	@FXML
 	private MenuItem saveGame;
@@ -135,10 +129,7 @@ public class PantallaMenu {
 	private int cpuCount = 0;
 	private GestorBBDD dbManager = new GestorBBDD();
 
-	@FXML
-	private Label dbStatusLabel;
-	@FXML
-	private javafx.scene.control.ProgressBar dbProgressBar;
+
 
 	private String loadedSeed = "";
 
@@ -268,19 +259,17 @@ public class PantallaMenu {
 
 		showLanding();
 
-		// Cargar datos asíncronamente al iniciar
-		ejecutarTareaDB("Cargando datos...", () -> {
-			try (Connection con = GestorBBDD.conectarBaseDatos()) {
-				if (con != null) {
-					ArrayList<String> games = dbManager.llistarPartides(con);
-					ArrayList<String> ranking = dbManager.obtenerRanking(con);
-					Platform.runLater(() -> {
-						savedGamesList.getItems().setAll(games);
-						rankingList.getItems().setAll(ranking);
-					});
-				}
+		// Cargar datos al iniciar de forma secuencial
+		try (Connection con = GestorBBDD.conectarBaseDatos()) {
+			if (con != null) {
+				ArrayList<String> games = dbManager.llistarPartides(con);
+				ArrayList<String> ranking = dbManager.obtenerRanking(con);
+				savedGamesList.getItems().setAll(games);
+				rankingList.getItems().setAll(ranking);
 			}
-		});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		updateMuteUI();
 
@@ -448,22 +437,7 @@ public class PantallaMenu {
 		}
 	}
 
-	private void ejecutarTareaDB(String mensaje, TascaDB tarea) {
-		dbStatusLabel.setText(mensaje);
-		dbStatusLabel.setVisible(true);
-		dbProgressBar.setVisible(true);
-		dbProgressBar.setProgress(-1); // Indeterminado
 
-		try {
-			tarea.executar();
-		} catch (Exception e) {
-			e.printStackTrace();
-			dbStatusLabel.setText("Error en la DB");
-		} finally {
-			dbProgressBar.setVisible(false);
-			dbStatusLabel.setVisible(false);
-		}
-	}
 
 	@FXML
 	private void handleToggleMute(ActionEvent event) {
@@ -553,35 +527,30 @@ public class PantallaMenu {
 						userField.clear();
 						passField.clear();
 
-						ejecutarTareaDB("Validando usuario...", () -> {
-							try (Connection con = GestorBBDD.conectarBaseDatos()) {
-								if (con != null) {
-									boolean valid = dbManager.validarLogin(username, password, con);
-									Platform.runLater(() -> {
-										btnLoginHumano.setDisable(false); // Re-habilitar al terminar
-										if (valid) {
-											Pinguino p = new Pinguino(username, "Azul", new model.items.Inventari());
-											p.setContrasenya(password);
-											joinedPlayers.add(p);
-											playersList.getItems().add(username + " (Humano)");
-											System.out.println("Jugador añadido: " + username);
-										} else {
-											Alert alert = new Alert(AlertType.ERROR,
-													"Contraseña incorrecta para el usuario: " + username,
-													ButtonType.OK);
-											estilar(alert);
-											alert.showAndWait();
-										}
-									});
+						try (Connection con = GestorBBDD.conectarBaseDatos()) {
+							if (con != null) {
+								boolean valid = dbManager.validarLogin(username, password, con);
+								btnLoginHumano.setDisable(false);
+								if (valid) {
+									Pinguino p = new Pinguino(username, "Azul", new model.items.Inventari());
+									p.setContrasenya(password);
+									joinedPlayers.add(p);
+									playersList.getItems().add(username + " (Humano)");
+									System.out.println("Jugador añadido: " + username);
 								} else {
-									Platform.runLater(() -> btnLoginHumano.setDisable(false));
+									Alert alert = new Alert(AlertType.ERROR,
+											"Contraseña incorrecta para el usuario: " + username,
+											ButtonType.OK);
+									estilar(alert);
+									alert.showAndWait();
 								}
-							} catch (Exception e) {
-								Platform.runLater(() -> btnLoginHumano.setDisable(false));
-								throw e;
+							} else {
+								btnLoginHumano.setDisable(false);
 							}
-
-						});
+						} catch (Exception e) {
+							btnLoginHumano.setDisable(false);
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -620,28 +589,26 @@ public class PantallaMenu {
 
 	@FXML
 	private void handleRefreshGames() {
-		ejecutarTareaDB("Cargando partidas...", () -> {
-			try (Connection con = GestorBBDD.conectarBaseDatos()) {
-				if (con != null) {
-					ArrayList<String> games = dbManager.llistarPartides(con);
-					Platform.runLater(() -> savedGamesList.getItems().setAll(games));
-				}
+		try (Connection con = GestorBBDD.conectarBaseDatos()) {
+			if (con != null) {
+				ArrayList<String> games = dbManager.llistarPartides(con);
+				savedGamesList.getItems().setAll(games);
 			}
-
-		});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@FXML
 	private void handleRefreshRanking() {
-		ejecutarTareaDB("Cargando ranking...", () -> {
-			try (Connection con = GestorBBDD.conectarBaseDatos()) {
-				if (con != null) {
-					ArrayList<String> ranking = dbManager.obtenerRanking(con);
-					Platform.runLater(() -> rankingList.getItems().setAll(ranking));
-				}
+		try (Connection con = GestorBBDD.conectarBaseDatos()) {
+			if (con != null) {
+				ArrayList<String> ranking = dbManager.obtenerRanking(con);
+				rankingList.getItems().setAll(ranking);
 			}
-
-		});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@FXML
@@ -839,30 +806,28 @@ public class PantallaMenu {
 			alert.showAndWait().ifPresent(response -> {
 				if (response == ButtonType.OK) {
 					int id = Integer.parseInt(selected.split(":")[1].trim().split(" ")[0]);
-					ejecutarTareaDB("Borrando partida...", () -> {
-						try (Connection con = GestorBBDD.conectarBaseDatos()) {
-							if (con != null) {
-								boolean exito = dbManager.esborrarPartida(id, con);
-								Platform.runLater(() -> {
-									if (exito) {
-										System.out.println("Partida " + id + " borrada correctamente.");
-										handleRefreshGames(); // Refrescar la lista (esto lanzará otra tarea)
+					try (Connection con = GestorBBDD.conectarBaseDatos()) {
+						if (con != null) {
+							boolean exito = dbManager.esborrarPartida(id, con);
+							if (exito) {
+								System.out.println("Partida " + id + " borrada correctamente.");
+								handleRefreshGames();
 
-										deleteFeedbackLabel.setText("Partida borrada correctamente.");
-										deleteFeedbackLabel.setVisible(true);
-										PauseTransition pause = new PauseTransition(Duration.seconds(3));
-										pause.setOnFinished(e -> deleteFeedbackLabel.setVisible(false));
-										pause.play();
-									} else {
-										Alert error = new Alert(AlertType.ERROR, "Error al borrar la partida.",
-												ButtonType.OK);
-										estilar(error);
-										error.showAndWait();
-									}
-								});
+								deleteFeedbackLabel.setText("Partida borrada correctamente.");
+								deleteFeedbackLabel.setVisible(true);
+								PauseTransition pause = new PauseTransition(Duration.seconds(3));
+								pause.setOnFinished(e -> deleteFeedbackLabel.setVisible(false));
+								pause.play();
+							} else {
+								Alert error = new Alert(AlertType.ERROR, "Error al borrar la partida.",
+										ButtonType.OK);
+								estilar(error);
+								error.showAndWait();
 							}
 						}
-					});
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			});
 		}
