@@ -207,10 +207,9 @@ public class Foca extends Jugador {
 			for(Item item : inventari.getLlista()) {
 				if(item instanceof Dau && ((Dau)item).getNom().equals("Dado Rápido")) {
 					Dau d = (Dau) item;
-					inventari.usarItem(d);
-					if (d.getQuantitat() <= 0) {
-						inventari.eliminarItem(d);
-					}
+					// [BUGFIX] No usamos el ítem aquí (inventari.usarItem), ya que PantallaJuego 
+					// y GestorPartida lo tirarán y consumirán después. Si lo hacemos aquí,
+					// se resta 2 veces y la foca acaba tirando un dado normal al quedarse a 0.
 					vista.PantallaJuego.registrarEventoEstatico("La Foca ha activado un Dado Rápido para ganar ventaja.", "log-warning");
 					return d;
 				}
@@ -223,10 +222,7 @@ public class Foca extends Jugador {
 			for(Item item : inventari.getLlista()) {
 				if(item instanceof Dau && ((Dau)item).getNom().equals("Dado Lento")) {
 					Dau d = (Dau) item;
-					inventari.usarItem(d);
-					if (d.getQuantitat() <= 0) {
-						inventari.eliminarItem(d);
-					}
+					// [BUGFIX] Idem que arriba: el consumo se delega al GestorPartida.tirarDau
 					vista.PantallaJuego.registrarEventoEstatico("¡La Foca activa un Dado Lento para acechar a " + elMasCercano.getNickname() + "!", "log-warning");
 					return d;
 				}
