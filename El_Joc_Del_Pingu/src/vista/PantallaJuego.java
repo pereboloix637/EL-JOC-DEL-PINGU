@@ -1893,19 +1893,21 @@ public class PantallaJuego {
 												// muestra
 												Runnable continueAfterBattle = () -> {
 													if (pActual.getPosicio() != posJ1Abans) {
-														animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(),
-																() -> {
-																	if (pRival.getPosicio() != posJ2Abans) {
-																		animarRetroceso(pRival, posJ2Abans,
-																				pRival.getPosicio(),
-																				finishTurnCallback);
-																	} else {
-																		finishTurnCallback.run();
-																	}
-																});
+														animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), () -> {
+															procesarEfectoCasella(pActual, () -> {
+																if (pRival.getPosicio() != posJ2Abans) {
+																	animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), () -> {
+																		procesarEfectoCasella(pRival, finishTurnCallback);
+																	});
+																} else {
+																	finishTurnCallback.run();
+																}
+															});
+														});
 													} else if (pRival.getPosicio() != posJ2Abans) {
-														animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(),
-																finishTurnCallback);
+														animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), () -> {
+															procesarEfectoCasella(pRival, finishTurnCallback);
+														});
 													} else {
 														finishTurnCallback.run();
 													}
@@ -1945,10 +1947,11 @@ public class PantallaJuego {
 										fRival.pegarPingu(pActual, gestorPartida.getPartida());
 
 										// Si "pegarPingu" alteró la posición del jugador atacado, animamos visualmente
-										// su retroceso.
+										// su retroceso y PROCESAMOS LA CASELLA DE DESTINO.
 										if (pActual.getPosicio() != posPinguAbans) {
-											animarRetroceso(pActual, posPinguAbans, pActual.getPosicio(),
-													finishTurnCallback);
+											animarRetroceso(pActual, posPinguAbans, pActual.getPosicio(), () -> {
+												procesarEfectoCasella(pActual, finishTurnCallback);
+											});
 										} else {
 											finishTurnCallback.run();
 										}
@@ -1978,9 +1981,11 @@ public class PantallaJuego {
 									fActual.pegarPingu(pRival, gestorPartida.getPartida());
 
 									// Si el ataque ha movido al Pingüino (lo ha mandado al agujero), ejecutamos la
-									// animación de retroceso.
+									// animación de retroceso y PROCESAMOS LA CASELLA DE DESTINO.
 									if (pRival.getPosicio() != posPAbans) {
-										animarRetroceso(pRival, posPAbans, pRival.getPosicio(), finishTurnCallback);
+										animarRetroceso(pRival, posPAbans, pRival.getPosicio(), () -> {
+											procesarEfectoCasella(pRival, finishTurnCallback);
+										});
 									} else {
 										finishTurnCallback.run();
 									}
@@ -2195,25 +2200,34 @@ public class PantallaJuego {
 	private void animarRetroceso(Jugador j, int oldPos, int newPos, boolean processCell) {
 		animarRetroceso(j, oldPos, newPos, () -> {
 			if (processCell) {
-				procesarEfectoCasella(j);
+				procesarEfectoCasella(j, null);
 			}
 		});
 	}
 
-	private void procesarEfectoCasella(Jugador j) {
+	private void procesarEfectoCasella(Jugador j, Runnable onFinished) {
 		int posActual = j.getPosicio();
 		Casella c = gestorPartida.getPartida().getTaulell().getCaselles().get(posActual);
+		GestorTaulell gt = new GestorTaulell();
 
-		if (!(c instanceof model.caselles.Event)) {
-			new GestorTaulell().executarCasella(gestorPartida.getPartida(), j, c);
+		if (c instanceof model.caselles.Event && j instanceof Pinguino) {
+			((model.caselles.Event) c).setCallbackFinalizacion(onFinished);
+			gt.executarCasella(gestorPartida.getPartida(), j, c);
+		} else {
+			gt.executarCasella(gestorPartida.getPartida(), j, c);
 
 			if (j.getPosicio() != posActual) {
 				int nuevaPos = j.getPosicio();
-				if (nuevaPos < posActual) {
-					animarRetroceso(j, posActual, nuevaPos, false);
+				if (c instanceof model.caselles.Forat) {
+					animarEfectoForat(j, posActual, nuevaPos, onFinished);
+				} else if (nuevaPos < posActual) {
+					animarRetroceso(j, posActual, nuevaPos, onFinished);
 				} else {
 					actualizarUI();
+					if (onFinished != null) onFinished.run();
 				}
+			} else {
+				if (onFinished != null) onFinished.run();
 			}
 		}
 	}
