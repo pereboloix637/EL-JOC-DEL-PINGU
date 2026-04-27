@@ -2022,7 +2022,8 @@ public class PantallaJuego {
 							}
 						}
 					});
-				}));
+					});
+				});
 				sequence.play();
 			}
 		}
