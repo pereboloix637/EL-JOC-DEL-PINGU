@@ -165,6 +165,9 @@ public class PantallaJuego {
 	// Dado especial seleccionado para el próximo turno (null = dado estándar)
 	private Dau dauSeleccionat = null;
 
+	// Flag para evitar que se active el auto-play mientras un personaje se mueve
+	private boolean isMoving = false;
+
 	private static final int COLUMNS = 10;
 	private static final int ROWS = 5;
 
@@ -1382,6 +1385,13 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleToggleAutoPlay() {
+		// [BUGFIX] Solo permitir cambiar el Auto-Play si no hay una animación en curso, 
+		// o si es el turno de la Foca (IA).
+		if (isMoving && !(gestorPartida.getPartida().getJugadorActual() instanceof model.entitats.Foca)) {
+			registrarEvento("Espera a que el personaje termine de moverse para cambiar el Auto-Play.", "log-warning");
+			return;
+		}
+
 		autoPlayActivo = !autoPlayActivo;
 		updateAutoPlayUI();
 		if (autoPlayActivo) {
@@ -1618,6 +1628,7 @@ public class PantallaJuego {
 
 	private void moverPieza(Jugador j, int steps) {
 		if (steps > 0) {
+			isMoving = true;
 			bloquearControles(true);
 			ImageView pieza = getPiezaParaJugador(j);
 			if (pieza != null) {
@@ -1768,7 +1779,9 @@ public class PantallaJuego {
 				final double finalTX = targetTX;
 				final double finalTY = targetTY;
 
-				sequence.setOnFinished(e -> Platform.runLater(() -> {
+				sequence.setOnFinished(e -> {
+					isMoving = false;
+					Platform.runLater(() -> {
 					pieza.setTranslateX(finalTX);
 					pieza.setTranslateY(finalTY);
 
@@ -2027,6 +2040,7 @@ public class PantallaJuego {
 	}
 
 	public void animarRetroceso(Jugador j, int oldPos, int newPos, Runnable onComplete) {
+		isMoving = true;
 		ImageView pieza = getPiezaParaJugador(j);
 		if (pieza == null || oldPos <= newPos) {
 			if (pieza != null && oldPos <= newPos) {
@@ -2103,14 +2117,17 @@ public class PantallaJuego {
 				accumTY += stepDy;
 			}
 
-			sequence.setOnFinished(e -> Platform.runLater(() -> {
-				pieza.setTranslateX(0);
-				pieza.setTranslateY(0);
-				actualizarUI();
-				if (onComplete != null) {
-					onComplete.run();
-				}
-			}));
+			sequence.setOnFinished(e -> {
+				isMoving = false;
+				Platform.runLater(() -> {
+					pieza.setTranslateX(0);
+					pieza.setTranslateY(0);
+					actualizarUI();
+					if (onComplete != null) {
+						onComplete.run();
+					}
+				});
+			});
 			sequence.play();
 		}
 	}
@@ -2142,6 +2159,7 @@ public class PantallaJuego {
 	}
 
 	private void animarEfectoForat(Jugador j, int posEntrada, int posSalida, Runnable onFinished) {
+		isMoving = true;
 		ImageView pieza = getPiezaParaJugador(j);
 		if (pieza == null) {
 			if (onFinished != null)
@@ -2172,6 +2190,7 @@ public class PantallaJuego {
 
 				ParallelTransition ptOut = new ParallelTransition(pieza, rtOut, stOut);
 				ptOut.setOnFinished(e2 -> {
+					isMoving = false;
 					if (onFinished != null)
 						onFinished.run();
 				});
