@@ -12,6 +12,7 @@ import javafx.animation.PauseTransition;
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.animation.Timeline;
+import javafx.animation.ScaleTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Interpolator;
@@ -263,7 +264,8 @@ public class PantallaMenu {
 		try (Connection con = GestorBBDD.conectarBaseDatos()) {
 			if (con != null) {
 				ArrayList<String> games = dbManager.llistarPartides(con);
-				ArrayList<String> ranking = dbManager.obtenerRanking(con);
+				// Al inicio usamos un nombre vacío o "Invitado" para cargar el ranking general
+				ArrayList<String> ranking = dbManager.obtenerRanking("", con);
 				savedGamesList.getItems().setAll(games);
 				rankingList.getItems().setAll(ranking);
 			}
@@ -419,9 +421,15 @@ public class PantallaMenu {
 		if (node instanceof Button) {
 			Button btn = (Button) node;
 
-			// Sonido al pasar el ratón (hover)
+			// Sonido y animación al pasar el ratón (hover)
 			btn.setOnMouseEntered(e -> {
 				AudioManager.getInstance().playSound("/assets/Hover_boton_hielo.mp3");
+				aplicarAnimacionRebote(btn, true);
+			});
+
+			// Animación al salir el ratón
+			btn.setOnMouseExited(e -> {
+				aplicarAnimacionRebote(btn, false);
 			});
 
 			// Sonido al hacer clic (ACTION para que conviva con FXML onAction)
@@ -435,6 +443,30 @@ public class PantallaMenu {
 				registrarSonsBotons(child);
 			}
 		}
+	}
+
+	/**
+	 * Aplica una animación de escala (rebote) a un botón controlado por el ratón.
+	 * 
+	 * @param btn          El botón a animar.
+	 * @param mouseEntered True si el ratón entra, false si sale.
+	 */
+	private void aplicarAnimacionRebote(Button btn, boolean mouseEntered) {
+		ScaleTransition st = new ScaleTransition(Duration.millis(250), btn);
+		if (mouseEntered) {
+			st.setFromX(btn.getScaleX());
+			st.setFromY(btn.getScaleY());
+			st.setToX(1.1);
+			st.setToY(1.1);
+			st.setInterpolator(Interpolator.EASE_OUT); // Efecto de crecimiento elástico
+		} else {
+			st.setFromX(btn.getScaleX());
+			st.setFromY(btn.getScaleY());
+			st.setToX(1.0);
+			st.setToY(1.0);
+			st.setInterpolator(Interpolator.EASE_IN);
+		}
+		st.play();
 	}
 
 
@@ -601,7 +633,9 @@ public class PantallaMenu {
 	private void handleRefreshRanking() {
 		try (Connection con = GestorBBDD.conectarBaseDatos()) {
 			if (con != null) {
-				ArrayList<String> ranking = dbManager.obtenerRanking(con);
+				// Intentamos refrescar el ranking con el primer jugador unido si existe
+				String buscador = joinedPlayers.isEmpty() ? "" : joinedPlayers.get(0).getNickname();
+				ArrayList<String> ranking = dbManager.obtenerRanking(buscador, con);
 				rankingList.getItems().setAll(ranking);
 			}
 		} catch (Exception e) {

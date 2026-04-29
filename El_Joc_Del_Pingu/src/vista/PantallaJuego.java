@@ -19,6 +19,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -164,6 +166,9 @@ public class PantallaJuego {
 
 	// Dado especial seleccionado para el próximo turno (null = dado estándar)
 	private Dau dauSeleccionat = null;
+
+	// Flag para evitar que se active el auto-play mientras un personaje se mueve
+	private boolean isMoving = false;
 
 	private static final int COLUMNS = 10;
 	private static final int ROWS = 5;
@@ -316,6 +321,9 @@ public class PantallaJuego {
 
 		// ── Efecto de nieve cayendo sobre toda la superficie ──
 		new EfectoNieve(boardRoot);
+
+		// Registrar efectos de rebote para todos los botones de la pantalla de juego
+		registrarEfectosBotones(boardRoot);
 
 		registrarEvento("¡El juego ha comenzado!", "log-info");
 
@@ -1382,6 +1390,13 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleToggleAutoPlay() {
+		// [BUGFIX] Solo permitir cambiar el Auto-Play si no hay una animación en curso, 
+		// o si es el turno de la Foca (IA).
+		if (isMoving && !(gestorPartida.getPartida().getJugadorActual() instanceof model.entitats.Foca)) {
+			registrarEvento("Espera a que el personaje termine de moverse para cambiar el Auto-Play.", "log-warning");
+			return;
+		}
+
 		autoPlayActivo = !autoPlayActivo;
 		updateAutoPlayUI();
 		if (autoPlayActivo) {
@@ -1599,25 +1614,98 @@ public class PantallaJuego {
 				}
 
 				int resultado = gestorPartida.tirarDau(actual, d);
-				dadoResultText.setText("Dado: " + resultado);
+				dadoResultText.setText("...");
 
+				// Determinar color según tipo de dado
+				String colorHex = "white";
 				if (d.esEspecial()) {
 					if (d.getMax() > 6) {
-						dadoResultText.setStyle("-fx-fill: #E67E22;");
+						colorHex = "#E67E22"; // Naranja (Rápido)
 					} else if (d.getMax() <= 3) {
-						dadoResultText.setStyle("-fx-fill: #27AE60;");
+						colorHex = "#27AE60"; // Verde (Lento)
 					}
-				} else {
-					dadoResultText.setStyle("-fx-fill: white;");
 				}
 
-				moverPieza(actual, resultado);
+				final String finalColor = colorHex;
+				mostrarAnimacionDado(resultado, finalColor, () -> {
+					dadoResultText.setText("Dado: " + resultado);
+					dadoResultText.setStyle("-fx-fill: " + finalColor + ";");
+					moverPieza(actual, resultado);
+				});
 			}
+		}
+	}
+
+	/**
+	 * Muestra una animación de un dado girando y saltando en el centro de la
+	 * pantalla.
+	 */
+	private void mostrarAnimacionDado(int resultado, String colorHex, Runnable onFinished) {
+		try {
+			Image imgDado = new Image(getClass().getResourceAsStream("/assets/DADO_ANIMACION.png"));
+			ImageView iv = new ImageView(imgDado);
+			iv.setFitWidth(180);
+			iv.setFitHeight(180);
+			iv.setPreserveRatio(true);
+			iv.setSmooth(false);
+
+			if (!boardRoot.getChildren().contains(iv)) {
+				boardRoot.getChildren().add(iv);
+			}
+			StackPane.setAlignment(iv, javafx.geometry.Pos.CENTER);
+
+			RotateTransition rt = new RotateTransition(Duration.millis(800), iv);
+			rt.setByAngle(1080);
+			rt.setInterpolator(Interpolator.EASE_BOTH);
+
+			TranslateTransition tt = new TranslateTransition(Duration.millis(400), iv);
+			tt.setByY(-200);
+			tt.setCycleCount(2);
+			tt.setAutoReverse(true);
+			tt.setInterpolator(Interpolator.EASE_OUT);
+
+			ParallelTransition pt = new ParallelTransition(rt, tt);
+			pt.setOnFinished(e -> {
+				boardRoot.getChildren().remove(iv);
+
+				// --- REVELACIÓN DEL NÚMERO ---
+				Label lblResultado = new Label(String.valueOf(resultado));
+				lblResultado.setStyle("-fx-font-size: 150px; " +
+						"-fx-font-family: 'Press Start 2P'; " +
+						"-fx-text-fill: " + colorHex + "; " +
+						"-fx-effect: dropshadow(three-pass-box, black, 10, 0, 0, 0);");
+				boardRoot.getChildren().add(lblResultado);
+				StackPane.setAlignment(lblResultado, javafx.geometry.Pos.CENTER);
+
+				ScaleTransition st = new ScaleTransition(Duration.millis(300), lblResultado);
+				st.setFromX(0.1);
+				st.setFromY(0.1);
+				st.setToX(1.1);
+				st.setToY(1.1);
+				st.setInterpolator(Interpolator.EASE_OUT);
+
+				PauseTransition pause = new PauseTransition(Duration.millis(800));
+
+				SequentialTransition seq = new SequentialTransition(st, pause);
+				seq.setOnFinished(ev -> {
+					boardRoot.getChildren().remove(lblResultado);
+					onFinished.run();
+				});
+				seq.play();
+			});
+
+			pt.play();
+			AudioManager.getInstance().playSound("/assets/Audio_click_hielo.mp3");
+
+		} catch (Exception e) {
+			System.err.println("Error en la animación del dado: " + e.getMessage());
+			onFinished.run();
 		}
 	}
 
 	private void moverPieza(Jugador j, int steps) {
 		if (steps > 0) {
+			isMoving = true;
 			bloquearControles(true);
 			ImageView pieza = getPiezaParaJugador(j);
 			if (pieza != null) {
@@ -1768,11 +1856,12 @@ public class PantallaJuego {
 				final double finalTX = targetTX;
 				final double finalTY = targetTY;
 
-				sequence.setOnFinished(e -> Platform.runLater(() -> {
-					pieza.setTranslateX(finalTX);
-					pieza.setTranslateY(finalTY);
-
+				sequence.setOnFinished(e -> {
+					isMoving = false;
 					Platform.runLater(() -> {
+						pieza.setTranslateX(finalTX);
+						pieza.setTranslateY(finalTY);
+
 						j.setPosicio(newPos);
 						actualizarUI();
 						bloquearControles(true);
@@ -1816,19 +1905,21 @@ public class PantallaJuego {
 												// muestra
 												Runnable continueAfterBattle = () -> {
 													if (pActual.getPosicio() != posJ1Abans) {
-														animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(),
-																() -> {
-																	if (pRival.getPosicio() != posJ2Abans) {
-																		animarRetroceso(pRival, posJ2Abans,
-																				pRival.getPosicio(),
-																				finishTurnCallback);
-																	} else {
-																		finishTurnCallback.run();
-																	}
-																});
+														animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), () -> {
+															procesarEfectoCasella(pActual, () -> {
+																if (pRival.getPosicio() != posJ2Abans) {
+																	animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), () -> {
+																		procesarEfectoCasella(pRival, finishTurnCallback);
+																	});
+																} else {
+																	finishTurnCallback.run();
+																}
+															});
+														});
 													} else if (pRival.getPosicio() != posJ2Abans) {
-														animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(),
-																finishTurnCallback);
+														animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), () -> {
+															procesarEfectoCasella(pRival, finishTurnCallback);
+														});
 													} else {
 														finishTurnCallback.run();
 													}
@@ -1868,10 +1959,11 @@ public class PantallaJuego {
 										fRival.pegarPingu(pActual, gestorPartida.getPartida());
 
 										// Si "pegarPingu" alteró la posición del jugador atacado, animamos visualmente
-										// su retroceso.
+										// su retroceso y PROCESAMOS LA CASELLA DE DESTINO.
 										if (pActual.getPosicio() != posPinguAbans) {
-											animarRetroceso(pActual, posPinguAbans, pActual.getPosicio(),
-													finishTurnCallback);
+											animarRetroceso(pActual, posPinguAbans, pActual.getPosicio(), () -> {
+												procesarEfectoCasella(pActual, finishTurnCallback);
+											});
 										} else {
 											finishTurnCallback.run();
 										}
@@ -1901,9 +1993,11 @@ public class PantallaJuego {
 									fActual.pegarPingu(pRival, gestorPartida.getPartida());
 
 									// Si el ataque ha movido al Pingüino (lo ha mandado al agujero), ejecutamos la
-									// animación de retroceso.
+									// animación de retroceso y PROCESAMOS LA CASELLA DE DESTINO.
 									if (pRival.getPosicio() != posPAbans) {
-										animarRetroceso(pRival, posPAbans, pRival.getPosicio(), finishTurnCallback);
+										animarRetroceso(pRival, posPAbans, pRival.getPosicio(), () -> {
+											procesarEfectoCasella(pRival, finishTurnCallback);
+										});
 									} else {
 										finishTurnCallback.run();
 									}
@@ -1927,7 +2021,7 @@ public class PantallaJuego {
 							}
 						}
 					});
-				}));
+				});
 				sequence.play();
 			}
 		}
@@ -2027,6 +2121,7 @@ public class PantallaJuego {
 	}
 
 	public void animarRetroceso(Jugador j, int oldPos, int newPos, Runnable onComplete) {
+		isMoving = true;
 		ImageView pieza = getPiezaParaJugador(j);
 		if (pieza == null || oldPos <= newPos) {
 			if (pieza != null && oldPos <= newPos) {
@@ -2103,14 +2198,17 @@ public class PantallaJuego {
 				accumTY += stepDy;
 			}
 
-			sequence.setOnFinished(e -> Platform.runLater(() -> {
-				pieza.setTranslateX(0);
-				pieza.setTranslateY(0);
-				actualizarUI();
-				if (onComplete != null) {
-					onComplete.run();
-				}
-			}));
+			sequence.setOnFinished(e -> {
+				isMoving = false;
+				Platform.runLater(() -> {
+					pieza.setTranslateX(0);
+					pieza.setTranslateY(0);
+					actualizarUI();
+					if (onComplete != null) {
+						onComplete.run();
+					}
+				});
+			});
 			sequence.play();
 		}
 	}
@@ -2118,30 +2216,40 @@ public class PantallaJuego {
 	private void animarRetroceso(Jugador j, int oldPos, int newPos, boolean processCell) {
 		animarRetroceso(j, oldPos, newPos, () -> {
 			if (processCell) {
-				procesarEfectoCasella(j);
+				procesarEfectoCasella(j, null);
 			}
 		});
 	}
 
-	private void procesarEfectoCasella(Jugador j) {
+	private void procesarEfectoCasella(Jugador j, Runnable onFinished) {
 		int posActual = j.getPosicio();
 		Casella c = gestorPartida.getPartida().getTaulell().getCaselles().get(posActual);
+		GestorTaulell gt = new GestorTaulell();
 
-		if (!(c instanceof model.caselles.Event)) {
-			new GestorTaulell().executarCasella(gestorPartida.getPartida(), j, c);
+		if (c instanceof model.caselles.Event && j instanceof Pinguino) {
+			((model.caselles.Event) c).setCallbackFinalizacion(onFinished);
+			gt.executarCasella(gestorPartida.getPartida(), j, c);
+		} else {
+			gt.executarCasella(gestorPartida.getPartida(), j, c);
 
 			if (j.getPosicio() != posActual) {
 				int nuevaPos = j.getPosicio();
-				if (nuevaPos < posActual) {
-					animarRetroceso(j, posActual, nuevaPos, false);
+				if (c instanceof model.caselles.Forat) {
+					animarEfectoForat(j, posActual, nuevaPos, onFinished);
+				} else if (nuevaPos < posActual) {
+					animarRetroceso(j, posActual, nuevaPos, onFinished);
 				} else {
 					actualizarUI();
+					if (onFinished != null) onFinished.run();
 				}
+			} else {
+				if (onFinished != null) onFinished.run();
 			}
 		}
 	}
 
 	private void animarEfectoForat(Jugador j, int posEntrada, int posSalida, Runnable onFinished) {
+		isMoving = true;
 		ImageView pieza = getPiezaParaJugador(j);
 		if (pieza == null) {
 			if (onFinished != null)
@@ -2172,6 +2280,7 @@ public class PantallaJuego {
 
 				ParallelTransition ptOut = new ParallelTransition(pieza, rtOut, stOut);
 				ptOut.setOnFinished(e2 -> {
+					isMoving = false;
 					if (onFinished != null)
 						onFinished.run();
 				});
@@ -2398,5 +2507,58 @@ public class PantallaJuego {
 		} catch (Exception e) {
 			System.err.println("No se pudo aplicar el CSS al diálogo: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * Registra recursivamente los sonidos de hover y la animación de rebote para
+	 * todos los botones dentro de un nodo padre.
+	 */
+	private void registrarEfectosBotones(Node node) {
+		if (node instanceof Button) {
+			Button btn = (Button) node;
+
+			// Sonido y animación al pasar el ratón (hover)
+			btn.setOnMouseEntered(e -> {
+				AudioManager.getInstance().playSound("/assets/Hover_boton_hielo.mp3");
+				aplicarAnimacionRebote(btn, true);
+			});
+
+			// Animación al salir el ratón
+			btn.setOnMouseExited(e -> {
+				aplicarAnimacionRebote(btn, false);
+			});
+
+			// Sonido al hacer clic (ACTION para que conviva con FXML onAction)
+			btn.addEventHandler(ActionEvent.ACTION, e -> {
+				AudioManager.getInstance().playSound("/assets/Audio_click_hielo.mp3");
+			});
+
+		} else if (node instanceof javafx.scene.Parent) {
+			// Recorrer hijos si es un contenedor
+			for (Node child : ((javafx.scene.Parent) node).getChildrenUnmodifiable()) {
+				registrarEfectosBotones(child);
+			}
+		}
+	}
+
+	/**
+	 * Aplica una animación de escala (rebote) a un botón controlado por el ratón.
+	 */
+	private void aplicarAnimacionRebote(Button btn, boolean mouseEntered) {
+		ScaleTransition st = new ScaleTransition(Duration.millis(250), btn);
+		if (mouseEntered) {
+			st.setFromX(btn.getScaleX());
+			st.setFromY(btn.getScaleY());
+			st.setToX(1.1);
+			st.setToY(1.1);
+			st.setInterpolator(Interpolator.EASE_OUT);
+		} else {
+			st.setFromX(btn.getScaleX());
+			st.setFromY(btn.getScaleY());
+			st.setToX(1.0);
+			st.setToY(1.0);
+			st.setInterpolator(Interpolator.EASE_IN);
+		}
+		st.play();
 	}
 }

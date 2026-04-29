@@ -219,10 +219,11 @@ public class GestorBBDD {
             int finalitzada = partida.isFinalitzada() ? 1 : 0;
 
             if (pId == 0) {
+                // Usamos la secuencia Oracle para obtener el ID de forma segura
                 ArrayList<LinkedHashMap<String, String>> resultat = select(con,
-                        "SELECT MAX(id) AS MAX_ID FROM partida");
-                int nouId = (resultat.isEmpty() || resultat.get(0).get("MAX_ID") == null) ? 1
-                        : Integer.parseInt(resultat.get(0).get("MAX_ID")) + 1;
+                        "SELECT SEQ_PARTIDA.NEXTVAL AS NOU_ID FROM DUAL");
+                int nouId = Integer.parseInt(resultat.get(0).get("NOU_ID"));
+                
                 partida.setId(nouId);
                 pId = nouId;
 

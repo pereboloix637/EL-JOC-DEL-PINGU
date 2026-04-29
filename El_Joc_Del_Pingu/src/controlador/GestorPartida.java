@@ -45,11 +45,16 @@ public class GestorPartida {
         if (dauOpcional != null && dauOpcional.esEspecial()) {
             int resultat = dauOpcional.tirarIUsar();
             if (resultat != -1) {
-                // Si el jugador es un Pingüino, asegurar que se elimine del inventario si se ha agotado
+                // Asegurar que se elimine del inventario si se ha agotado (para Pinguino y Foca)
                 if (j instanceof Pinguino) {
                     Pinguino p = (Pinguino) j;
                     if (dauOpcional.getQuantitat() <= 0) {
                         p.getInventari().eliminarItem(dauOpcional);
+                    }
+                } else if (j instanceof model.entitats.Foca) {
+                    model.entitats.Foca f = (model.entitats.Foca) j;
+                    if (dauOpcional.getQuantitat() <= 0) {
+                        f.getInventari().eliminarItem(dauOpcional);
                     }
                 }
                 return resultat;
