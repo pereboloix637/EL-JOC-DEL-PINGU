@@ -161,8 +161,6 @@ public class GestorBBDD {
         return resultados;
     }
 
-
-
     /**
      * Ejecuta las consultas Insert, Update o Delete.
      *
@@ -184,6 +182,23 @@ public class GestorBBDD {
             return filas;
         } catch (SQLException e) {
             System.out.println("Ha habido un error en " + etiqueta + ": " + e.getMessage());
+            return 0;
+        }
+    }
+
+    public int obtenirRecordVictories(Connection con) {
+        if (con == null) {
+            System.out.println("No hay conexión. Llama antes a conectarBaseDatos().");
+            return 0;
+        }
+
+        String call = "{ ? = call F_MAX_VICTORIES() }";
+        try (CallableStatement cs = con.prepareCall(call)) {
+            cs.registerOutParameter(1, Types.INTEGER);
+            cs.execute();
+            return cs.getInt(1);
+        } catch (SQLException e) {
+            System.out.println("Error obteniendo récord de victorias: " + e.getMessage());
             return 0;
         }
     }
@@ -322,15 +337,7 @@ public class GestorBBDD {
                 }
             }
 
-            // 3. Si la partida está finalizada y hay un ganador, sumar +1 victoria en la BD
-            if (partida.isFinalitzada() && partida.getGuanyador() != null) {
-                Jugador guanyador = partida.getGuanyador();
-                if (guanyador instanceof Pinguino && guanyador.getId() != 0) {
-                    update(con, "UPDATE jugador SET victories = victories + 1 WHERE id = " + guanyador.getId());
-                    System.out.println("Victoria registrada para: " + guanyador.getNickname());
-                }
-            }
-
+            // El registro de victorias se delega a un trigger PL/SQL cuando la partida pasa a finalizada.
             System.out.println("Partida guardada con éxito.");
         } catch (Exception e) {
             System.err.println("Error en guardarBBDD: " + e.getMessage());
@@ -505,40 +512,74 @@ public class GestorBBDD {
         }
     }
 
-    public void registrarVictoria(int jugadorId, String nickname, Connection con) {
-        // Intentamos sumar +1 al registro actual
-        String sqlId = "UPDATE jugador SET victories = victories + 1 WHERE id = " + jugadorId;
-        int rows = update(con, sqlId);
-
-        if (rows == 0 && nickname != null && !nickname.isEmpty()) {
-            String sqlNom = "UPDATE jugador SET victories = victories + 1 WHERE nom = '" + nickname + "'";
-            rows = update(con, sqlNom);
-        }
-
-        // Si sigue siendo 0, es que el jugador no existe en la tabla global, lo insertamos
-        if (rows == 0 && nickname != null && !nickname.isEmpty()) {
-            // Generamos una ID nueva si es necesario
-            ArrayList<LinkedHashMap<String, String>> resMax = select(con, "SELECT MAX(id) AS MAX_ID FROM jugador");
-            int nouId = (resMax.isEmpty() || resMax.get(0).get("MAX_ID") == null) ? 1
-                    : Integer.parseInt(resMax.get(0).get("MAX_ID")) + 1;
-
-            String sqlIns = "INSERT INTO jugador (id, nom, color, es_cpu, contrasenya, salt, victories) VALUES ("
-                    + nouId + ", '" + nickname + "', 'Azul', 0, UTL_RAW.CAST_TO_RAW(''), UTL_RAW.CAST_TO_RAW(''), 1)";
-            insert(con, sqlIns);
-        }
-    }
-
+    /**
+     * Obté el rànquing de jugadors cridant al procedure PRC_RANKING_PARTIDAS i
+     * afegint el percentatge de superació amb F_PERCENTATGE_MENYS_VICTORIES.
+     */
     public ArrayList<String> obtenerRanking(Connection con) {
         ArrayList<String> ranking = new ArrayList<>();
-        String sql = "SELECT nom, victories FROM jugador WHERE es_cpu = 0 ORDER BY victories DESC";
-        ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
+        if (con == null) {
+            return ranking;
+        }
 
-        int pos = 1;
-        for (LinkedHashMap<String, String> row : res) {
-            String nom = row.get("NOM");
-            String vic = row.get("VICTORIES") != null ? row.get("VICTORIES") : "0";
-            ranking.add(pos + ". " + nom + " - Victorias: " + vic);
-            pos++;
+        // Cridem al procedure PRC_RANKING_PARTIDAS que retorna un SYS_REFCURSOR
+        String callPrc = "{ call PRC_RANKING_PARTIDAS(?) }";
+        try (CallableStatement cs = con.prepareCall(callPrc)) {
+            cs.registerOutParameter(1, -10);
+            cs.execute();
+
+            ResultSet rs = (ResultSet) cs.getObject(1);
+            int pos = 1;
+
+            while (rs.next()) {
+                String nom = rs.getString("NOM");
+                int vic = rs.getInt("VICTORIES");
+
+                // Cridem a la funció PL/SQL per obtenir el percentatge de jugadors superats
+                double pct = 0;
+                try (CallableStatement csPct = con.prepareCall("{ ? = call F_PERCENTATGE_MENYS_VICTORIES(?) }")) {
+                    csPct.registerOutParameter(1, Types.DOUBLE);
+                    csPct.setInt(2, vic);
+                    csPct.execute();
+                    pct = csPct.getDouble(1);
+                } catch (SQLException ex) {
+                    System.out.println("Error calculant percentatge: " + ex.getMessage());
+                }
+
+                ranking.add(pos + ". " + nom
+                        + " - Victorias: " + vic
+                        + " (supera al " + String.format("%.1f", pct) + "%)");
+                pos++;
+            }
+            rs.close();
+
+        } catch (SQLException e) {
+            System.out.println("Error cridant PRC_RANKING_PARTIDAS: " + e.getMessage());
+            System.out.println("Intentant mètode alternatiu amb SELECT directe...");
+
+            //SELECT directe si el procedure falla
+            String sql = "SELECT nom, victories FROM jugador WHERE es_cpu = 0 ORDER BY victories DESC";
+            ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
+            int pos = 1;
+            for (LinkedHashMap<String, String> row : res) {
+                String nom = row.get("NOM");
+                int vic = row.get("VICTORIES") != null ? Integer.parseInt(row.get("VICTORIES")) : 0;
+
+                double pct = 0;
+                try (CallableStatement csPct = con.prepareCall("{ ? = call F_PERCENTATGE_MENYS_VICTORIES(?) }")) {
+                    csPct.registerOutParameter(1, Types.DOUBLE);
+                    csPct.setInt(2, vic);
+                    csPct.execute();
+                    pct = csPct.getDouble(1);
+                } catch (SQLException ex) {
+                    System.out.println("Error calculant percentatge: " + ex.getMessage());
+                }
+
+                ranking.add(pos + ". " + nom
+                        + " - Victorias: " + vic
+                        + " (supera al " + String.format("%.1f", pct) + "%)");
+                pos++;
+            }
         }
         return ranking;
     }
