@@ -204,10 +204,11 @@ public class GestorBBDD {
             int finalitzada = partida.isFinalitzada() ? 1 : 0;
 
             if (pId == 0) {
+                // Usamos la secuencia Oracle para obtener el ID de forma segura
                 ArrayList<LinkedHashMap<String, String>> resultat = select(con,
-                        "SELECT MAX(id) AS MAX_ID FROM partida");
-                int nouId = (resultat.isEmpty() || resultat.get(0).get("MAX_ID") == null) ? 1
-                        : Integer.parseInt(resultat.get(0).get("MAX_ID")) + 1;
+                        "SELECT SEQ_PARTIDA.NEXTVAL AS NOU_ID FROM DUAL");
+                int nouId = Integer.parseInt(resultat.get(0).get("NOU_ID"));
+                
                 partida.setId(nouId);
                 pId = nouId;
 
@@ -528,17 +529,34 @@ public class GestorBBDD {
         }
     }
 
-    public ArrayList<String> obtenerRanking(Connection con) {
+    public ArrayList<String> obtenerRanking(String nickname, Connection con) {
         ArrayList<String> ranking = new ArrayList<>();
-        String sql = "SELECT nom, victories FROM jugador WHERE es_cpu = 0 ORDER BY victories DESC";
-        ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
+        // Ahora delegamos todo en el procedimiento PL/SQL que hemos creado
+        String sql = "{call PRC_RANKING_PARTIDAS(?, ?)}";
 
-        int pos = 1;
-        for (LinkedHashMap<String, String> row : res) {
-            String nom = row.get("NOM");
-            String vic = row.get("VICTORIES") != null ? row.get("VICTORIES") : "0";
-            ranking.add(pos + ". " + nom + " - Victorias: " + vic);
-            pos++;
+        try (CallableStatement cs = con.prepareCall(sql)) {
+            // Pasamos el nombre del jugador para las validaciones de Oracle
+            cs.setString(1, nickname);
+            // Registramos el cursor de salida (Norma 2)
+            cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+
+            cs.execute();
+
+            // Procesamos el cursor devuelto por Oracle
+            try (ResultSet rs = (ResultSet) cs.getObject(2)) {
+                int pos = 1;
+                while (rs.next()) {
+                    String nom = rs.getString("NOM");
+                    int total = rs.getInt("TOTAL_PARTIDAS");
+                    ranking.add(pos + ". " + nom + " - Partidas: " + total);
+                    pos++;
+                }
+            }
+        } catch (SQLException e) {
+            // Norma 6: Capturamos los errores personalizados de Oracle (-20001, -20002)
+            System.err.println("Error de validación en Oracle: " + e.getMessage());
+            // Añadimos el mensaje de error al ranking para que el usuario vea qué ha pasado
+            ranking.add("ERROR: " + e.getMessage());
         }
         return ranking;
     }
