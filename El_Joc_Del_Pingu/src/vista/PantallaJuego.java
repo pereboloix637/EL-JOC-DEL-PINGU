@@ -1859,10 +1859,9 @@ public class PantallaJuego {
 				sequence.setOnFinished(e -> {
 					isMoving = false;
 					Platform.runLater(() -> {
-					pieza.setTranslateX(finalTX);
-					pieza.setTranslateY(finalTY);
+						pieza.setTranslateX(finalTX);
+						pieza.setTranslateY(finalTY);
 
-					Platform.runLater(() -> {
 						j.setPosicio(newPos);
 						actualizarUI();
 						bloquearControles(true);
@@ -2021,7 +2020,6 @@ public class PantallaJuego {
 								}
 							}
 						}
-					});
 					});
 				});
 				sequence.play();

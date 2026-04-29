@@ -264,7 +264,8 @@ public class PantallaMenu {
 		try (Connection con = GestorBBDD.conectarBaseDatos()) {
 			if (con != null) {
 				ArrayList<String> games = dbManager.llistarPartides(con);
-				ArrayList<String> ranking = dbManager.obtenerRanking(con);
+				// Al inicio usamos un nombre vacío o "Invitado" para cargar el ranking general
+				ArrayList<String> ranking = dbManager.obtenerRanking("", con);
 				savedGamesList.getItems().setAll(games);
 				rankingList.getItems().setAll(ranking);
 			}
@@ -632,7 +633,9 @@ public class PantallaMenu {
 	private void handleRefreshRanking() {
 		try (Connection con = GestorBBDD.conectarBaseDatos()) {
 			if (con != null) {
-				ArrayList<String> ranking = dbManager.obtenerRanking(con);
+				// Intentamos refrescar el ranking con el primer jugador unido si existe
+				String buscador = joinedPlayers.isEmpty() ? "" : joinedPlayers.get(0).getNickname();
+				ArrayList<String> ranking = dbManager.obtenerRanking(buscador, con);
 				rankingList.getItems().setAll(ranking);
 			}
 		} catch (Exception e) {
