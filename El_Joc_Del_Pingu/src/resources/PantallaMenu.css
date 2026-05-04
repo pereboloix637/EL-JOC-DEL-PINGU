@@ -729,6 +729,65 @@
     background-color: transparent;
 }
 
+/* ---- TARJETAS DEL RANKING (Cards) ---- */
+.ranking-card {
+    -fx-background-color: rgba(28, 58, 82, 0.4);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: rgba(127, 212, 240, 0.3);
+    -fx-border-width: 2;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 5);
+    -fx-min-width: 320;
+}
+
+.ranking-card .label {
+    -fx-font-family: "Press Start 2P";
+    -fx-text-alignment: center;
+}
+
+/* Efecto hover sobre la tarjeta */
+.list-cell:hover .ranking-card {
+    -fx-background-color: rgba(58, 181, 230, 0.2);
+    -fx-border-color: #7FD4F0;
+}
+
+/* Variaciones por posición (Colores solicitados) */
+
+/* Primero: Naranja */
+.list-cell.rank-1 .ranking-card {
+    -fx-background-color: linear-gradient(to bottom right, rgba(255, 165, 0, 0.2), rgba(13, 27, 42, 0.8));
+    -fx-border-color: #FFA500;
+}
+.list-cell.rank-1 .label { -fx-text-fill: #FFA500; }
+
+/* Segundo: Gris */
+.list-cell.rank-2 .ranking-card {
+    -fx-background-color: linear-gradient(to bottom right, rgba(160, 160, 160, 0.2), rgba(13, 27, 42, 0.8));
+    -fx-border-color: #A0A0A0;
+}
+.list-cell.rank-2 .label { -fx-text-fill: #A0A0A0; }
+
+/* Tercero: Marrón claro */
+.list-cell.rank-3 .ranking-card {
+    -fx-background-color: linear-gradient(to bottom right, rgba(205, 133, 63, 0.2), rgba(13, 27, 42, 0.8));
+    -fx-border-color: #CD853F;
+}
+.list-cell.rank-3 .label { -fx-text-fill: #CD853F; }
+
+/* Cuarto y Quinto: Azul cian */
+.list-cell.rank-4-5 .ranking-card {
+    -fx-background-color: rgba(0, 255, 255, 0.05);
+    -fx-border-color: #00FFFF;
+}
+.list-cell.rank-4-5 .label { -fx-text-fill: #00FFFF; }
+
+/* Demás: Blanco */
+.list-cell.rank-default .ranking-card {
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+}
+.list-cell.rank-default .label { -fx-text-fill: #FFFFFF; }
+
 .progress-bar .bar {
     -fx-background-color: linear-gradient(to right, #2E6B8A, #3AB5E6, #7FD4F0);
     background-color: linear-gradient(to right, #2E6B8A, #3AB5E6, #7FD4F0);
