@@ -514,74 +514,89 @@ public class GestorBBDD {
     }
 
     /**
-     * Obté el rànquing de jugadors cridant al procedure PRC_RANKING_PARTIDAS i
-     * afegint el percentatge de superació amb F_PERCENTATGE_MENYS_VICTORIES.
+     * Obtiene el ránking de jugadores basándose en el total de partidas jugadas.
+     * 
+     * FUNCIONAMIENTO:
+     * 1. Llama al procedimiento PRC_RANKING_PARTIDAS para validar (si el jugador existe y tiene partidas).
+     * 2. Si el procedimiento lanza un error (RAISE_APPLICATION_ERROR), se captura y se muestra el mensaje.
+     * 3. Si la validación pasa, se ejecuta una consulta SQL estándar para obtener el conteo de partidas.
+     * 4. Se eliminan los cursores complejos (SYS_REFCURSOR) para simplificar la conexión.
      */
     public ArrayList<String> obtenerRanking(Connection con) {
+        return obtenerRanking("", con);
+    }
+
+    public ArrayList<String> obtenerRanking(String buscador, Connection con) {
         ArrayList<String> ranking = new ArrayList<>();
-        if (con == null) {
-            return ranking;
-        }
+        if (con == null) return ranking;
 
-        // Cridem al procedure PRC_RANKING_PARTIDAS que retorna un SYS_REFCURSOR
-        String callPrc = "{ call PRC_RANKING_PARTIDAS(?) }";
-        try (CallableStatement cs = con.prepareCall(callPrc)) {
-            cs.registerOutParameter(1, -10);
-            cs.execute();
+        if (buscador == null) buscador = "";
 
-            ResultSet rs = (ResultSet) cs.getObject(1);
-            int pos = 1;
-
-            while (rs.next()) {
-                String nom = rs.getString("NOM");
-                int vic = rs.getInt("VICTORIES");
-
-                // Cridem a la funció PL/SQL per obtenir el percentatge de jugadors superats
-                double pct = 0;
-                try (CallableStatement csPct = con.prepareCall("{ ? = call F_PERCENTATGE_MENYS_VICTORIES(?) }")) {
-                    csPct.registerOutParameter(1, Types.DOUBLE);
-                    csPct.setInt(2, vic);
-                    csPct.execute();
-                    pct = csPct.getDouble(1);
-                } catch (SQLException ex) {
-                    System.out.println("Error calculant percentatge: " + ex.getMessage());
+        try {
+            // 1. VALIDACIÓN mediante procedimiento (Sin cursores de salida)
+            // Solo validamos si hay un buscador (nombre de jugador) especificado
+            if (!buscador.isEmpty()) {
+                try (CallableStatement cs = con.prepareCall("{ call PRC_RANKING_PARTIDAS(?) }")) {
+                    cs.setString(1, buscador);
+                    cs.execute();
+                } catch (SQLException e) {
+                    // Capturamos el error de validación del procedimiento (ej. "Jugador no existe")
+                    ranking.add("ERROR: " + e.getMessage());
+                    return ranking;
                 }
-
-                ranking.add(pos + ". " + nom
-                        + " - Victorias: " + vic
-                        + " (supera al " + String.format("%.1f", pct) + "%)");
-                pos++;
             }
-            rs.close();
 
-        } catch (SQLException e) {
-            System.out.println("Error cridant PRC_RANKING_PARTIDAS: " + e.getMessage());
-            System.out.println("Intentant mètode alternatiu amb SELECT directe...");
+            // 2. OBTENCIÓN DE DATOS mediante consulta estándar
+            // Obtenemos el ranking completo con nombre, victorias y total de partidas.
+            String sql = "SELECT j.nom, j.victories, COUNT(jp.partida_id) AS TOTAL_PARTIDAS " +
+                         "FROM jugador j " +
+                         "JOIN jugador_partida jp ON j.id = jp.jugador_id " +
+                         "WHERE j.es_cpu = 0 " +
+                         "GROUP BY j.nom, j.victories " +
+                         "ORDER BY TOTAL_PARTIDAS DESC";
 
-            //SELECT directe si el procedure falla
-            String sql = "SELECT nom, victories FROM jugador WHERE es_cpu = 0 ORDER BY victories DESC";
-            ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
-            int pos = 1;
-            for (LinkedHashMap<String, String> row : res) {
+            ArrayList<LinkedHashMap<String, String>> players = select(con, sql);
+
+            // 3. Procesar resultados y filtrar por el buscador si es necesario
+            int visualPos = 1;
+            for (LinkedHashMap<String, String> row : players) {
                 String nom = row.get("NOM");
-                int vic = row.get("VICTORIES") != null ? Integer.parseInt(row.get("VICTORIES")) : 0;
+                int total = Integer.parseInt(row.get("TOTAL_PARTIDAS"));
+                int vics = (row.get("VICTORIES") != null) ? Integer.parseInt(row.get("VICTORIES")) : 0;
 
-                double pct = 0;
+                // 4. Obtener el porcentaje de superación usando la función de la BD (F_PERCENTATGE_MENYS_VICTORIES)
+                double pctSuperacion = 0;
                 try (CallableStatement csPct = con.prepareCall("{ ? = call F_PERCENTATGE_MENYS_VICTORIES(?) }")) {
                     csPct.registerOutParameter(1, Types.DOUBLE);
-                    csPct.setInt(2, vic);
+                    csPct.setInt(2, vics);
                     csPct.execute();
-                    pct = csPct.getDouble(1);
+                    pctSuperacion = csPct.getDouble(1);
                 } catch (SQLException ex) {
-                    System.out.println("Error calculant percentatge: " + ex.getMessage());
+                    System.err.println("Error calculando porcentaje para " + nom + ": " + ex.getMessage());
                 }
 
-                ranking.add(pos + ". " + nom
-                        + " - Victorias: " + vic
-                        + " (supera al " + String.format("%.1f", pct) + "%)");
-                pos++;
+                if (!buscador.isEmpty() && !nom.toLowerCase().contains(buscador.toLowerCase())) {
+                    continue;
+                }
+
+                // Formato en bloque (2 líneas por jugador):
+                // El CellFactory de PantallaMenu usará el \n para separar el título de las stats
+                String bloqueInfo = visualPos + ". " + nom + " - Partidas jugadas: " + total + 
+                                   "\nVictorias: " + vics + " (supera al " + String.format("%.1f", pctSuperacion) + "%)";
+                
+                ranking.add(bloqueInfo);
+                visualPos++;
             }
+
+            if (ranking.isEmpty() && !buscador.isEmpty()) {
+                ranking.add("No se encontraron resultados para: " + buscador);
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error procesando ranking: " + e.getMessage());
+            ranking.add("Error al cargar el ranking.");
         }
+        
         return ranking;
     }
 }

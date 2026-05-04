@@ -195,31 +195,61 @@ public class PantallaMenu {
 		// ── Efecto de nieve cayendo ──
 		new EfectoNieve(wrapper);
 
-		// Personalización de colores del ranking por posición (Se configura ANTES de
-		// cargar datos)
+		// El CellFactory es un decorador de celdas: define cómo se dibuja cada fila.
+		// Aquí lo usamos para activar el salto de línea (\n) y asignar colores 
+		// (Oro, Plata, Bronce) dinámicamente según la posición del jugador.
 		rankingList.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
+			private final javafx.scene.layout.VBox card = new javafx.scene.layout.VBox(5);
+			private final javafx.scene.control.Label titleLabel = new javafx.scene.control.Label();
+			private final javafx.scene.control.Label statsLabel = new javafx.scene.control.Label();
+
+			{
+				card.setAlignment(javafx.geometry.Pos.CENTER);
+				card.setPadding(new javafx.geometry.Insets(15));
+				card.getStyleClass().add("ranking-card"); // Clase base en CSS
+				
+				titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+				statsLabel.setStyle("-fx-font-size: 11px;");
+				
+				card.getChildren().addAll(titleLabel, statsLabel);
+			}
+
 			@Override
 			protected void updateItem(String item, boolean empty) {
 				super.updateItem(item, empty);
 				if (empty || item == null) {
-					setText(null);
 					setGraphic(null);
 					getStyleClass().removeAll("rank-1", "rank-2", "rank-3", "rank-4-5", "rank-default");
+				} else if (item.startsWith("ERROR")) {
+					titleLabel.setText("Aviso");
+					statsLabel.setText(item);
+					statsLabel.setStyle("-fx-text-fill: #ff6666;");
+					setGraphic(card);
 				} else {
-					setText(item);
 					getStyleClass().removeAll("rank-1", "rank-2", "rank-3", "rank-4-5", "rank-default");
-					int index = getIndex();
-					if (index == 0) {
-						getStyleClass().add("rank-1");
-					} else if (index == 1) {
-						getStyleClass().add("rank-2");
-					} else if (index == 2) {
-						getStyleClass().add("rank-3");
-					} else if (index == 3 || index == 4) {
-						getStyleClass().add("rank-4-5");
-					} else {
+					
+					// Parsear la info (Línea 1 \n Línea 2)
+					String[] lines = item.split("\n");
+					titleLabel.setText(lines[0]);
+					if (lines.length > 1) {
+						statsLabel.setText(lines[1]);
+					}
+
+					// Determinar posición para el color de la tarjeta
+					try {
+						String posStr = lines[0].split("\\.")[0].trim();
+						int posRanking = Integer.parseInt(posStr);
+
+						if (posRanking == 1) getStyleClass().add("rank-1");
+						else if (posRanking == 2) getStyleClass().add("rank-2");
+						else if (posRanking == 3) getStyleClass().add("rank-3");
+						else if (posRanking <= 5) getStyleClass().add("rank-4-5");
+						else getStyleClass().add("rank-default");
+					} catch (Exception e) {
 						getStyleClass().add("rank-default");
 					}
+
+					setGraphic(card);
 				}
 			}
 		});
