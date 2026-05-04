@@ -32,11 +32,11 @@ public class PantallaCargaPartida {
     		"PCI Studios mantiene a flote este juego, desde un barco claro.",
     		"¿Los Pingus y las Focas se pintan? Me gustaria saber si les gustaria tener unas gafas.",
     		"Con capacidad para hasta 6 jugadores, dispones de un total de 12 figuras (6 Pingus y 6 Focas)",
-    		"El oso polar normalmente atacara a los pingüinos, pero es probable que a las focas tanbien sean afectadas",
+    		"El oso polar normalmente atacara a los pingüinos, pero es probable que a las focas tambien sean afectadas",
     		"Las bolas de nieve hacen retrodecer al mas cercano",
     		"PCI Studios no se responsabiliza de los conflictos o desacuerdos que surjan durante el transcurso del juego.",
     		"Si te toca una Moto de nieve, avanzaras hasta el proximo trineo. ¡Que bien!",
-    		"¿Sabias que en llos eventos puedes perder turnos y items? Uy que mal rollo..."
+    		"¿Sabias que en los eventos puedes perder turnos y items? Uy que mal rollo..."
     };
 
     @FXML

@@ -752,26 +752,29 @@
     -fx-border-color: #7FD4F0;
 }
 
-/* Variaciones por posición (Colores solicitados) */
+/* Variaciones por posición (Colores solicitados: Borde != Texto) */
 
-/* Primero: Naranja */
+/* Primero: Borde Amarillo (#FFFF00), Texto Naranja (#FFA500) */
 .list-cell.rank-1 .ranking-card {
-    -fx-background-color: linear-gradient(to bottom right, rgba(255, 165, 0, 0.2), rgba(13, 27, 42, 0.8));
-    -fx-border-color: #FFA500;
+    -fx-background-color: linear-gradient(to bottom right, rgba(255, 255, 0, 0.1), rgba(13, 27, 42, 0.9));
+    -fx-border-color: #FFFF00;
+    -fx-border-width: 3;
 }
 .list-cell.rank-1 .label { -fx-text-fill: #FFA500; }
 
-/* Segundo: Gris */
+/* Segundo: Borde Plata (#C0C0C0), Texto Gris (#707070) */
 .list-cell.rank-2 .ranking-card {
-    -fx-background-color: linear-gradient(to bottom right, rgba(160, 160, 160, 0.2), rgba(13, 27, 42, 0.8));
-    -fx-border-color: #A0A0A0;
+    -fx-background-color: linear-gradient(to bottom right, rgba(192, 192, 192, 0.1), rgba(13, 27, 42, 0.9));
+    -fx-border-color: #C0C0C0;
+    -fx-border-width: 2;
 }
-.list-cell.rank-2 .label { -fx-text-fill: #A0A0A0; }
+.list-cell.rank-2 .label { -fx-text-fill: #707070; }
 
-/* Tercero: Marrón claro */
+/* Tercero: Borde Bronce (#CD7F32), Texto Marrón claro (#CD853F) */
 .list-cell.rank-3 .ranking-card {
-    -fx-background-color: linear-gradient(to bottom right, rgba(205, 133, 63, 0.2), rgba(13, 27, 42, 0.8));
-    -fx-border-color: #CD853F;
+    -fx-background-color: linear-gradient(to bottom right, rgba(205, 127, 50, 0.1), rgba(13, 27, 42, 0.9));
+    -fx-border-color: #CD7F32;
+    -fx-border-width: 2;
 }
 .list-cell.rank-3 .label { -fx-text-fill: #CD853F; }
 
@@ -780,13 +783,14 @@
     -fx-background-color: rgba(0, 255, 255, 0.05);
     -fx-border-color: #00FFFF;
 }
-.list-cell.rank-4-5 .label { -fx-text-fill: #00FFFF; }
+.list-cell.rank-4-5 .label { -fx-text-fill: #008B8B; }
 
 /* Demás: Blanco */
 .list-cell.rank-default .ranking-card {
-    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-color: #FFFFFF;
+    -fx-opacity: 0.8;
 }
-.list-cell.rank-default .label { -fx-text-fill: #FFFFFF; }
+.list-cell.rank-default .label { -fx-text-fill: #F0F4FF; }
 
 .progress-bar .bar {
     -fx-background-color: linear-gradient(to right, #2E6B8A, #3AB5E6, #7FD4F0);
