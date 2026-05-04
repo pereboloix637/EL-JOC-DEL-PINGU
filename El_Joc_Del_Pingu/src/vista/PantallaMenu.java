@@ -73,7 +73,11 @@ public class PantallaMenu {
 	@FXML
 	private ListView<String> savedGamesList;
 	@FXML
-	private ListView<String> rankingList;
+	private ListView<String> rankingVictoriasList;
+	@FXML
+	private ListView<String> rankingPartidasList;
+	@FXML
+	private Label lblRecordVictorias;
 	@FXML
 	private TabPane mainTabPane;
 	@FXML
@@ -281,7 +285,9 @@ public class PantallaMenu {
 					setGraphic(card);
 				}
 			}
-		});
+		};
+		if (rankingVictoriasList != null) rankingVictoriasList.setCellFactory(rankingCellFactory);
+		if (rankingPartidasList != null) rankingPartidasList.setCellFactory(rankingCellFactory);
 
 		// Celda personalizada para playersList para incluir botón de eliminar
 		playersList.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
@@ -323,10 +329,13 @@ public class PantallaMenu {
 		try (Connection con = GestorBBDD.conectarBaseDatos()) {
 			if (con != null) {
 				ArrayList<String> games = dbManager.llistarPartides(con);
-				// Al inicio usamos un nombre vacío o "Invitado" para cargar el ranking general
-				ArrayList<String> ranking = dbManager.obtenerRanking("", con);
+				// Carreguem els dos rànquings
+				ArrayList<String> rankingPartidas = dbManager.obtenerRankingPartidas("", con);
+				ArrayList<String> rankingVictorias = dbManager.obtenerRankingVictorias(con);
+				
 				savedGamesList.getItems().setAll(games);
-				rankingList.getItems().setAll(ranking);
+				if (rankingPartidasList != null) rankingPartidasList.getItems().setAll(rankingPartidas);
+				if (rankingVictoriasList != null) rankingVictoriasList.getItems().setAll(rankingVictorias);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -692,10 +701,14 @@ public class PantallaMenu {
 	private void handleRefreshRanking() {
 		try (Connection con = GestorBBDD.conectarBaseDatos()) {
 			if (con != null) {
-				// Intentamos refrescar el ranking con el primer jugador unido si existe
+				// Intentem refrescar el rànquing amb el primer jugador unit si existeix
 				String buscador = joinedPlayers.isEmpty() ? "" : joinedPlayers.get(0).getNickname();
-				ArrayList<String> ranking = dbManager.obtenerRanking(buscador, con);
-				rankingList.getItems().setAll(ranking);
+				
+				ArrayList<String> rankingPartidas = dbManager.obtenerRankingPartidas(buscador, con);
+				ArrayList<String> rankingVictorias = dbManager.obtenerRankingVictorias(con);
+				
+				if (rankingPartidasList != null) rankingPartidasList.getItems().setAll(rankingPartidas);
+				if (rankingVictoriasList != null) rankingVictoriasList.getItems().setAll(rankingVictorias);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
