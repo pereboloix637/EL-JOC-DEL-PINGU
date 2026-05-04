@@ -200,6 +200,7 @@ public class PantallaMenu {
 		// (Oro, Plata, Bronce) dinámicamente según la posición del jugador.
 		rankingList.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
 			private final javafx.scene.layout.VBox card = new javafx.scene.layout.VBox(5);
+			private final javafx.scene.image.ImageView trophyIcon = new javafx.scene.image.ImageView();
 			private final javafx.scene.control.Label titleLabel = new javafx.scene.control.Label();
 			private final javafx.scene.control.Label statsLabel = new javafx.scene.control.Label();
 
@@ -208,10 +209,14 @@ public class PantallaMenu {
 				card.setPadding(new javafx.geometry.Insets(15));
 				card.getStyleClass().add("ranking-card"); // Clase base en CSS
 				
+				trophyIcon.setFitHeight(40);
+				trophyIcon.setPreserveRatio(true);
+				trophyIcon.setSmooth(true);
+				
 				titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 				statsLabel.setStyle("-fx-font-size: 11px;");
 				
-				card.getChildren().addAll(titleLabel, statsLabel);
+				card.getChildren().addAll(trophyIcon, titleLabel, statsLabel);
 			}
 
 			@Override
@@ -235,18 +240,42 @@ public class PantallaMenu {
 						statsLabel.setText(lines[1]);
 					}
 
-					// Determinar posición para el color de la tarjeta
+					// Determinar posición para el color de la tarjeta y el icono de trofeo
 					try {
 						String posStr = lines[0].split("\\.")[0].trim();
 						int posRanking = Integer.parseInt(posStr);
 
-						if (posRanking == 1) getStyleClass().add("rank-1");
-						else if (posRanking == 2) getStyleClass().add("rank-2");
-						else if (posRanking == 3) getStyleClass().add("rank-3");
-						else if (posRanking <= 5) getStyleClass().add("rank-4-5");
-						else getStyleClass().add("rank-default");
+						trophyIcon.setVisible(true);
+						trophyIcon.setManaged(true);
+						trophyIcon.setFitHeight(40); // Reset tamaño por defecto
+
+						if (posRanking == 1) {
+							getStyleClass().add("rank-1");
+							trophyIcon.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream("/assets/CoronaHielo.png")));
+							trophyIcon.setFitHeight(60); 
+							card.getChildren().setAll(trophyIcon, titleLabel, statsLabel);
+						} else if (posRanking == 2) {
+							getStyleClass().add("rank-2");
+							trophyIcon.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream("/assets/CopaPlata.png")));
+							trophyIcon.setFitHeight(60); 
+							card.getChildren().setAll(trophyIcon, titleLabel, statsLabel);
+						} else if (posRanking == 3) {
+							getStyleClass().add("rank-3");
+							trophyIcon.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream("/assets/MedallaBronce.png")));
+							trophyIcon.setFitHeight(60); 
+							card.getChildren().setAll(titleLabel, statsLabel, trophyIcon); // Icono abajo
+						} else {
+							trophyIcon.setVisible(false);
+							trophyIcon.setManaged(false);
+							card.getChildren().setAll(titleLabel, statsLabel);
+							if (posRanking <= 5) getStyleClass().add("rank-4-5");
+							else getStyleClass().add("rank-default");
+						}
 					} catch (Exception e) {
 						getStyleClass().add("rank-default");
+						trophyIcon.setVisible(false);
+						trophyIcon.setManaged(false);
+						card.getChildren().setAll(titleLabel, statsLabel);
 					}
 
 					setGraphic(card);
