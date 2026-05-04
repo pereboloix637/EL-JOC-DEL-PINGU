@@ -187,20 +187,19 @@ public class GestorBBDD {
     }
 
     public int obtenirRecordVictories(Connection con) {
-        if (con == null) {
-            System.out.println("No hay conexión. Llama antes a conectarBaseDatos().");
-            return 0;
-        }
+        if (con == null) return 0;
 
-        String call = "{ ? = call F_MAX_VICTORIES() }";
-        try (CallableStatement cs = con.prepareCall(call)) {
-            cs.registerOutParameter(1, Types.INTEGER);
-            cs.execute();
-            return cs.getInt(1);
-        } catch (SQLException e) {
-            System.out.println("Error obteniendo récord de victorias: " + e.getMessage());
-            return 0;
+        String sql = "SELECT MAX(victories) AS MAX_VIC FROM jugador";
+        ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
+        
+        if (!res.isEmpty() && res.get(0).get("MAX_VIC") != null) {
+            try {
+                return Integer.parseInt(res.get(0).get("MAX_VIC"));
+            } catch (NumberFormatException e) {
+                return 0;
+            }
         }
+        return 0;
     }
 
     /**
@@ -223,7 +222,7 @@ public class GestorBBDD {
                 ArrayList<LinkedHashMap<String, String>> resultat = select(con,
                         "SELECT SEQ_PARTIDA.NEXTVAL AS NOU_ID FROM DUAL");
                 int nouId = Integer.parseInt(resultat.get(0).get("NOU_ID"));
-                
+
                 partida.setId(nouId);
                 pId = nouId;
 
@@ -338,7 +337,13 @@ public class GestorBBDD {
                 }
             }
 
-            // El registro de victorias se delega a un trigger PL/SQL cuando la partida pasa a finalizada.
+            // Si la partida ha finalitzat, incrementem les victòries del guanyador manualment (sense triggers)
+            if (partida.isFinalitzada() && partida.getGuanyador() != null) {
+                int idGuanyador = partida.getGuanyador().getId();
+                if (idGuanyador != 0) {
+                    update(con, "UPDATE jugador SET victories = victories + 1 WHERE id = " + idGuanyador);
+                }
+            }
             System.out.println("Partida guardada con éxito.");
         } catch (Exception e) {
             System.err.println("Error en guardarBBDD: " + e.getMessage());
