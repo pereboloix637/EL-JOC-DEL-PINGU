@@ -187,11 +187,13 @@ public class GestorBBDD {
     }
 
     public int obtenirRecordVictories(Connection con) {
-        if (con == null) return 0;
+        if (con == null) {
+            return 0;
+        }
 
         String sql = "SELECT MAX(victories) AS MAX_VIC FROM jugador";
         ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
-        
+
         if (!res.isEmpty() && res.get(0).get("MAX_VIC") != null) {
             try {
                 return Integer.parseInt(res.get(0).get("MAX_VIC"));
@@ -519,13 +521,15 @@ public class GestorBBDD {
     }
 
     /**
-     * Obtiene el ránking de jugadores basándose en el total de partidas jugadas.
-     * 
-     * FUNCIONAMIENTO:
-     * 1. Llama al procedimiento PRC_RANKING_PARTIDAS para validar (si el jugador existe y tiene partidas).
-     * 2. Si el procedimiento lanza un error (RAISE_APPLICATION_ERROR), se captura y se muestra el mensaje.
-     * 3. Si la validación pasa, se ejecuta una consulta SQL estándar para obtener el conteo de partidas.
-     * 4. Se eliminan los cursores complejos (SYS_REFCURSOR) para simplificar la conexión.
+     * Obtiene el ránking de jugadores basándose en el total de partidas
+     * jugadas.
+     *
+     * FUNCIONAMIENTO: 1. Llama al procedimiento PRC_RANKING_PARTIDAS para
+     * validar (si el jugador existe y tiene partidas). 2. Si el procedimiento
+     * lanza un error (RAISE_APPLICATION_ERROR), se captura y se muestra el
+     * mensaje. 3. Si la validación pasa, se ejecuta una consulta SQL estándar
+     * para obtener el conteo de partidas. 4. Se eliminan los cursores complejos
+     * (SYS_REFCURSOR) para simplificar la conexión.
      */
     public ArrayList<String> obtenerRanking(Connection con) {
         return obtenerRanking("", con);
@@ -533,75 +537,29 @@ public class GestorBBDD {
 
     public ArrayList<String> obtenerRanking(String buscador, Connection con) {
         ArrayList<String> ranking = new ArrayList<>();
-        if (con == null) return ranking;
-
-        if (buscador == null) buscador = "";
-
-        try {
-            // 1. VALIDACIÓN mediante procedimiento (Sin cursores de salida)
-            // Solo validamos si hay un buscador (nombre de jugador) especificado
-            if (!buscador.isEmpty()) {
-                try (CallableStatement cs = con.prepareCall("{ call PRC_RANKING_PARTIDAS(?) }")) {
-                    cs.setString(1, buscador);
-                    cs.execute();
-                } catch (SQLException e) {
-                    // Capturamos el error de validación del procedimiento (ej. "Jugador no existe")
-                    ranking.add("ERROR: " + e.getMessage());
-                    return ranking;
-                }
-            }
-
-            // 2. OBTENCIÓN DE DATOS mediante consulta estándar
-            // Obtenemos el ranking completo con nombre, victorias y total de partidas.
-            String sql = "SELECT j.nom, j.victories, COUNT(jp.partida_id) AS TOTAL_PARTIDAS " +
-                         "FROM jugador j " +
-                         "JOIN jugador_partida jp ON j.id = jp.jugador_id " +
-                         "WHERE j.es_cpu = 0 " +
-                         "GROUP BY j.nom, j.victories " +
-                         "ORDER BY TOTAL_PARTIDAS DESC";
-
-            ArrayList<LinkedHashMap<String, String>> players = select(con, sql);
-
-            // 3. Procesar resultados y filtrar por el buscador si es necesario
-            int visualPos = 1;
-            for (LinkedHashMap<String, String> row : players) {
-                String nom = row.get("NOM");
-                int total = Integer.parseInt(row.get("TOTAL_PARTIDAS"));
-                int vics = (row.get("VICTORIES") != null) ? Integer.parseInt(row.get("VICTORIES")) : 0;
-
-                // 4. Obtener el porcentaje de superación usando la función de la BD (F_PERCENTATGE_MENYS_VICTORIES)
-                double pctSuperacion = 0;
-                try (CallableStatement csPct = con.prepareCall("{ ? = call F_PERCENTATGE_MENYS_VICTORIES(?) }")) {
-                    csPct.registerOutParameter(1, Types.DOUBLE);
-                    csPct.setInt(2, vics);
-                    csPct.execute();
-                    pctSuperacion = csPct.getDouble(1);
-                } catch (SQLException ex) {
-                    System.err.println("Error calculando porcentaje para " + nom + ": " + ex.getMessage());
-                }
-
-                if (!buscador.isEmpty() && !nom.toLowerCase().contains(buscador.toLowerCase())) {
-                    continue;
-                }
-
-                // Formato en bloque (2 líneas por jugador):
-                // El CellFactory de PantallaMenu usará el \n para separar el título de las stats
-                String bloqueInfo = visualPos + ". " + nom + " - Partidas jugadas: " + total + 
-                                   "\nVictorias: " + vics + " (supera al " + String.format("%.1f", pctSuperacion) + "%)";
-                
-                ranking.add(bloqueInfo);
-                visualPos++;
-            }
-
-            if (ranking.isEmpty() && !buscador.isEmpty()) {
-                ranking.add("No se encontraron resultados para: " + buscador);
-            }
-
-        } catch (Exception e) {
-            System.err.println("Error procesando ranking: " + e.getMessage());
-            ranking.add("Error al cargar el ranking.");
+        if (con == null) {
+            return ranking;
         }
-        
+
+        String sql = "SELECT nom, victories FROM jugador WHERE es_cpu = 0";
+        if (buscador != null && !buscador.isEmpty()) {
+            sql += " AND LOWER(nom) LIKE '%" + buscador.toLowerCase() + "%'";
+        }
+        sql += " ORDER BY victories DESC";
+
+        ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
+        int pos = 1;
+        for (LinkedHashMap<String, String> row : res) {
+            String nom = row.get("NOM");
+            String vics = (row.get("VICTORIES") != null) ? row.get("VICTORIES") : "0";
+            ranking.add(pos + ". " + nom + " - " + vics + " victorias");
+            pos++;
+        }
+
+        if (ranking.isEmpty() && buscador != null && !buscador.isEmpty()) {
+            ranking.add("No se encontraron resultados para: " + buscador);
+        }
+
         return ranking;
     }
 }
