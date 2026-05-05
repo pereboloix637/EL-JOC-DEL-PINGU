@@ -42,6 +42,7 @@ import java.util.Optional;
 import java.net.URL;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import model.core.Partida;
 import model.entitats.Jugador;
@@ -82,6 +83,14 @@ public class PantallaMenu {
     private Label deleteFeedbackLabel;
     @FXML
     private Label seedStatusLabel;
+    @FXML
+    private Label lblMediaVictorias;
+    @FXML
+    private Label lblPercentilJugador;
+    @FXML
+    private ListView<String> listHallOfFame;
+    @FXML
+    private ListView<String> listJugadoresTop;
     @FXML
     private VBox landingContainer;
     @FXML
@@ -202,20 +211,24 @@ public class PantallaMenu {
             if (con != null) {
                 ArrayList<String> games = dbManager.llistarPartides(con);
                 // Carreguem els dos rànquings
-                ArrayList<String> rankingPartidas = dbManager.obtenerRanking("", con);
-                ArrayList<String> rankingVictorias = dbManager.obtenerRanking(con);
-                int record = dbManager.obtenirRecordVictories(con);
+                // Cargar listas y métricas PL/SQL
+                ArrayList<String> hallOfFame = dbManager.getJugadorsAmbRecord(con);
+                ArrayList<String> jugadorsTop = dbManager.getJugadorsSobreMitja(con);
+                ArrayList<String> rankingVictorias = dbManager.getRankingGlobalPLSQL(con);
+                double media = dbManager.getMitjaPartidesGuanyades(con);
 
-                savedGamesList.getItems().setAll(games);
-                if (rankingPartidasList != null) {
-                    rankingPartidasList.getItems().setAll(rankingPartidas);
+                if (lblRecordVictorias != null && !hallOfFame.isEmpty()) {
+                    // El primer elemento del Hall of Fame es el récord actual
+                    lblRecordVictorias.setText(hallOfFame.get(0));
                 }
-                if (rankingVictoriasList != null) {
-                    rankingVictoriasList.getItems().setAll(rankingVictorias);
+                
+                if (lblMediaVictorias != null) {
+                    lblMediaVictorias.setText(String.format("%.2f", media) + " vics");
                 }
-                if (lblRecordVictorias != null) {
-                    lblRecordVictorias.setText("Récord de victorias: " + record);
-                }
+
+                if (listHallOfFame != null) listHallOfFame.getItems().setAll(hallOfFame);
+                if (listJugadoresTop != null) listJugadoresTop.getItems().setAll(jugadorsTop);
+                if (rankingVictoriasList != null) rankingVictoriasList.getItems().setAll(rankingVictorias);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -598,22 +611,47 @@ public class PantallaMenu {
     private void handleRefreshRanking() {
         try (Connection con = GestorBBDD.conectarBaseDatos()) {
             if (con != null) {
-                // Intentem refrescar el rànquing amb el primer jugador unit si existeix
-                String buscador = joinedPlayers.isEmpty() ? "" : joinedPlayers.get(0).getNickname();
+                // 1. Obtener el buscador (nombre de jugador)
+                String buscador = userField.getText().trim();
+                
+                // 2. Si hay un nombre, VALIDAR con el procedimiento PL/SQL
+                if (!buscador.isEmpty()) {
+                    try {
+                        dbManager.validarJugadorPLSQL(buscador, con);
+                        
+                        // Si pasa la validación, calculamos su percentil (F_PERCENTATGE_MENYS_VICTORIES)
+                        // Buscamos sus victorias actuales
+                        ArrayList<LinkedHashMap<String, String>> resJ = dbManager.select(con, "SELECT victories FROM jugador WHERE nom = '" + buscador + "'");
+                        if (!resJ.isEmpty()) {
+                            int vics = Integer.parseInt(resJ.get(0).get("VICTORIES"));
+                            double percentil = dbManager.getFPercentatgeMenysVictories(vics, con);
+                            if (lblPercentilJugador != null) {
+                                lblPercentilJugador.setText("¡" + buscador + " supera al " + String.format("%.1f", percentil) + "% de jugadores!");
+                            }
+                        }
+                    } catch (java.sql.SQLException e) {
+                        // Capturamos el RAISE_APPLICATION_ERROR de Oracle
+                        Alert alert = new Alert(AlertType.INFORMATION, e.getMessage(), ButtonType.OK);
+                        estilar(alert);
+                        alert.showAndWait();
+                        if (lblPercentilJugador != null) lblPercentilJugador.setText("");
+                    }
+                }
 
-                ArrayList<String> rankingPartidas = dbManager.obtenerRanking(buscador, con);
-                ArrayList<String> rankingVictorias = dbManager.obtenerRanking(con);
-                int record = dbManager.obtenirRecordVictories(con);
+                // 3. Refrescar listas y métricas (Todo PL/SQL)
+                ArrayList<String> rankingVictorias = dbManager.getRankingGlobalPLSQL(con);
+                ArrayList<String> hallOfFame = dbManager.getJugadorsAmbRecord(con);
+                ArrayList<String> jugadorsTop = dbManager.getJugadorsSobreMitja(con);
+                double media = dbManager.getMitjaPartidesGuanyades(con);
 
-                if (rankingPartidasList != null) {
-                    rankingPartidasList.getItems().setAll(rankingPartidas);
+                if (rankingVictoriasList != null) rankingVictoriasList.getItems().setAll(rankingVictorias);
+                if (listHallOfFame != null) listHallOfFame.getItems().setAll(hallOfFame);
+                if (listJugadoresTop != null) listJugadoresTop.getItems().setAll(jugadorsTop);
+                
+                if (lblRecordVictorias != null && !hallOfFame.isEmpty()) {
+                    lblRecordVictorias.setText(hallOfFame.get(0));
                 }
-                if (rankingVictoriasList != null) {
-                    rankingVictoriasList.getItems().setAll(rankingVictorias);
-                }
-                if (lblRecordVictorias != null) {
-                    lblRecordVictorias.setText("Récord de victorias: " + record);
-                }
+                if (lblMediaVictorias != null) lblMediaVictorias.setText(String.format("%.2f", media) + " victs");
             }
         } catch (Exception e) {
             e.printStackTrace();
