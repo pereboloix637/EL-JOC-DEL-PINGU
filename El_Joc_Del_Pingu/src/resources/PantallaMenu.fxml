@@ -142,26 +142,12 @@
                                     </content>
                                 </javafx.scene.control.Tab>
 
-                                <!-- RANKING VICTORIAS -->
+                                <!-- RANKING -->
                                 <javafx.scene.control.Tab text="Ranking (Victorias)">
                                     <content>
                                         <VBox spacing="15">
-                                            <Label styleClass="section-title" text="SALÓN DE LA FAMA (VICTORIAS)" />
-                                            <Label fx:id="lblRecordVictorias" styleClass="hint" text="Rècord de victòries: --" />
-                                            <Separator />
-                                            <javafx.scene.control.ListView fx:id="rankingVictoriasList" VBox.vgrow="ALWAYS" />
-                                            <Button maxWidth="Infinity" onAction="#handleRefreshRanking" text="Actualizar Ranking" />
-                                        </VBox>
-                                    </content>
-                                </javafx.scene.control.Tab>
-                                
-                                <!-- RANKING PARTIDAS JUGADAS -->
-                                <javafx.scene.control.Tab text="Ranking (Partidas Jugadas)">
-                                    <content>
-                                        <VBox spacing="15">
-                                            <Label styleClass="section-title" text="SALÓN DE LA FAMA (PARTIDAS)" />
-                                            <Separator />
-                                            <javafx.scene.control.ListView fx:id="rankingPartidasList" VBox.vgrow="ALWAYS" />
+                                            <Label styleClass="section-title" text="SALÓN DE LA FAMA" />
+                                            <javafx.scene.control.ListView fx:id="rankingList" VBox.vgrow="ALWAYS" />
                                             <Button maxWidth="Infinity" onAction="#handleRefreshRanking" text="Actualizar Ranking" />
                                         </VBox>
                                     </content>
