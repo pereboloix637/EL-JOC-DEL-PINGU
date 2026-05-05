@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LlegirEnv{ // Para leer las creedenciales de la Base de Datos (BBDD o BD)
+public class LlegirEnv { // Para leer las creedenciales de la Base de Datos (BBDD o BD)
     private static Map<String, String> envVars = new HashMap<>();
 
     static {
@@ -21,7 +21,7 @@ public class LlegirEnv{ // Para leer las creedenciales de la Base de Datos (BBDD
 
                 // Solo procesamos si la línea NO está vacía Y NO empieza por '#'
                 if (!lineaTrim.isEmpty() && !lineaTrim.startsWith("#")) {
-                    
+
                     String[] partes = lineaTrim.split("=", 2);
                     if (partes.length == 2) {
                         String clave = partes[0].trim();
