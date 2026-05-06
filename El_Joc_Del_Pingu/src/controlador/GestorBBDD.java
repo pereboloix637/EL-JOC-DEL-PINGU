@@ -558,20 +558,9 @@ public class GestorBBDD {
     }
 
     // --- MÉTODOS PL/SQL AVANZADOS ---
-    /**
-     * Requisito 11 (Pere): Validación y control de errores.
-     * Llama al procedimiento PRC_RANKING_PARTIDAS (con 'A') para validar un jugador.
-     */
-    public void validarJugadorPLSQL(String nom, Connection con) throws SQLException {
-        String sql = "{call PRC_RANKING_PARTIDAS(?)}";
-        try (CallableStatement cs = con.prepareCall(sql)) {
-            cs.setString(1, nom);
-            cs.execute();
-        }
-    }
 
     /**
-     * Requisito 10 (Pere): Mostrar el ranking ordenado por total de partidas jugadas.
+     * Mostrar el ranking ordenado por total de partidas jugadas.
      * Llama al procedimiento PRC_RANKING_PARTIDES (con 'E') y procesa el cursor.
      */
     public ArrayList<String> getRankingPartidesJugadesPLSQL(Connection con) {
