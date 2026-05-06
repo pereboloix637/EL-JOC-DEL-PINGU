@@ -186,6 +186,23 @@ public class GestorBBDD {
         }
     }
 
+    public int obtenirRecordVictories(Connection con) {
+        if (con == null) {
+            return 0;
+        }
+
+        String sql = "SELECT MAX(victories) AS MAX_VIC FROM jugador";
+        ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
+
+        if (!res.isEmpty() && res.get(0).get("MAX_VIC") != null) {
+            try {
+                return Integer.parseInt(res.get(0).get("MAX_VIC"));
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+        return 0;
+    }
 
     /**
      * Guarda l'estat actual d'una partida a la base de dades. Si la partida és
@@ -497,7 +514,37 @@ public class GestorBBDD {
         }
     }
 
+    public ArrayList<String> obtenerRanking(Connection con) {
+        return obtenerRanking("", con);
+    }
 
+    public ArrayList<String> obtenerRanking(String buscador, Connection con) {
+        ArrayList<String> ranking = new ArrayList<>();
+        if (con == null) {
+            return ranking;
+        }
+
+        String sql = "SELECT nom, victories FROM jugador WHERE es_cpu = 0";
+        if (buscador != null && !buscador.isEmpty()) {
+            sql += " AND LOWER(nom) LIKE '%" + buscador.toLowerCase() + "%'";
+        }
+        sql += " ORDER BY victories DESC";
+
+        ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
+        int pos = 1;
+        for (LinkedHashMap<String, String> row : res) {
+            String nom = row.get("NOM");
+            String vics = (row.get("VICTORIES") != null) ? row.get("VICTORIES") : "0";
+            ranking.add(pos + ". " + nom + " - " + vics + " victorias");
+            pos++;
+        }
+
+        if (ranking.isEmpty() && buscador != null && !buscador.isEmpty()) {
+            ranking.add("No se encontraron resultados para: " + buscador);
+        }
+
+        return ranking;
+    }
 
     // --- MÉTODOS PL/SQL AVANZADOS ---
     /**
@@ -642,3 +689,4 @@ public class GestorBBDD {
         return ranking;
     }
 }
+
