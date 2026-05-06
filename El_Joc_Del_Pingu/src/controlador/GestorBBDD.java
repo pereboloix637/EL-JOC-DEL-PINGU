@@ -187,7 +187,6 @@ public class GestorBBDD {
     }
 
 
-
     /**
      * Guarda l'estat actual d'una partida a la base de dades. Si la partida és
      * nova (id == 0), fa un INSERT de totes les taules relacionades. Si la
@@ -208,7 +207,7 @@ public class GestorBBDD {
                 ArrayList<LinkedHashMap<String, String>> resultat = select(con,
                         "SELECT SEQ_PARTIDA.NEXTVAL AS NOU_ID FROM DUAL");
                 int nouId = Integer.parseInt(resultat.get(0).get("NOU_ID"));
-
+                
                 partida.setId(nouId);
                 pId = nouId;
 
@@ -323,13 +322,7 @@ public class GestorBBDD {
                 }
             }
 
-            // Si la partida ha finalitzat, incrementem les victòries del guanyador manualment (sense triggers)
-            if (partida.isFinalitzada() && partida.getGuanyador() != null) {
-                int idGuanyador = partida.getGuanyador().getId();
-                if (idGuanyador != 0) {
-                    update(con, "UPDATE jugador SET victories = victories + 1 WHERE id = " + idGuanyador);
-                }
-            }
+            // El registro de victorias se delega a un trigger PL/SQL cuando la partida pasa a finalizada.
             System.out.println("Partida guardada con éxito.");
         } catch (Exception e) {
             System.err.println("Error en guardarBBDD: " + e.getMessage());
