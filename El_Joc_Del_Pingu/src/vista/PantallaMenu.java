@@ -91,7 +91,7 @@ public class PantallaMenu {
     private ListView<String> listHallOfFame;
     @FXML
     private ListView<String> listJugadoresTop;
-
+    @FXML
     private VBox landingContainer;
     @FXML
     private VBox rulesContainer;
