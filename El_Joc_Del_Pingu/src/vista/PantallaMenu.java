@@ -91,7 +91,7 @@ public class PantallaMenu {
     private ListView<String> listHallOfFame;
     @FXML
     private ListView<String> listJugadoresTop;
-    @FXML
+
     private VBox landingContainer;
     @FXML
     private VBox rulesContainer;
@@ -210,7 +210,6 @@ public class PantallaMenu {
         try (Connection con = GestorBBDD.conectarBaseDatos()) {
             if (con != null) {
                 ArrayList<String> games = dbManager.llistarPartides(con);
-                // Carreguem els dos rànquings
                 // Cargar listas y métricas PL/SQL
                 ArrayList<String> hallOfFame = dbManager.getJugadorsAmbRecord(con);
                 ArrayList<String> jugadorsTop = dbManager.getJugadorsSobreMitja(con);
@@ -229,6 +228,9 @@ public class PantallaMenu {
                 if (listHallOfFame != null) listHallOfFame.getItems().setAll(hallOfFame);
                 if (listJugadoresTop != null) listJugadoresTop.getItems().setAll(jugadorsTop);
                 if (rankingVictoriasList != null) rankingVictoriasList.getItems().setAll(rankingVictorias);
+                
+                savedGamesList.getItems().setAll(games);
+
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -191,8 +191,6 @@ public class GestorBBDD {
             return 0;
         }
 
-<<<<<<< HEAD
-=======
         String sql = "SELECT MAX(victories) AS MAX_VIC FROM jugador";
         ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
 
@@ -206,7 +204,6 @@ public class GestorBBDD {
         return 0;
     }
 
->>>>>>> parent of bb52e13 (Nuevo ranquing acabado y funcionando)
     /**
      * Guarda l'estat actual d'una partida a la base de dades. Si la partida és
      * nova (id == 0), fa un INSERT de totes les taules relacionades. Si la
