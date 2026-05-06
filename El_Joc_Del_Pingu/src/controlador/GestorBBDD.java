@@ -191,8 +191,6 @@ public class GestorBBDD {
             return 0;
         }
 
-<<<<<<< HEAD
-=======
         String sql = "SELECT MAX(victories) AS MAX_VIC FROM jugador";
         ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
 
@@ -206,7 +204,6 @@ public class GestorBBDD {
         return 0;
     }
 
->>>>>>> parent of dac3e86 (Merge pull request #101 from pereboloix637/pl/sql)
     /**
      * Guarda l'estat actual d'una partida a la base de dades. Si la partida és
      * nova (id == 0), fa un INSERT de totes les taules relacionades. Si la
@@ -517,17 +514,6 @@ public class GestorBBDD {
         }
     }
 
-    /**
-     * Obtiene el ránking de jugadores basándose en el total de partidas
-     * jugadas.
-     *
-     * FUNCIONAMIENTO: 1. Llama al procedimiento PRC_RANKING_PARTIDAS para
-     * validar (si el jugador existe y tiene partidas). 2. Si el procedimiento
-     * lanza un error (RAISE_APPLICATION_ERROR), se captura y se muestra el
-     * mensaje. 3. Si la validación pasa, se ejecuta una consulta SQL estándar
-     * para obtener el conteo de partidas. 4. Se eliminan los cursores complejos
-     * (SYS_REFCURSOR) para simplificar la conexión.
-     */
     public ArrayList<String> obtenerRanking(Connection con) {
         return obtenerRanking("", con);
     }
@@ -560,3 +546,4 @@ public class GestorBBDD {
         return ranking;
     }
 }
+

@@ -141,28 +141,54 @@
                                         </VBox>
                                     </content>
                                 </javafx.scene.control.Tab>
-
-                                <!-- RANKING VICTORIAS -->
-                                <javafx.scene.control.Tab text="Ranking (Victorias)">
+                                <javafx.scene.control.Tab text="Estadísticas Pro">
                                     <content>
-                                        <VBox spacing="15">
-                                            <Label styleClass="section-title" text="SALÓN DE LA FAMA (VICTORIAS)" />
-                                            <Label fx:id="lblRecordVictorias" styleClass="hint" text="Rècord de victòries: --" />
-                                            <Separator />
-                                            <javafx.scene.control.ListView fx:id="rankingVictoriasList" VBox.vgrow="ALWAYS" />
-                                            <Button maxWidth="Infinity" onAction="#handleRefreshRanking" text="Actualizar Ranking" />
+                                        <VBox spacing="20" style="-fx-padding: 15;">
+                                            <Label styleClass="section-title" text="📈 DASHBOARD DE RENDIMIENTO" />
+                                            
+                                            <HBox spacing="15" alignment="CENTER">
+                                                <VBox styleClass="metric-card" alignment="CENTER" HBox.hgrow="ALWAYS" prefHeight="100">
+                                                    <Label text="🥇 MEJOR PINGÜINO" style="-fx-font-size: 11px; -fx-text-fill: #7FD4F0;" />
+                                                    <Label fx:id="lblRecordVictorias" text="Cargando..." style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: gold;" wrapText="true" textAlignment="CENTER" />
+                                                </VBox>
+                                                <VBox styleClass="metric-card" alignment="CENTER" HBox.hgrow="ALWAYS" prefHeight="100">
+                                                    <Label text="📊 MEDIA DE VICTORIAS" style="-fx-font-size: 11px; -fx-text-fill: #7FD4F0;" />
+                                                    <Label fx:id="lblMediaVictorias" text="--" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #A0E6FF;" />
+                                                </VBox>
+                                            </HBox>
+
+                                            <HBox spacing="15" VBox.vgrow="ALWAYS">
+                                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                                    <Label text="🏆 TOP 5: LÍDERES GLOBALES" styleClass="field-label" />
+                                                    <javafx.scene.control.ListView fx:id="listHallOfFame" VBox.vgrow="ALWAYS" />
+                                                </VBox>
+                                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                                    <Label text="📈 SUPERAN LA MEDIA GLOBAL" styleClass="field-label" />
+                                                    <javafx.scene.control.ListView fx:id="listJugadoresTop" VBox.vgrow="ALWAYS" />
+                                                </VBox>
+                                            </HBox>
+
+                                            <VBox spacing="10" styleClass="login-mini-card">
+                                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                                    <VBox HBox.hgrow="ALWAYS">
+                                                        <Label text="Analizar Pingüino:" styleClass="field-label" />
+                                                        <TextField fx:id="userField" promptText="Nombre..." />
+                                                    </VBox>
+                                                    <Button onAction="#handleRefreshRanking" text="ANALIZAR" styleClass="primary-large" prefHeight="45" />
+                                                </HBox>
+                                                <Label fx:id="lblPercentilJugador" text="" style="-fx-text-fill: #7FD4F0; -fx-font-size: 14px;" />
+                                            </VBox>
                                         </VBox>
                                     </content>
                                 </javafx.scene.control.Tab>
-                                
-                                <!-- RANKING PARTIDAS JUGADAS -->
-                                <javafx.scene.control.Tab text="Ranking (Partidas Jugadas)">
+
+                                <javafx.scene.control.Tab text="Ranking Global">
                                     <content>
-                                        <VBox spacing="15">
-                                            <Label styleClass="section-title" text="SALÓN DE LA FAMA (PARTIDAS)" />
-                                            <Separator />
-                                            <javafx.scene.control.ListView fx:id="rankingPartidasList" VBox.vgrow="ALWAYS" />
-                                            <Button maxWidth="Infinity" onAction="#handleRefreshRanking" text="Actualizar Ranking" />
+                                        <VBox spacing="15" style="-fx-padding: 15;">
+                                            <Label styleClass="section-title" text="CLASIFICACIÓN POR VICTORIAS" />
+                                            <javafx.scene.control.ListView fx:id="rankingVictoriasList" VBox.vgrow="ALWAYS" />
+                                            <Button maxWidth="Infinity" onAction="#handleRefreshRanking" text="ACTUALIZAR DATOS" styleClass="secondary" />
+
                                         </VBox>
                                     </content>
                                 </javafx.scene.control.Tab>
