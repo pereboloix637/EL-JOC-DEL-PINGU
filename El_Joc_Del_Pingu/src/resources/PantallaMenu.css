@@ -729,72 +729,38 @@
     background-color: transparent;
 }
 
-/* ---- TARJETAS DEL RANKING (Cards) ---- */
-.ranking-card {
-    -fx-background-color: rgba(28, 58, 82, 0.4);
-    -fx-background-radius: 15;
-    -fx-border-radius: 15;
-    -fx-border-color: rgba(127, 212, 240, 0.3);
-    -fx-border-width: 2;
-    -fx-padding: 15;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 5);
-    -fx-min-width: 320;
-}
-
-.ranking-card .label {
-    -fx-font-family: "Press Start 2P";
-    -fx-text-alignment: center;
-}
-
-/* Efecto hover sobre la tarjeta */
-.list-cell:hover .ranking-card {
-    -fx-background-color: rgba(58, 181, 230, 0.2);
-    -fx-border-color: #7FD4F0;
-}
-
-/* Variaciones por posición (Colores solicitados: Borde != Texto) */
-
-/* Primero: Borde Amarillo (#FFFF00), Texto Naranja (#FFA500) */
-.list-cell.rank-1 .ranking-card {
-    -fx-background-color: linear-gradient(to bottom right, rgba(255, 255, 0, 0.1), rgba(13, 27, 42, 0.9));
-    -fx-border-color: #FFFF00;
-    -fx-border-width: 3;
-}
-.list-cell.rank-1 .label { -fx-text-fill: #FFA500; }
-
-/* Segundo: Borde Plata (#C0C0C0), Texto Gris (#707070) */
-.list-cell.rank-2 .ranking-card {
-    -fx-background-color: linear-gradient(to bottom right, rgba(192, 192, 192, 0.1), rgba(13, 27, 42, 0.9));
-    -fx-border-color: #C0C0C0;
-    -fx-border-width: 2;
-}
-.list-cell.rank-2 .label { -fx-text-fill: #707070; }
-
-/* Tercero: Borde Bronce (#CD7F32), Texto Marrón claro (#CD853F) */
-.list-cell.rank-3 .ranking-card {
-    -fx-background-color: linear-gradient(to bottom right, rgba(205, 127, 50, 0.1), rgba(13, 27, 42, 0.9));
-    -fx-border-color: #CD7F32;
-    -fx-border-width: 2;
-}
-.list-cell.rank-3 .label { -fx-text-fill: #CD853F; }
-
-/* Cuarto y Quinto: Azul cian */
-.list-cell.rank-4-5 .ranking-card {
-    -fx-background-color: rgba(0, 255, 255, 0.05);
-    -fx-border-color: #00FFFF;
-}
-.list-cell.rank-4-5 .label { -fx-text-fill: #008B8B; }
-
-/* Demás: Blanco */
-.list-cell.rank-default .ranking-card {
-    -fx-border-color: #FFFFFF;
-    -fx-opacity: 0.8;
-}
-.list-cell.rank-default .label { -fx-text-fill: #F0F4FF; }
-
 .progress-bar .bar {
     -fx-background-color: linear-gradient(to right, #2E6B8A, #3AB5E6, #7FD4F0);
     background-color: linear-gradient(to right, #2E6B8A, #3AB5E6, #7FD4F0);
     -fx-background-radius: 0;
     -fx-effect: dropshadow(three-pass-box, #3AB5E6, 10, 0.5, 0, 0);
+}
+
+/* ---- METRIC CARDS (Rankings Pro) ---- */
+.metric-card {
+    -fx-background-color: linear-gradient(to bottom, rgba(28, 58, 82, 0.9), rgba(13, 27, 42, 1));
+    -fx-border-color: #3AB5E6;
+    -fx-border-width: 2;
+    -fx-padding: 10 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(58, 181, 230, 0.3), 10, 0, 0, 0);
+}
+
+.metric-card .label {
+    -fx-font-size: 18px; /* Reducido de 22px */
+}
+
+.metric-card:hover {
+    -fx-border-color: #7FD4F0;
+    -fx-background-color: linear-gradient(to bottom, rgba(46, 107, 138, 0.9), rgba(28, 58, 82, 1));
+    -fx-effect: dropshadow(three-pass-box, rgba(127, 212, 240, 0.5), 15, 0, 0, 0);
+}
+
+/* Estilo para los nombres en el Salón de la Fama */
+#listHallOfFame .list-cell {
+    -fx-text-fill: gold;
+    -fx-font-weight: bold;
+}
+
+#listJugadoresTop .list-cell {
+    -fx-text-fill: #A0E6FF;
 }

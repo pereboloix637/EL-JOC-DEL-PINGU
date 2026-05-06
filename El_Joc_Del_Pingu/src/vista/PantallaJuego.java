@@ -958,6 +958,7 @@ public class PantallaJuego {
 			PauseTransition pause = new PauseTransition(Duration.seconds(2.0));
 			pause.setOnFinished(e -> tile.getStyleClass().remove("cell-Os-attacking"));
 			pause.play();
+			AudioManager.getInstance().playSound("/assets/ATAQUE_OSO.mp3");
 		}
 	}
 
@@ -1060,6 +1061,9 @@ public class PantallaJuego {
 
 		rotate.setOnFinished(e -> {
 			lanzarConfeti(boardRoot);
+			// Insertar la lluvia detrás del oscurecimiento (dim)
+			int dimIdx = rootOverlay.getChildren().indexOf(dim);
+			lanzarLluviaItems(boardRoot, itemImages[itemIndex], dimIdx);
 
 			PauseTransition wait = new PauseTransition(Duration.seconds(2));
 			wait.setOnFinished(e2 -> {
@@ -1079,7 +1083,10 @@ public class PantallaJuego {
 		});
 
 		PauseTransition startWait = new PauseTransition(Duration.seconds(0.5));
-		startWait.setOnFinished(e -> rotate.play());
+		startWait.setOnFinished(e -> {
+			AudioManager.getInstance().playSound("/assets/GIRA_RULETA.mp3");
+			rotate.play();
+		});
 		startWait.play();
 	}
 
@@ -1168,6 +1175,8 @@ public class PantallaJuego {
 		rotate.setInterpolator(Interpolator.SPLINE(0.1, 0.5, 0.2, 1));
 
 		rotate.setOnFinished(e -> {
+			int dimIdx = rootOverlay.getChildren().indexOf(dim);
+			lanzarLluviaItems(boardRoot, options[actionIndex], dimIdx);
 			PauseTransition wait = new PauseTransition(Duration.seconds(2));
 			wait.setOnFinished(e2 -> {
 				FadeTransition fadeOut = new FadeTransition(Duration.millis(300), dim);
@@ -1186,13 +1195,20 @@ public class PantallaJuego {
 		});
 
 		PauseTransition startWait = new PauseTransition(Duration.seconds(0.5));
-		startWait.setOnFinished(e -> rotate.play());
+		startWait.setOnFinished(e -> {
+			AudioManager.getInstance().playSound("/assets/GIRA_RULETA.mp3");
+			rotate.play();
+		});
 		startWait.play();
 	}
 
 	private void lanzarConfeti(StackPane parent) {
+		AudioManager.getInstance().playSound("/assets/VICTORIA_RULETA.mp3");
 		Pane confettiLayer = new Pane();
 		confettiLayer.setMouseTransparent(true);
+		// Sincronizar tamaño para asegurar el centro correcto
+		confettiLayer.prefWidthProperty().bind(parent.widthProperty());
+		confettiLayer.prefHeightProperty().bind(parent.heightProperty());
 		parent.getChildren().add(confettiLayer);
 
 		Random rnd = new Random();
@@ -1201,7 +1217,7 @@ public class PantallaJuego {
 		for (int i = 0; i < 100; i++) {
 			Rectangle r = new Rectangle(8, 8, colors[rnd.nextInt(colors.length)]);
 			r.setLayoutX(parent.getWidth() / 2);
-			r.setLayoutY(parent.getHeight() / 2 - 50);
+			r.setLayoutY(parent.getHeight() / 2);
 			confettiLayer.getChildren().add(r);
 
 			double angle = rnd.nextDouble() * 360;
@@ -1226,6 +1242,69 @@ public class PantallaJuego {
 
 		PauseTransition cleanup = new PauseTransition(Duration.seconds(4));
 		cleanup.setOnFinished(e -> parent.getChildren().remove(confettiLayer));
+		cleanup.play();
+	}
+
+	private void lanzarLluviaItems(StackPane parent, String itemImage) {
+		lanzarLluviaItems(parent, itemImage, -1);
+	}
+
+	private void lanzarLluviaItems(StackPane parent, String itemImage, int index) {
+		Pane rainLayer = new Pane();
+		rainLayer.setMouseTransparent(true);
+		rainLayer.prefWidthProperty().bind(parent.widthProperty());
+		rainLayer.prefHeightProperty().bind(parent.heightProperty());
+		
+		if (index >= 0 && index < parent.getChildren().size()) {
+			parent.getChildren().add(index, rainLayer);
+		} else {
+			parent.getChildren().add(rainLayer);
+		}
+
+		Random rnd = new Random();
+		try {
+			Image img = new Image(getClass().getResourceAsStream("/assets/" + itemImage));
+
+			// Cubrir toda la pantalla con más cantidad
+			int totalItems = 50; 
+			for (int i = 0; i < totalItems; i++) {
+				ImageView iv = new ImageView(img);
+				iv.setFitWidth(60);
+				iv.setPreserveRatio(true);
+				iv.setSmooth(false);
+
+				// Repartir por todo el ancho
+				double startX = rnd.nextDouble() * parent.getWidth();
+				
+				iv.setLayoutX(startX);
+				iv.setLayoutY(-150 - rnd.nextDouble() * 500); 
+				rainLayer.getChildren().add(iv);
+
+				double drift = (rnd.nextDouble() * 200 - 100); 
+				double duration = 3.0 + rnd.nextDouble() * 2.5;
+
+				TranslateTransition tt = new TranslateTransition(Duration.seconds(duration), iv);
+				tt.setToX(drift);
+				tt.setToY(parent.getHeight() + 400);
+
+				RotateTransition rt = new RotateTransition(Duration.seconds(duration), iv);
+				rt.setByAngle(360 + rnd.nextInt(1080));
+
+				FadeTransition ft = new FadeTransition(Duration.seconds(duration), iv);
+				ft.setFromValue(1.0);
+				ft.setToValue(0.0);
+				ft.setInterpolator(Interpolator.EASE_IN);
+
+				ParallelTransition pt = new ParallelTransition(iv, tt, rt, ft);
+				pt.setDelay(Duration.seconds(rnd.nextDouble() * 2.0));
+				pt.play();
+			}
+		} catch (Exception e) {
+			System.err.println("Error en la lluvia de items: " + e.getMessage());
+		}
+
+		PauseTransition cleanup = new PauseTransition(Duration.seconds(9));
+		cleanup.setOnFinished(e -> parent.getChildren().remove(rainLayer));
 		cleanup.play();
 	}
 
@@ -1557,6 +1636,7 @@ public class PantallaJuego {
 				onComplete.run();
 		});
 		seq.play();
+		AudioManager.getInstance().playSound("/assets/TURNO_SONIDO.mp3");
 	}
 
 	private void executartorn() {
@@ -1695,7 +1775,7 @@ public class PantallaJuego {
 			});
 
 			pt.play();
-			AudioManager.getInstance().playSound("/assets/Audio_click_hielo.mp3");
+			AudioManager.getInstance().playSound("/assets/DADO_GIRANDO.mp3");
 
 		} catch (Exception e) {
 			System.err.println("Error en la animación del dado: " + e.getMessage());
@@ -1790,6 +1870,12 @@ public class PantallaJuego {
 					final double startY = accumTY;
 
 					final ImageView sombraFwd = getSombraParaJugador(j);
+
+					// Sonido de salto al inicio de cada paso
+					PauseTransition soundStep = new PauseTransition(Duration.ZERO);
+					soundStep.setOnFinished(ev -> AudioManager.getInstance().playSound("/assets/SALTO.mp3"));
+					sequence.getChildren().add(soundStep);
+
 					// Girar el personaje según la dirección horizontal
 					if (stepDx > 0) {
 						pieza.setScaleX(1.0);
@@ -2156,6 +2242,12 @@ public class PantallaJuego {
 				final double startY = accumTY;
 
 				final ImageView sombraBack = getSombraParaJugador(j);
+
+				// Sonido de salto al inicio de cada paso de retroceso
+				PauseTransition soundStepBack = new PauseTransition(Duration.ZERO);
+				soundStepBack.setOnFinished(ev -> AudioManager.getInstance().playSound("/assets/SALTO.mp3"));
+				sequence.getChildren().add(soundStepBack);
+
 				// Girar el personaje según la dirección horizontal del retroceso
 				if (stepDx > 0) {
 					pieza.setScaleX(1.0);
@@ -2288,6 +2380,7 @@ public class PantallaJuego {
 			});
 
 			ptIn.play();
+			AudioManager.getInstance().playSound("/assets/CAIDA_AGUJERO.mp3");
 		}
 	}
 
