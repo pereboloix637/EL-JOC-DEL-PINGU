@@ -84,7 +84,6 @@ public class PantallaMenu {
     @FXML
     private Label seedStatusLabel;
     @FXML
-    @FXML
     private Label lblMediaVictorias;
     @FXML
     private Label lblPercentilJugador;
