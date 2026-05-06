@@ -186,7 +186,27 @@ public class GestorBBDD {
         }
     }
 
+    public int obtenirRecordVictories(Connection con) {
+        if (con == null) {
+            return 0;
+        }
 
+<<<<<<< HEAD
+=======
+        String sql = "SELECT MAX(victories) AS MAX_VIC FROM jugador";
+        ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
+
+        if (!res.isEmpty() && res.get(0).get("MAX_VIC") != null) {
+            try {
+                return Integer.parseInt(res.get(0).get("MAX_VIC"));
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+        return 0;
+    }
+
+>>>>>>> parent of dac3e86 (Merge pull request #101 from pereboloix637/pl/sql)
     /**
      * Guarda l'estat actual d'una partida a la base de dades. Si la partida és
      * nova (id == 0), fa un INSERT de totes les taules relacionades. Si la
@@ -497,148 +517,46 @@ public class GestorBBDD {
         }
     }
 
-
-
-    // --- MÉTODOS PL/SQL AVANZADOS ---
     /**
-     * Requisito 11 (Pere): Validación y control de errores.
-     * Llama al procedimiento PRC_RANKING_PARTIDAS (con 'A') para validar un jugador.
+     * Obtiene el ránking de jugadores basándose en el total de partidas
+     * jugadas.
+     *
+     * FUNCIONAMIENTO: 1. Llama al procedimiento PRC_RANKING_PARTIDAS para
+     * validar (si el jugador existe y tiene partidas). 2. Si el procedimiento
+     * lanza un error (RAISE_APPLICATION_ERROR), se captura y se muestra el
+     * mensaje. 3. Si la validación pasa, se ejecuta una consulta SQL estándar
+     * para obtener el conteo de partidas. 4. Se eliminan los cursores complejos
+     * (SYS_REFCURSOR) para simplificar la conexión.
      */
-    public void validarJugadorPLSQL(String nom, Connection con) throws SQLException {
-        String sql = "{call PRC_RANKING_PARTIDAS(?)}";
-        try (CallableStatement cs = con.prepareCall(sql)) {
-            cs.setString(1, nom);
-            cs.execute();
-        }
+    public ArrayList<String> obtenerRanking(Connection con) {
+        return obtenerRanking("", con);
     }
 
-    /**
-     * Requisito 10 (Pere): Mostrar el ranking ordenado por total de partidas jugadas.
-     * Llama al procedimiento PRC_RANKING_PARTIDES (con 'E') y procesa el cursor.
-     */
-    public ArrayList<String> getRankingPartidesJugadesPLSQL(Connection con) {
+    public ArrayList<String> obtenerRanking(String buscador, Connection con) {
         ArrayList<String> ranking = new ArrayList<>();
-        String sql = "{call PRC_RANKING_PARTIDES(?)}";
-        try (CallableStatement cs = con.prepareCall(sql)) {
-            cs.registerOutParameter(1, -10); // OracleTypes.CURSOR
-            cs.execute();
-            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
-                int pos = 1;
-                while (rs.next()) {
-                    ranking.add(pos + ". " + rs.getString("NOM") + " - " + rs.getInt("TOTAL_PARTIDAS") + " partidas");
-                    pos++;
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error en getRankingPartidesJugadesPLSQL: " + e.getMessage());
+        if (con == null) {
+            return ranking;
         }
-        return ranking;
-    }
 
-    /**
-     * Llama a la función F_RECORD_VICTORIES
-     */
-    public int getFRecordVictories(Connection con) {
-        String sql = "{? = call F_RECORD_VICTORIES()}";
-        try (CallableStatement cs = con.prepareCall(sql)) {
-            cs.registerOutParameter(1, Types.INTEGER);
-            cs.execute();
-            return cs.getInt(1);
-        } catch (SQLException e) {
-            return 0;
+        String sql = "SELECT nom, victories FROM jugador WHERE es_cpu = 0";
+        if (buscador != null && !buscador.isEmpty()) {
+            sql += " AND LOWER(nom) LIKE '%" + buscador.toLowerCase() + "%'";
         }
-    }
+        sql += " ORDER BY victories DESC";
 
-    /**
-     * Llama a la función F_PERCENTATGE_MENYS_VICTORIES
-     */
-    public double getFPercentatgeMenysVictories(int victories, Connection con) {
-        String sql = "{? = call F_PERCENTATGE_MENYS_VICTORIES(?)}";
-        try (CallableStatement cs = con.prepareCall(sql)) {
-            cs.registerOutParameter(1, Types.NUMERIC);
-            cs.setInt(2, victories);
-            cs.execute();
-            return cs.getDouble(1);
-        } catch (SQLException e) {
-            return 0.0;
+        ArrayList<LinkedHashMap<String, String>> res = select(con, sql);
+        int pos = 1;
+        for (LinkedHashMap<String, String> row : res) {
+            String nom = row.get("NOM");
+            String vics = (row.get("VICTORIES") != null) ? row.get("VICTORIES") : "0";
+            ranking.add(pos + ". " + nom + " - " + vics + " victorias");
+            pos++;
         }
-    }
 
-    /**
-     * Llama a la función mitja_partides_guanyades
-     */
-    public double getMitjaPartidesGuanyades(Connection con) {
-        String sql = "{? = call mitja_partides_guanyades()}";
-        try (CallableStatement cs = con.prepareCall(sql)) {
-            cs.registerOutParameter(1, Types.NUMERIC);
-            cs.execute();
-            return cs.getDouble(1);
-        } catch (SQLException e) {
-            return 0.0;
+        if (ranking.isEmpty() && buscador != null && !buscador.isEmpty()) {
+            ranking.add("No se encontraron resultados para: " + buscador);
         }
-    }
 
-    /**
-     * Llama al procedimiento jugadors_sobre_mitja y procesa el cursor de
-     * salida.
-     */
-    public ArrayList<String> getJugadorsSobreMitja(Connection con) {
-        ArrayList<String> llista = new ArrayList<>();
-        String sql = "{call jugadors_sobre_mitja(?)}";
-        try (CallableStatement cs = con.prepareCall(sql)) {
-            cs.registerOutParameter(1, -10); // -10 es el código de OracleTypes.CURSOR
-            cs.execute();
-            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
-                while (rs.next()) {
-                    llista.add(rs.getString("NOM") + " [" + rs.getInt("VICTORIES") + " victorias]");
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error en getJugadorsSobreMitja: " + e.getMessage());
-        }
-        return llista;
-    }
-
-    /**
-     * Llama al procedimiento jugadors_amb_record y procesa el cursor de salida.
-     */
-    public ArrayList<String> getJugadorsAmbRecord(Connection con) {
-        ArrayList<String> llista = new ArrayList<>();
-        String sql = "{call jugadors_amb_record(?)}";
-        try (CallableStatement cs = con.prepareCall(sql)) {
-            cs.registerOutParameter(1, -10); // OracleTypes.CURSOR
-            cs.execute();
-            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
-                while (rs.next()) {
-                    llista.add(rs.getString("NOM") + " [" + rs.getInt("VICTORIES") + " victorias]");
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error en getJugadorsAmbRecord: " + e.getMessage());
-        }
-        return llista;
-    }
-
-    /**
-     * Obtiene el ranking global de victorias mediante el procedimiento
-     * PRC_TOP_JUGADORS.
-     */
-    public ArrayList<String> getRankingGlobalPLSQL(Connection con) {
-        ArrayList<String> ranking = new ArrayList<>();
-        String sql = "{call PRC_TOP_JUGADORS(?)}";
-        try (CallableStatement cs = con.prepareCall(sql)) {
-            cs.registerOutParameter(1, -10); // OracleTypes.CURSOR
-            cs.execute();
-            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
-                int pos = 1;
-                while (rs.next()) {
-                    ranking.add(pos + ". " + rs.getString("NOM") + " - " + rs.getInt("VICTORIES") + " victorias");
-                    pos++;
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error en getRankingGlobalPLSQL: " + e.getMessage());
-        }
         return ranking;
     }
 }
