@@ -79,7 +79,7 @@
                 </VBox>
 
                 <!-- CONTENT AREA (Drill-down) -->
-                <VBox fx:id="contentContainer" managed="false" spacing="20" visible="false" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="300.0" AnchorPane.topAnchor="40.0">
+                <VBox fx:id="contentContainer" managed="false" maxWidth="800" spacing="20" visible="false" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="560.0" AnchorPane.rightAnchor="560.0" AnchorPane.topAnchor="40.0">
                     <HBox alignment="CENTER_LEFT">
                         <Button onAction="#handleBackToLanding" styleClass="back-button" text="← VOLVER AL MENÚ" />
                         <Region HBox.hgrow="ALWAYS" />
@@ -141,50 +141,28 @@
                                         </VBox>
                                     </content>
                                 </javafx.scene.control.Tab>
-                                <javafx.scene.control.Tab text="Estadísticas">
+
+                                <!-- RANKING VICTORIAS -->
+                                <javafx.scene.control.Tab text="Ranking (Victorias)">
                                     <content>
-                                        <VBox spacing="10" style="-fx-padding: 10;">
-                                            <Label styleClass="section-title" text="📊 ESTADÍSTICAS DEL PINGÜINO" />
-
-                                            <!-- ROW 1: Metric Cards -->
-                                            <HBox spacing="12" alignment="CENTER">
-                                                <VBox styleClass="metric-card" alignment="CENTER" HBox.hgrow="ALWAYS" minWidth="0" prefHeight="85">
-                                                    <Label text="🏆 RÉCORD DE VICTORIAS" style="-fx-font-size: 11px; -fx-text-fill: #7FD4F0;" />
-                                                    <Label fx:id="lblRecordNumero" text="--" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: gold;" />
-                                                    <Label fx:id="lblRecordVictorias" text="Cargando..." style="-fx-font-size: 10px; -fx-text-fill: #C8D8E8;" wrapText="true" textAlignment="CENTER" />
-                                                </VBox>
-                                                <VBox styleClass="metric-card" alignment="CENTER" HBox.hgrow="ALWAYS" minWidth="0" prefHeight="85">
-                                                    <Label text="📊 MEDIA DE VICTORIAS" style="-fx-font-size: 11px; -fx-text-fill: #7FD4F0;" />
-                                                    <Label fx:id="lblMediaVictorias" text="--" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #A0E6FF;" />
-                                                    <Label text="por jugador" style="-fx-font-size: 10px; -fx-text-fill: #C8D8E8;" />
-                                                </VBox>
-                                            </HBox>
-
-                                            <!-- ROW 2: Main Rankings (2 columns) -->
-                                            <HBox spacing="12" VBox.vgrow="ALWAYS">
-                                                <VBox spacing="6" HBox.hgrow="ALWAYS" minWidth="0">
-                                                    <Label text="🥇 RANKING POR VICTORIAS" styleClass="field-label" />
-                                                    <javafx.scene.control.ListView fx:id="rankingVictoriasList" VBox.vgrow="ALWAYS" />
-                                                </VBox>
-                                                <VBox spacing="6" HBox.hgrow="ALWAYS" minWidth="0">
-                                                    <Label text="🎮 RANKING POR PARTIDAS JUGADAS" styleClass="field-label" />
-                                                    <javafx.scene.control.ListView fx:id="rankingPartidasList" VBox.vgrow="ALWAYS" />
-                                                </VBox>
-                                            </HBox>
-
-                                            <!-- ROW 3: Special Lists (2 columns) -->
-                                            <HBox spacing="12" prefHeight="150">
-                                                <VBox spacing="6" HBox.hgrow="ALWAYS" minWidth="0">
-                                                    <Label text="🏅 POSEEDORES DEL RÉCORD" styleClass="field-label" />
-                                                    <javafx.scene.control.ListView fx:id="listHallOfFame" VBox.vgrow="ALWAYS" />
-                                                </VBox>
-                                                <VBox spacing="6" HBox.hgrow="ALWAYS" minWidth="0">
-                                                    <Label text="⬆ SUPERAN LA MEDIA GLOBAL" styleClass="field-label" />
-                                                    <javafx.scene.control.ListView fx:id="listJugadoresTop" VBox.vgrow="ALWAYS" />
-                                                </VBox>
-                                            </HBox>
-
-                                            <Button maxWidth="Infinity" onAction="#handleRefreshRanking" text="🔄 ACTUALIZAR DATOS" styleClass="secondary" />
+                                        <VBox spacing="15">
+                                            <Label styleClass="section-title" text="SALÓN DE LA FAMA (VICTORIAS)" />
+                                            <Label fx:id="lblRecordVictorias" styleClass="hint" text="Rècord de victòries: --" />
+                                            <Separator />
+                                            <javafx.scene.control.ListView fx:id="rankingVictoriasList" VBox.vgrow="ALWAYS" />
+                                            <Button maxWidth="Infinity" onAction="#handleRefreshRanking" text="Actualizar Ranking" />
+                                        </VBox>
+                                    </content>
+                                </javafx.scene.control.Tab>
+                                
+                                <!-- RANKING PARTIDAS JUGADAS -->
+                                <javafx.scene.control.Tab text="Ranking (Partidas Jugadas)">
+                                    <content>
+                                        <VBox spacing="15">
+                                            <Label styleClass="section-title" text="SALÓN DE LA FAMA (PARTIDAS)" />
+                                            <Separator />
+                                            <javafx.scene.control.ListView fx:id="rankingPartidasList" VBox.vgrow="ALWAYS" />
+                                            <Button maxWidth="Infinity" onAction="#handleRefreshRanking" text="Actualizar Ranking" />
                                         </VBox>
                                     </content>
                                 </javafx.scene.control.Tab>

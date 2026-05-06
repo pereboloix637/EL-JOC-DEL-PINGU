@@ -1,0 +1,14 @@
+¿Qué es el CellFactory?
+Imagina que un ListView es como una estantería vacía. Los datos (el ranking) son los libros que quieres poner. Si dejas que JavaFX lo haga solo, simplemente pondrá el texto de forma aburrida.
+
+El CellFactory es como contratar a un decorador personalizado para cada estante (cada celda):
+
+La "Fábrica" de Celdas: Es una función que le dice al ListView: "Oye, cada vez que tengas que dibujar una fila, no uses una celda genérica; usa esta que yo he diseñado".
+El método updateItem: Es el corazón del decorador. Se ejecuta cada vez que una celda se muestra en pantalla. Aquí es donde tomamos decisiones:
+¿La celda está vacía? La limpiamos.
+¿Es el primer jugador? Pintamos el texto de dorado (rank-1).
+¿Es una línea de guiones? La dejamos en gris neutro.
+¿Tiene un \n? Activamos el wrapText para que se vea en dos líneas.
+¿Por qué es útil? Porque permite que el ListView sea muy eficiente. Si tienes 1.000 jugadores, JavaFX no crea 1.000 objetos de celda. Solo crea los que caben en pantalla y, al hacer scroll, el CellFactory "recicla" las celdas viejas y las actualiza con los nuevos datos usando updateItem.
+
+En vuestro caso, lo hemos usado para inyectar las clases de CSS (rank-1, rank-2, etc.) dinámicamente según la posición del jugador.

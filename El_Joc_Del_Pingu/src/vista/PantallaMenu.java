@@ -77,19 +77,11 @@ public class PantallaMenu {
     @FXML
     private Label lblRecordVictorias;
     @FXML
-    private Label lblRecordNumero;
-    @FXML
     private TabPane mainTabPane;
     @FXML
     private Label deleteFeedbackLabel;
     @FXML
     private Label seedStatusLabel;
-    @FXML
-    private Label lblMediaVictorias;
-    @FXML
-    private ListView<String> listHallOfFame;
-    @FXML
-    private ListView<String> listJugadoresTop;
     @FXML
     private VBox landingContainer;
     @FXML
@@ -208,7 +200,22 @@ public class PantallaMenu {
         // Cargar datos al iniciar de forma secuencial
         try (Connection con = GestorBBDD.conectarBaseDatos()) {
             if (con != null) {
-                cargarDatosRanking(con);
+                ArrayList<String> games = dbManager.llistarPartides(con);
+                // Carreguem els dos rànquings
+                ArrayList<String> rankingPartidas = dbManager.obtenerRanking("", con);
+                ArrayList<String> rankingVictorias = dbManager.obtenerRanking(con);
+                int record = dbManager.obtenirRecordVictories(con);
+
+                savedGamesList.getItems().setAll(games);
+                if (rankingPartidasList != null) {
+                    rankingPartidasList.getItems().setAll(rankingPartidas);
+                }
+                if (rankingVictoriasList != null) {
+                    rankingVictoriasList.getItems().setAll(rankingVictorias);
+                }
+                if (lblRecordVictorias != null) {
+                    lblRecordVictorias.setText("Récord de victorias: " + record);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -587,46 +594,26 @@ public class PantallaMenu {
         }
     }
 
-    /**
-     * Carga todos los datos de ranking desde la DB usando las procedures/funciones PL/SQL.
-     * Método centralizado reutilizado por initialize() y handleRefreshRanking().
-     */
-    private void cargarDatosRanking(Connection con) {
-        // 1. Funciones PL/SQL: métricas globales
-        int record = dbManager.getFRecordVictories(con);
-        double media = dbManager.getMitjaPartidesGuanyades(con);
-
-        // 2. Procedures PL/SQL: listas
-        ArrayList<String> rankingVictorias = dbManager.getRankingGlobalPLSQL(con);       // PRC_TOP_JUGADORS
-        ArrayList<String> rankingPartidas = dbManager.getRankingPartidesJugadesPLSQL(con); // PRC_RANKING_PARTIDES
-        ArrayList<String> hallOfFame = dbManager.getJugadorsAmbRecord(con);                // jugadors_amb_record
-        ArrayList<String> jugadorsTop = dbManager.getJugadorsSobreMitja(con);              // jugadors_sobre_mitja
-
-        // 3. Actualizar UI — Metric Cards
-        if (lblRecordNumero != null) {
-            lblRecordNumero.setText(String.valueOf(record));
-        }
-        if (lblRecordVictorias != null && !hallOfFame.isEmpty()) {
-            lblRecordVictorias.setText(hallOfFame.get(0));
-        } else if (lblRecordVictorias != null) {
-            lblRecordVictorias.setText("Sin datos");
-        }
-        if (lblMediaVictorias != null) {
-            lblMediaVictorias.setText(String.format("%.2f", media));
-        }
-
-        // 4. Actualizar UI — Listas
-        if (rankingVictoriasList != null) rankingVictoriasList.getItems().setAll(rankingVictorias);
-        if (rankingPartidasList != null) rankingPartidasList.getItems().setAll(rankingPartidas);
-        if (listHallOfFame != null) listHallOfFame.getItems().setAll(hallOfFame);
-        if (listJugadoresTop != null) listJugadoresTop.getItems().setAll(jugadorsTop);
-    }
-
     @FXML
     private void handleRefreshRanking() {
         try (Connection con = GestorBBDD.conectarBaseDatos()) {
             if (con != null) {
-                cargarDatosRanking(con);
+                // Intentem refrescar el rànquing amb el primer jugador unit si existeix
+                String buscador = joinedPlayers.isEmpty() ? "" : joinedPlayers.get(0).getNickname();
+
+                ArrayList<String> rankingPartidas = dbManager.obtenerRanking(buscador, con);
+                ArrayList<String> rankingVictorias = dbManager.obtenerRanking(con);
+                int record = dbManager.obtenirRecordVictories(con);
+
+                if (rankingPartidasList != null) {
+                    rankingPartidasList.getItems().setAll(rankingPartidas);
+                }
+                if (rankingVictoriasList != null) {
+                    rankingVictoriasList.getItems().setAll(rankingVictorias);
+                }
+                if (lblRecordVictorias != null) {
+                    lblRecordVictorias.setText("Récord de victorias: " + record);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
