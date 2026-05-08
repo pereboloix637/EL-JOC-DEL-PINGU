@@ -11,25 +11,19 @@ import javafx.animation.Timeline;
 import javafx.animation.ParallelTransition;
 import javafx.animation.Transition;
 import javafx.animation.PauseTransition;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.NumberBinding;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
@@ -40,22 +34,15 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputDialog;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import java.util.Random;
-import java.util.Scanner;
 import java.sql.Connection;
 import javafx.util.Duration;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Polygon;
 import javafx.scene.layout.Pane;
 import javafx.animation.RotateTransition;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
-import javafx.animation.FillTransition;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
-import javafx.scene.Group;
 
 import model.caselles.Casella;
 import model.core.Partida;
@@ -804,30 +791,6 @@ public class PantallaJuego {
 		}
 	}
 
-	/**
-	 * Retorna el color HEX que correspon a la fitxa del jugador segons el seu valor
-	 * 'color'.
-	 */
-	private String getColorForPlayer(Jugador j) {
-		String color = (j.getColor() != null) ? j.getColor().toLowerCase() : "rojo";
-		switch (color) {
-		case "rojo":
-			return "#C0392B";
-		case "azul":
-			return "#3498DB";
-		case "verde":
-			return "#27AE60";
-		case "amarillo":
-			return "#F1C40F";
-		case "morado":
-			return "#8E44AD";
-		case "naranja":
-			return "#E67E22";
-		default:
-			return "#FFFFFF";
-		}
-	}
-
 	private void mostrarTiposDeCasillasEnTablero(Taulell t) {
 		// Limpiar celdas previas
 		tablero.getChildren().removeIf(node -> TAG_CASILLA_TEXT.equals(node.getUserData()));
@@ -982,7 +945,7 @@ public class PantallaJuego {
 		title.setStyle(
 				"-fx-text-fill: whitesmoke; -fx-font-family: 'Press Start 2P'; -fx-font-size: 70px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
 
-		StackPane wheelStack = new StackPane();
+		new StackPane();
 
 		// Marco de la rueda proporcionado por el usuario
 		ImageView wheelVisuals = new ImageView(
@@ -1109,7 +1072,7 @@ public class PantallaJuego {
 		title.setStyle(
 				"-fx-text-fill: whitesmoke; -fx-font-family: 'Press Start 2P'; -fx-font-size: 70px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
 
-		StackPane wheelStack = new StackPane();
+		new StackPane();
 
 		// Unificamos con la lógica de items
 		String wheelPath = "/assets/Ruleta_Malvada.png";
@@ -1245,10 +1208,6 @@ public class PantallaJuego {
 		cleanup.play();
 	}
 
-	private void lanzarLluviaItems(StackPane parent, String itemImage) {
-		lanzarLluviaItems(parent, itemImage, -1);
-	}
-
 	private void lanzarLluviaItems(StackPane parent, String itemImage, int index) {
 		Pane rainLayer = new Pane();
 		rainLayer.setMouseTransparent(true);
@@ -1309,19 +1268,19 @@ public class PantallaJuego {
 	}
 
 	@FXML
-	private void handleToggleMute(ActionEvent event) {
+	private void handleToggleMute() {
 		AudioManager.getInstance().toggleMusicMute();
 		updateMuteUI();
 	}
 
 	@FXML
-	private void handleToggleSfxMute(ActionEvent event) {
+	private void handleToggleSfxMute() {
 		AudioManager.getInstance().toggleSfxMute();
 		updateMuteUI();
 	}
 
 	@FXML
-	private void handleToggleFullScreen(ActionEvent event) {
+	private void handleToggleFullScreen() {
 		boolean current = controlador.Main.isFullScreenEnabled();
 		controlador.Main.setFullScreenEnabled(!current);
 		updateMuteUI();
@@ -1530,7 +1489,7 @@ public class PantallaJuego {
 
 	// Button actions
 	@FXML
-	private void handleDado(ActionEvent event) {
+	private void handleDado() {
 		if (gestorPartida.getPartida().getJugadorActual() instanceof Pinguino) {
 			executartorn();
 		}
@@ -2100,7 +2059,7 @@ public class PantallaJuego {
 							} else {
 								gt.executarCasella(gestorPartida.getPartida(), j, c);
 								if (j.getPosicio() != newPos && c instanceof model.caselles.Forat) {
-									animarEfectoForat(j, newPos, j.getPosicio(), finishTurnCallback);
+									animarEfectoForat(j, finishTurnCallback);
 								} else {
 									finishTurnCallback.run();
 								}
@@ -2327,7 +2286,7 @@ public class PantallaJuego {
 			if (j.getPosicio() != posActual) {
 				int nuevaPos = j.getPosicio();
 				if (c instanceof model.caselles.Forat) {
-					animarEfectoForat(j, posActual, nuevaPos, onFinished);
+					animarEfectoForat(j, onFinished);
 				} else if (nuevaPos < posActual) {
 					animarRetroceso(j, posActual, nuevaPos, onFinished);
 				} else {
@@ -2340,7 +2299,7 @@ public class PantallaJuego {
 		}
 	}
 
-	private void animarEfectoForat(Jugador j, int posEntrada, int posSalida, Runnable onFinished) {
+	private void animarEfectoForat(Jugador j, Runnable onFinished) {
 		isMoving = true;
 		ImageView pieza = getPiezaParaJugador(j);
 		if (pieza == null) {

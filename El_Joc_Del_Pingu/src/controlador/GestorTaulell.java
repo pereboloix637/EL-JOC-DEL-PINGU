@@ -3,13 +3,11 @@ package controlador;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 import model.caselles.Casella;
 import model.core.Partida;
 import model.core.Taulell;
 import model.entitats.Jugador;
-import model.entitats.Pinguino;
 
 public class GestorTaulell {
 
@@ -157,7 +155,6 @@ public class GestorTaulell {
 	    }
 	    Collections.shuffle(sac);
 
-	    Random random = new Random();
 	    List<Integer> indexsDisponibles = new ArrayList<>();
 	    for (int i = 4; i < 48; i++) indexsDisponibles.add(i);
 	    Collections.shuffle(indexsDisponibles);
