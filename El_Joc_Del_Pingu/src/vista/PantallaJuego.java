@@ -1431,21 +1431,20 @@ public class PantallaJuego {
 	private void handleToggleAutoPlay() {
 		// [BUGFIX] Solo permitir cambiar el Auto-Play si no hay una animación en curso,
 		// o si es el turno de la Foca (IA).
-		if (isMoving && !(gestorPartida.getPartida().getJugadorActual() instanceof model.entitats.Foca)) {
-			registrarEvento("Espera a que el personaje termine de moverse para cambiar el Auto-Play.", "log-warning");
-			return;
-		}
-
-		autoPlayActivo = !autoPlayActivo;
-		updateAutoPlayUI();
-		if (autoPlayActivo) {
-			registrarEvento("Auto-Play ACTIVADO. El pingüino jugará solo.", "log-info");
-			// Si ya es el turno de un Pinguino, disparar inmediatamente
-			if (gestorPartida.getPartida().getJugadorActual() instanceof Pinguino) {
-				checkTurnoCPU();
+		if (!isMoving || (gestorPartida.getPartida().getJugadorActual() instanceof model.entitats.Foca)) {
+			autoPlayActivo = !autoPlayActivo;
+			updateAutoPlayUI();
+			if (autoPlayActivo) {
+				registrarEvento("Auto-Play ACTIVADO. El pingüino jugará solo.", "log-info");
+				// Si ya es el turno de un Pinguino, disparar inmediatamente
+				if (gestorPartida.getPartida().getJugadorActual() instanceof Pinguino) {
+					checkTurnoCPU();
+				}
+			} else {
+				registrarEvento("Auto-Play DESACTIVADO.", "log-info");
 			}
 		} else {
-			registrarEvento("Auto-Play DESACTIVADO.", "log-info");
+			registrarEvento("Espera a que el personaje termine de moverse para cambiar el Auto-Play.", "log-warning");
 		}
 	}
 
