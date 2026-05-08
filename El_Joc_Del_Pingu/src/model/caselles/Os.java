@@ -5,7 +5,6 @@ import model.entitats.Foca;
 import model.entitats.Jugador;
 import model.entitats.Pinguino;
 import model.items.Peix;
-import java.util.Random;
 
 /**
  * Casella Os: l'ós ataca el jugador. El pingüí es pot defensar amb un peix.

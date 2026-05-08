@@ -11,25 +11,19 @@ import javafx.animation.Timeline;
 import javafx.animation.ParallelTransition;
 import javafx.animation.Transition;
 import javafx.animation.PauseTransition;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.NumberBinding;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
@@ -40,22 +34,20 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputDialog;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
+
 import java.util.Random;
-import java.util.Scanner;
+
 import java.sql.Connection;
 import javafx.util.Duration;
-import javafx.scene.control.ChoiceDialog;
+
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Polygon;
+
 import javafx.scene.layout.Pane;
 import javafx.animation.RotateTransition;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
-import javafx.animation.FillTransition;
+
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
-import javafx.scene.Group;
 
 import model.caselles.Casella;
 import model.core.Partida;
@@ -804,30 +796,6 @@ public class PantallaJuego {
 		}
 	}
 
-	/**
-	 * Retorna el color HEX que correspon a la fitxa del jugador segons el seu valor
-	 * 'color'.
-	 */
-	private String getColorForPlayer(Jugador j) {
-		String color = (j.getColor() != null) ? j.getColor().toLowerCase() : "rojo";
-		switch (color) {
-		case "rojo":
-			return "#C0392B";
-		case "azul":
-			return "#3498DB";
-		case "verde":
-			return "#27AE60";
-		case "amarillo":
-			return "#F1C40F";
-		case "morado":
-			return "#8E44AD";
-		case "naranja":
-			return "#E67E22";
-		default:
-			return "#FFFFFF";
-		}
-	}
-
 	private void mostrarTiposDeCasillasEnTablero(Taulell t) {
 		// Limpiar celdas previas
 		tablero.getChildren().removeIf(node -> TAG_CASILLA_TEXT.equals(node.getUserData()));
@@ -982,8 +950,6 @@ public class PantallaJuego {
 		title.setStyle(
 				"-fx-text-fill: whitesmoke; -fx-font-family: 'Press Start 2P'; -fx-font-size: 70px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
 
-		StackPane wheelStack = new StackPane();
-
 		// Marco de la rueda proporcionado por el usuario
 		ImageView wheelVisuals = new ImageView(
 				new Image(getClass().getResourceAsStream("/assets/RULETA_ALEATORIA.png")));
@@ -1108,8 +1074,6 @@ public class PantallaJuego {
 		title.getStyleClass().add("big-text-mini");
 		title.setStyle(
 				"-fx-text-fill: whitesmoke; -fx-font-family: 'Press Start 2P'; -fx-font-size: 70px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
-
-		StackPane wheelStack = new StackPane();
 
 		// Unificamos con la lógica de items
 		String wheelPath = "/assets/Ruleta_Malvada.png";
@@ -1245,16 +1209,12 @@ public class PantallaJuego {
 		cleanup.play();
 	}
 
-	private void lanzarLluviaItems(StackPane parent, String itemImage) {
-		lanzarLluviaItems(parent, itemImage, -1);
-	}
-
 	private void lanzarLluviaItems(StackPane parent, String itemImage, int index) {
 		Pane rainLayer = new Pane();
 		rainLayer.setMouseTransparent(true);
 		rainLayer.prefWidthProperty().bind(parent.widthProperty());
 		rainLayer.prefHeightProperty().bind(parent.heightProperty());
-		
+
 		if (index >= 0 && index < parent.getChildren().size()) {
 			parent.getChildren().add(index, rainLayer);
 		} else {
@@ -1266,7 +1226,7 @@ public class PantallaJuego {
 			Image img = new Image(getClass().getResourceAsStream("/assets/" + itemImage));
 
 			// Cubrir toda la pantalla con más cantidad
-			int totalItems = 50; 
+			int totalItems = 50;
 			for (int i = 0; i < totalItems; i++) {
 				ImageView iv = new ImageView(img);
 				iv.setFitWidth(60);
@@ -1275,12 +1235,12 @@ public class PantallaJuego {
 
 				// Repartir por todo el ancho
 				double startX = rnd.nextDouble() * parent.getWidth();
-				
+
 				iv.setLayoutX(startX);
-				iv.setLayoutY(-150 - rnd.nextDouble() * 500); 
+				iv.setLayoutY(-150 - rnd.nextDouble() * 500);
 				rainLayer.getChildren().add(iv);
 
-				double drift = (rnd.nextDouble() * 200 - 100); 
+				double drift = (rnd.nextDouble() * 200 - 100);
 				double duration = 3.0 + rnd.nextDouble() * 2.5;
 
 				TranslateTransition tt = new TranslateTransition(Duration.seconds(duration), iv);
@@ -1469,7 +1429,7 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleToggleAutoPlay() {
-		// [BUGFIX] Solo permitir cambiar el Auto-Play si no hay una animación en curso, 
+		// [BUGFIX] Solo permitir cambiar el Auto-Play si no hay una animación en curso,
 		// o si es el turno de la Foca (IA).
 		if (isMoving && !(gestorPartida.getPartida().getJugadorActual() instanceof model.entitats.Foca)) {
 			registrarEvento("Espera a que el personaje termine de moverse para cambiar el Auto-Play.", "log-warning");
@@ -1750,10 +1710,9 @@ public class PantallaJuego {
 
 				// --- REVELACIÓN DEL NÚMERO ---
 				Label lblResultado = new Label(String.valueOf(resultado));
-				lblResultado.setStyle("-fx-font-size: 150px; " +
-						"-fx-font-family: 'Press Start 2P'; " +
-						"-fx-text-fill: " + colorHex + "; " +
-						"-fx-effect: dropshadow(three-pass-box, black, 10, 0, 0, 0);");
+				lblResultado
+						.setStyle("-fx-font-size: 150px; " + "-fx-font-family: 'Press Start 2P'; " + "-fx-text-fill: "
+								+ colorHex + "; " + "-fx-effect: dropshadow(three-pass-box, black, 10, 0, 0, 0);");
 				boardRoot.getChildren().add(lblResultado);
 				StackPane.setAlignment(lblResultado, javafx.geometry.Pos.CENTER);
 
@@ -1991,17 +1950,20 @@ public class PantallaJuego {
 												// muestra
 												Runnable continueAfterBattle = () -> {
 													if (pActual.getPosicio() != posJ1Abans) {
-														animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), () -> {
-															procesarEfectoCasella(pActual, () -> {
-																if (pRival.getPosicio() != posJ2Abans) {
-																	animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), () -> {
-																		procesarEfectoCasella(pRival, finishTurnCallback);
+														animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(),
+																() -> {
+																	procesarEfectoCasella(pActual, () -> {
+																		if (pRival.getPosicio() != posJ2Abans) {
+																			animarRetroceso(pRival, posJ2Abans,
+																					pRival.getPosicio(), () -> {
+																						procesarEfectoCasella(pRival,
+																								finishTurnCallback);
+																					});
+																		} else {
+																			finishTurnCallback.run();
+																		}
 																	});
-																} else {
-																	finishTurnCallback.run();
-																}
-															});
-														});
+																});
 													} else if (pRival.getPosicio() != posJ2Abans) {
 														animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), () -> {
 															procesarEfectoCasella(pRival, finishTurnCallback);
@@ -2332,10 +2294,12 @@ public class PantallaJuego {
 					animarRetroceso(j, posActual, nuevaPos, onFinished);
 				} else {
 					actualizarUI();
-					if (onFinished != null) onFinished.run();
+					if (onFinished != null)
+						onFinished.run();
 				}
 			} else {
-				if (onFinished != null) onFinished.run();
+				if (onFinished != null)
+					onFinished.run();
 			}
 		}
 	}

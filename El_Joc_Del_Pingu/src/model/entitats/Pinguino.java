@@ -1,7 +1,6 @@
 package model.entitats;
 
 import model.items.Inventari;
-import model.items.Item;
 import model.items.BolaNeu;
 
 public class Pinguino extends Jugador {
@@ -51,9 +50,6 @@ public class Pinguino extends Jugador {
 
 		// Validamos: Rival no nulo y que las cantidades de bolas sean lógicas
 		if (pingu != null && bolesJ1 >= 0 && bolesJ2 >= 0) {
-			// Guardar posiciones anteriores para animaciones
-			int posJ1Abans = this.getPosicio();
-			int posJ2Abans = pingu.getPosicio();
 
 			int diferencia = bolesJ1 - bolesJ2;
 			System.out.println("¡Empieza la pelea! Los dos tiran bolas de nieve y...");
