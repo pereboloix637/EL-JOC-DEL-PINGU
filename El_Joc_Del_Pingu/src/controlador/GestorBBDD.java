@@ -648,4 +648,17 @@ public class GestorBBDD {
         }
         return ranking;
     }
+
+    /**
+     * Obtiene la posición en el ranking de un jugador específico llamando a PRC_POSICIO_RANKING.
+     */
+    public int getPosicionRankingPLSQL(String nom, Connection con) throws SQLException {
+        String sql = "{call PRC_POSICIO_RANKING(?, ?)}";
+        try (CallableStatement cs = con.prepareCall(sql)) {
+            cs.setString(1, nom);
+            cs.registerOutParameter(2, Types.NUMERIC);
+            cs.execute();
+            return cs.getInt(2);
+        }
+    }
 }
