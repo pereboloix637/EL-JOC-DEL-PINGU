@@ -7,7 +7,6 @@ import model.items.Item;
 import model.caselles.Casella;
 import model.caselles.Forat;
 import model.core.Partida;
-import java.util.Iterator;
 
 public class Foca extends Jugador {
 
