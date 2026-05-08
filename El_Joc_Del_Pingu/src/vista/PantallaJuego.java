@@ -950,6 +950,8 @@ public class PantallaJuego {
 		title.setStyle(
 				"-fx-text-fill: whitesmoke; -fx-font-family: 'Press Start 2P'; -fx-font-size: 70px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
 
+		new StackPane();
+
 		// Marco de la rueda proporcionado por el usuario
 		ImageView wheelVisuals = new ImageView(
 				new Image(getClass().getResourceAsStream("/assets/RULETA_ALEATORIA.png")));
@@ -1074,6 +1076,8 @@ public class PantallaJuego {
 		title.getStyleClass().add("big-text-mini");
 		title.setStyle(
 				"-fx-text-fill: whitesmoke; -fx-font-family: 'Press Start 2P'; -fx-font-size: 70px; -fx-effect: dropshadow(three-pass-box, #000000, 4, 0, 2, 2);");
+
+		new StackPane();
 
 		// Unificamos con la lógica de items
 		String wheelPath = "/assets/Ruleta_Malvada.png";
@@ -1269,19 +1273,19 @@ public class PantallaJuego {
 	}
 
 	@FXML
-	private void handleToggleMute(ActionEvent event) {
+	private void handleToggleMute() {
 		AudioManager.getInstance().toggleMusicMute();
 		updateMuteUI();
 	}
 
 	@FXML
-	private void handleToggleSfxMute(ActionEvent event) {
+	private void handleToggleSfxMute() {
 		AudioManager.getInstance().toggleSfxMute();
 		updateMuteUI();
 	}
 
 	@FXML
-	private void handleToggleFullScreen(ActionEvent event) {
+	private void handleToggleFullScreen() {
 		boolean current = controlador.Main.isFullScreenEnabled();
 		controlador.Main.setFullScreenEnabled(!current);
 		updateMuteUI();
@@ -1489,7 +1493,7 @@ public class PantallaJuego {
 
 	// Button actions
 	@FXML
-	private void handleDado(ActionEvent event) {
+	private void handleDado() {
 		if (gestorPartida.getPartida().getJugadorActual() instanceof Pinguino) {
 			executartorn();
 		}
@@ -2061,7 +2065,7 @@ public class PantallaJuego {
 							} else {
 								gt.executarCasella(gestorPartida.getPartida(), j, c);
 								if (j.getPosicio() != newPos && c instanceof model.caselles.Forat) {
-									animarEfectoForat(j, newPos, j.getPosicio(), finishTurnCallback);
+									animarEfectoForat(j, finishTurnCallback);
 								} else {
 									finishTurnCallback.run();
 								}
@@ -2288,7 +2292,7 @@ public class PantallaJuego {
 			if (j.getPosicio() != posActual) {
 				int nuevaPos = j.getPosicio();
 				if (c instanceof model.caselles.Forat) {
-					animarEfectoForat(j, posActual, nuevaPos, onFinished);
+					animarEfectoForat(j, onFinished);
 				} else if (nuevaPos < posActual) {
 					animarRetroceso(j, posActual, nuevaPos, onFinished);
 				} else {
@@ -2303,7 +2307,7 @@ public class PantallaJuego {
 		}
 	}
 
-	private void animarEfectoForat(Jugador j, int posEntrada, int posSalida, Runnable onFinished) {
+	private void animarEfectoForat(Jugador j, Runnable onFinished) {
 		isMoving = true;
 		ImageView pieza = getPiezaParaJugador(j);
 		if (pieza == null) {

@@ -184,7 +184,13 @@
                                                 </VBox>
                                             </HBox>
 
-                                            <Button maxWidth="Infinity" onAction="#handleRefreshRanking" text="🔄 ACTUALIZAR DATOS" styleClass="secondary" />
+                                            <!-- ROW 4: Search Player Position -->
+                                            <HBox alignment="CENTER" spacing="10">
+                                                <TextField fx:id="searchPlayerField" promptText="Buscar jugador..." HBox.hgrow="ALWAYS" />
+                                                <Button onAction="#handleSearchPlayer" styleClass="secondary" text="🔍 BUSCAR POSICIÓN" />
+                                            </HBox>
+
+                                            <Button maxWidth="Infinity" onAction="#handleRefreshRanking" styleClass="secondary" text="🔄 ACTUALIZAR DATOS" />
                                         </VBox>
                                     </content>
                                 </javafx.scene.control.Tab>

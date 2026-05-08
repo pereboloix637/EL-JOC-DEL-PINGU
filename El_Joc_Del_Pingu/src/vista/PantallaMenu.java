@@ -33,6 +33,7 @@ import javafx.scene.Node;
 import java.util.Optional;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import model.core.Partida;
 import model.entitats.Jugador;
@@ -54,6 +55,8 @@ public class PantallaMenu {
 
     @FXML
     private TextField userField;
+    @FXML
+    private TextField searchPlayerField;
     @FXML
     private PasswordField passField;
 
@@ -618,6 +621,39 @@ public class PantallaMenu {
         try (Connection con = GestorBBDD.conectarBaseDatos()) {
             if (con != null) {
                 cargarDatosRanking(con);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleSearchPlayer() {
+        String nombre = searchPlayerField.getText().trim();
+        if (nombre.isEmpty()) {
+            Alert alert = new Alert(AlertType.WARNING, "Introduce un nombre para buscar.", ButtonType.OK);
+            estilar(alert);
+            alert.showAndWait();
+            return;
+        }
+
+        try (Connection con = GestorBBDD.conectarBaseDatos()) {
+            if (con != null) {
+                try {
+                    int posicion = dbManager.getPosicionRankingPLSQL(nombre, con);
+                    Alert alert = new Alert(AlertType.INFORMATION, 
+                        "Jugador: " + nombre + "\nPosición en el ranking: " + posicion, 
+                        ButtonType.OK);
+                    estilar(alert);
+                    alert.setTitle("Resultado de búsqueda");
+                    alert.setHeaderText("Posición en el Ranking");
+                    alert.showAndWait();
+                } catch (SQLException e) {
+                    // Captura errores como "Jugador no existe" o "Sin partidas" definidos en la procedure
+                    Alert alert = new Alert(AlertType.ERROR, e.getMessage(), ButtonType.OK);
+                    estilar(alert);
+                    alert.showAndWait();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
