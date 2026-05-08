@@ -35,7 +35,6 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
 import model.core.Partida;
 import model.entitats.Jugador;
 import model.entitats.Pinguino;

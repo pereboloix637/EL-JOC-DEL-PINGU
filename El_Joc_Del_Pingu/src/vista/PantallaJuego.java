@@ -34,14 +34,19 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputDialog;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+
 import java.util.Random;
+
 import java.sql.Connection;
 import javafx.util.Duration;
+
 import javafx.scene.shape.Rectangle;
+
 import javafx.scene.layout.Pane;
 import javafx.animation.RotateTransition;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
+
 import javafx.scene.paint.Color;
 
 import model.caselles.Casella;
@@ -1213,7 +1218,7 @@ public class PantallaJuego {
 		rainLayer.setMouseTransparent(true);
 		rainLayer.prefWidthProperty().bind(parent.widthProperty());
 		rainLayer.prefHeightProperty().bind(parent.heightProperty());
-		
+
 		if (index >= 0 && index < parent.getChildren().size()) {
 			parent.getChildren().add(index, rainLayer);
 		} else {
@@ -1225,7 +1230,7 @@ public class PantallaJuego {
 			Image img = new Image(getClass().getResourceAsStream("/assets/" + itemImage));
 
 			// Cubrir toda la pantalla con más cantidad
-			int totalItems = 50; 
+			int totalItems = 50;
 			for (int i = 0; i < totalItems; i++) {
 				ImageView iv = new ImageView(img);
 				iv.setFitWidth(60);
@@ -1234,12 +1239,12 @@ public class PantallaJuego {
 
 				// Repartir por todo el ancho
 				double startX = rnd.nextDouble() * parent.getWidth();
-				
+
 				iv.setLayoutX(startX);
-				iv.setLayoutY(-150 - rnd.nextDouble() * 500); 
+				iv.setLayoutY(-150 - rnd.nextDouble() * 500);
 				rainLayer.getChildren().add(iv);
 
-				double drift = (rnd.nextDouble() * 200 - 100); 
+				double drift = (rnd.nextDouble() * 200 - 100);
 				double duration = 3.0 + rnd.nextDouble() * 2.5;
 
 				TranslateTransition tt = new TranslateTransition(Duration.seconds(duration), iv);
@@ -1428,23 +1433,22 @@ public class PantallaJuego {
 
 	@FXML
 	private void handleToggleAutoPlay() {
-		// [BUGFIX] Solo permitir cambiar el Auto-Play si no hay una animación en curso, 
+		// [BUGFIX] Solo permitir cambiar el Auto-Play si no hay una animación en curso,
 		// o si es el turno de la Foca (IA).
-		if (isMoving && !(gestorPartida.getPartida().getJugadorActual() instanceof model.entitats.Foca)) {
-			registrarEvento("Espera a que el personaje termine de moverse para cambiar el Auto-Play.", "log-warning");
-			return;
-		}
-
-		autoPlayActivo = !autoPlayActivo;
-		updateAutoPlayUI();
-		if (autoPlayActivo) {
-			registrarEvento("Auto-Play ACTIVADO. El pingüino jugará solo.", "log-info");
-			// Si ya es el turno de un Pinguino, disparar inmediatamente
-			if (gestorPartida.getPartida().getJugadorActual() instanceof Pinguino) {
-				checkTurnoCPU();
+		if (!isMoving || (gestorPartida.getPartida().getJugadorActual() instanceof model.entitats.Foca)) {
+			autoPlayActivo = !autoPlayActivo;
+			updateAutoPlayUI();
+			if (autoPlayActivo) {
+				registrarEvento("Auto-Play ACTIVADO. El pingüino jugará solo.", "log-info");
+				// Si ya es el turno de un Pinguino, disparar inmediatamente
+				if (gestorPartida.getPartida().getJugadorActual() instanceof Pinguino) {
+					checkTurnoCPU();
+				}
+			} else {
+				registrarEvento("Auto-Play DESACTIVADO.", "log-info");
 			}
 		} else {
-			registrarEvento("Auto-Play DESACTIVADO.", "log-info");
+			registrarEvento("Espera a que el personaje termine de moverse para cambiar el Auto-Play.", "log-warning");
 		}
 	}
 
@@ -1709,10 +1713,9 @@ public class PantallaJuego {
 
 				// --- REVELACIÓN DEL NÚMERO ---
 				Label lblResultado = new Label(String.valueOf(resultado));
-				lblResultado.setStyle("-fx-font-size: 150px; " +
-						"-fx-font-family: 'Press Start 2P'; " +
-						"-fx-text-fill: " + colorHex + "; " +
-						"-fx-effect: dropshadow(three-pass-box, black, 10, 0, 0, 0);");
+				lblResultado
+						.setStyle("-fx-font-size: 150px; " + "-fx-font-family: 'Press Start 2P'; " + "-fx-text-fill: "
+								+ colorHex + "; " + "-fx-effect: dropshadow(three-pass-box, black, 10, 0, 0, 0);");
 				boardRoot.getChildren().add(lblResultado);
 				StackPane.setAlignment(lblResultado, javafx.geometry.Pos.CENTER);
 
@@ -1950,17 +1953,20 @@ public class PantallaJuego {
 												// muestra
 												Runnable continueAfterBattle = () -> {
 													if (pActual.getPosicio() != posJ1Abans) {
-														animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(), () -> {
-															procesarEfectoCasella(pActual, () -> {
-																if (pRival.getPosicio() != posJ2Abans) {
-																	animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), () -> {
-																		procesarEfectoCasella(pRival, finishTurnCallback);
+														animarRetroceso(pActual, posJ1Abans, pActual.getPosicio(),
+																() -> {
+																	procesarEfectoCasella(pActual, () -> {
+																		if (pRival.getPosicio() != posJ2Abans) {
+																			animarRetroceso(pRival, posJ2Abans,
+																					pRival.getPosicio(), () -> {
+																						procesarEfectoCasella(pRival,
+																								finishTurnCallback);
+																					});
+																		} else {
+																			finishTurnCallback.run();
+																		}
 																	});
-																} else {
-																	finishTurnCallback.run();
-																}
-															});
-														});
+																});
 													} else if (pRival.getPosicio() != posJ2Abans) {
 														animarRetroceso(pRival, posJ2Abans, pRival.getPosicio(), () -> {
 															procesarEfectoCasella(pRival, finishTurnCallback);
@@ -2291,10 +2297,12 @@ public class PantallaJuego {
 					animarRetroceso(j, posActual, nuevaPos, onFinished);
 				} else {
 					actualizarUI();
-					if (onFinished != null) onFinished.run();
+					if (onFinished != null)
+						onFinished.run();
 				}
 			} else {
-				if (onFinished != null) onFinished.run();
+				if (onFinished != null)
+					onFinished.run();
 			}
 		}
 	}
